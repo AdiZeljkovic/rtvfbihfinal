@@ -1,26 +1,142 @@
 @import "tailwindcss";
 
+/*
+  Paleta izvedena iz brend animacije (web_video animacija FTV_2.mp4):
+  - nebo / pozadina videa  #87C6DD
+  - akcentna plava (linija)  #2B8DDE
+  - rub logotipa             #5884B2
+  - lice logotipa            #BADBE4
+*/
 :root {
+  --ftv-sky: #87c6dd;
+  --ftv-sky-soft: #eaf5fa;
+  --ftv-sky-mist: #f5fafd;
+  --ftv-blue: #2b8dde;
+  --ftv-blue-deep: #1b5fa0;
+  --ftv-navy: #0b2540;
+  --ftv-steel: #5884b2;
+  --ftv-ink: #14253a;
+  --ftv-muted: #5b6b7c;
+  --ftv-line: #d7e6ef;
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: var(--ftv-ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-sky: var(--ftv-sky);
+  --color-sky-soft: var(--ftv-sky-soft);
+  --color-sky-mist: var(--ftv-sky-mist);
+  --color-brand: var(--ftv-blue);
+  --color-brand-deep: var(--ftv-blue-deep);
+  --color-navy: var(--ftv-navy);
+  --color-steel: var(--ftv-steel);
+  --color-ink: var(--ftv-ink);
+  --color-muted: var(--ftv-muted);
+  --color-line: var(--ftv-line);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-montserrat), var(--font-inter), system-ui, sans-serif;
+  --shadow-card: 0 1px 2px rgb(11 37 64 / 0.04), 0 8px 24px -12px rgb(11 37 64 / 0.18);
+  --shadow-card-hover: 0 2px 4px rgb(11 37 64 / 0.05), 0 18px 40px -16px rgb(43 141 222 / 0.35);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  overflow-x: clip;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--ftv-blue);
+  color: #fff;
+}
+
+.container-x {
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+@media (min-width: 640px) {
+  .container-x { padding-inline: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .container-x { padding-inline: 2rem; }
+}
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ftv-blue);
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--ftv-line);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+}
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  border-color: color-mix(in srgb, var(--ftv-blue) 35%, var(--ftv-line));
+  transform: translateY(-2px);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  border-radius: 999px;
+  padding: .75rem 1.35rem;
+  font-family: var(--font-display);
+  font-size: .9rem;
+  font-weight: 600;
+  transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--ftv-blue); color: #fff; }
+.btn-primary:hover { background: var(--ftv-blue-deep); }
+.btn-ghost { background: transparent; color: var(--ftv-navy); border: 1px solid var(--ftv-line); }
+.btn-ghost:hover { border-color: var(--ftv-blue); color: var(--ftv-blue); }
+.btn-light { background: #fff; color: var(--ftv-navy); }
+.btn-light:hover { background: var(--ftv-sky-soft); }
+
+.prose-ftv p { margin-block: .75rem; line-height: 1.75; color: var(--ftv-ink); }
+.prose-ftv h2 { margin-top: 2rem; margin-bottom: .5rem; font-size: 1.35rem; font-weight: 600; color: var(--ftv-navy); }
+.prose-ftv h3 { margin-top: 1.5rem; margin-bottom: .25rem; font-size: 1.1rem; font-weight: 600; color: var(--ftv-navy); }
+.prose-ftv ul { list-style: disc; padding-left: 1.4rem; margin-block: .5rem; line-height: 1.7; }
+.prose-ftv a { color: var(--ftv-blue); text-decoration: underline; text-underline-offset: 3px; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fade-up .7s ease both; }
+.fade-up-1 { animation-delay: .1s; }
+.fade-up-2 { animation-delay: .2s; }
+.fade-up-3 { animation-delay: .3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fade-up { animation: none; }
+  .card:hover { transform: none; }
 }
