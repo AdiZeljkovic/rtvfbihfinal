@@ -12,7 +12,13 @@ type Props = {
 /** Zaglavlje podstranice: nebesko-plavi gradijent u duhu brend animacije */
 export default function PageHero({ eyebrow, title, lead, crumbs }: Props) {
   return (
-    <header className="relative overflow-hidden bg-gradient-to-br from-sky-soft via-white to-sky-soft">
+    <header className="relative overflow-hidden bg-sky-soft">
+      {/* Kadar iz brend animacije kao suptilna pozadina */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[url(/video/ftv-intro-poster.jpg)] bg-cover bg-[70%_center] opacity-40"
+      />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/30" />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-sky/40 blur-3xl"

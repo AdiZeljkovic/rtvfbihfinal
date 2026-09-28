@@ -29,7 +29,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -42,50 +42,26 @@ export default function Header() {
     };
   }, [open]);
 
-  return (
-    <header className="sticky top-0 z-50">
-      {/* Gornja traka */}
-      <div className="hidden bg-navy text-white/85 md:block">
-        <div className="container-x flex h-9 items-center justify-between text-xs">
-          <p className="font-medium tracking-wide">{site.tagline}</p>
-          <nav aria-label="Servisi" className="flex items-center gap-5">
-            <a href={site.external.federalna} target="_blank" rel="noopener" className="hover:text-white">
-              federalna.ba
-            </a>
-            <a href={site.external.teletext} target="_blank" rel="noopener" className="hover:text-white">
-              Teletext
-            </a>
-            <a href={site.external.bhrt} target="_blank" rel="noopener" className="hover:text-white">
-              BHRT
-            </a>
-            <a href={site.external.rtrs} target="_blank" rel="noopener" className="hover:text-white">
-              RTRS
-            </a>
-            <a
-              href={site.external.radioLive}
-              target="_blank"
-              rel="noopener"
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 font-semibold text-white hover:bg-brand"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-              </span>
-              Radio uživo
-            </a>
-          </nav>
-        </div>
-      </div>
+  // Na početnoj je header proziran preko video heroa dok se ne skrola
+  const solid = pathname !== "/" || scrolled || open;
 
+  const navBase = "whitespace-nowrap rounded-full px-3 py-2 font-display text-[0.9rem] font-semibold transition-colors";
+  const navIdle = solid ? "text-navy hover:bg-sky-mist hover:text-brand" : "text-white/90 hover:bg-white/10 hover:text-white";
+  const navActive = solid ? "bg-sky-soft text-brand-deep" : "bg-white/15 text-white";
+
+  return (
+    <header className="sticky top-0 z-50 transition-colors duration-300">
       {/* Glavna navigacija */}
       <div
-        className={`border-b border-line bg-white/90 backdrop-blur-md transition-shadow ${
-          scrolled ? "shadow-[0_6px_24px_-12px_rgba(11,37,64,0.25)]" : ""
-        }`}
+        className={`transition-[background-color,box-shadow,border-color] duration-300 ${
+          solid
+            ? "border-b border-line bg-white/90 backdrop-blur-md"
+            : "border-b border-white/10 bg-transparent"
+        } ${scrolled ? "shadow-[0_6px_24px_-12px_rgba(11,37,64,0.25)]" : ""}`}
       >
         <div className="container-x flex h-[4.5rem] items-center justify-between gap-6">
           <Link href="/" aria-label="Početna stranica" className="shrink-0">
-            <Logo subtitleClassName="hidden xl:block" />
+            <Logo light={!solid} subtitleClassName="hidden xl:block" />
           </Link>
 
           <nav aria-label="Glavna navigacija" className="hidden lg:block">
@@ -95,12 +71,7 @@ export default function Header() {
                 if (!item.children) {
                   return (
                     <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={`whitespace-nowrap rounded-full px-3 py-2 font-display text-[0.9rem] font-semibold transition-colors ${
-                          active ? "bg-sky-soft text-brand-deep" : "text-navy hover:bg-sky-mist hover:text-brand"
-                        }`}
-                      >
+                      <Link href={item.href} className={`${navBase} ${active ? navActive : navIdle}`}>
                         {item.label}
                       </Link>
                     </li>
@@ -110,9 +81,7 @@ export default function Header() {
                   <li key={item.href} className="group relative">
                     <Link
                       href={item.href}
-                      className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 font-display text-[0.9rem] font-semibold transition-colors ${
-                        active ? "bg-sky-soft text-brand-deep" : "text-navy hover:bg-sky-mist hover:text-brand"
-                      }`}
+                      className={`inline-flex items-center gap-1 ${navBase} ${active ? navActive : navIdle}`}
                       aria-haspopup="true"
                     >
                       {item.label}
@@ -122,13 +91,8 @@ export default function Header() {
                       <ul className="w-72 rounded-2xl border border-line bg-white p-2 shadow-[0_18px_40px_-16px_rgba(11,37,64,0.35)]">
                         {item.children.map((c) => (
                           <li key={c.href}>
-                            <Link
-                              href={c.href}
-                              className="block rounded-xl px-3 py-2.5 hover:bg-sky-mist"
-                            >
-                              <span className="block font-display text-sm font-semibold text-navy">
-                                {c.label}
-                              </span>
+                            <Link href={c.href} className="block rounded-xl px-3 py-2.5 hover:bg-sky-mist">
+                              <span className="block font-display text-sm font-semibold text-navy">{c.label}</span>
                               {c.description && (
                                 <span className="mt-0.5 block text-xs text-muted">{c.description}</span>
                               )}
@@ -148,7 +112,7 @@ export default function Header() {
               href={site.external.federalna}
               target="_blank"
               rel="noopener"
-              className="btn btn-primary whitespace-nowrap !py-2.5"
+              className={`btn whitespace-nowrap !py-2.5 ${solid ? "btn-primary" : "btn-light"}`}
             >
               Vijesti na federalna.ba
               <ExternalLink className="h-4 w-4" />
@@ -158,7 +122,9 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-navy lg:hidden"
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-full border lg:hidden ${
+              solid ? "border-line text-navy" : "border-white/30 text-white"
+            }`}
             aria-expanded={open}
             aria-controls="mobilni-meni"
             aria-label={open ? "Zatvori meni" : "Otvori meni"}
@@ -181,10 +147,7 @@ export default function Header() {
             {mainNav.map((item) => (
               <li key={item.href}>
                 {!item.children ? (
-                  <Link
-                    href={item.href}
-                    className="block py-4 font-display text-lg font-semibold text-navy"
-                  >
+                  <Link href={item.href} className="block py-4 font-display text-lg font-semibold text-navy">
                     {item.label}
                   </Link>
                 ) : (
@@ -196,9 +159,7 @@ export default function Header() {
                       onClick={() => setOpenSub((v) => (v === item.href ? null : item.href))}
                     >
                       {item.label}
-                      <ChevronDown
-                        className={`h-5 w-5 transition-transform ${openSub === item.href ? "rotate-180" : ""}`}
-                      />
+                      <ChevronDown className={`h-5 w-5 transition-transform ${openSub === item.href ? "rotate-180" : ""}`} />
                     </button>
                     {openSub === item.href && (
                       <ul className="mb-3 space-y-1 rounded-xl bg-sky-mist p-2">
@@ -206,9 +167,7 @@ export default function Header() {
                           <li key={c.href}>
                             <Link href={c.href} className="block rounded-lg px-3 py-2.5 text-navy">
                               <span className="block font-semibold">{c.label}</span>
-                              {c.description && (
-                                <span className="block text-xs text-muted">{c.description}</span>
-                              )}
+                              {c.description && <span className="block text-xs text-muted">{c.description}</span>}
                             </Link>
                           </li>
                         ))}

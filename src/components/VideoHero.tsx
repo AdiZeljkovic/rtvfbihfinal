@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 
 type Props = {
   className?: string;
-  /** Zaobljeni okvir s sjenom (za split layout) ili puni bleed */
+  /** Klase za sam <video> element (npr. object-position, scale) */
+  videoClassName?: string;
+  /** Zaobljeni okvir s sjenom ili puni bleed */
   framed?: boolean;
 };
 
@@ -14,7 +16,7 @@ type Props = {
  * - poštuje prefers-reduced-motion (tada prikazuje statični poster)
  * - poster = prvi kadar, pa nema "skoka" pri učitavanju
  */
-export default function VideoHero({ className = "", framed = true }: Props) {
+export default function VideoHero({ className = "", videoClassName = "", framed = true }: Props) {
   const ref = useRef<HTMLVideoElement>(null);
   const [reduced, setReduced] = useState(false);
 
@@ -41,12 +43,12 @@ export default function VideoHero({ className = "", framed = true }: Props) {
   return (
     <div
       className={`relative min-w-0 overflow-hidden ${
-        framed ? "rounded-2xl shadow-[0_30px_60px_-30px_rgba(11,37,64,0.45)] ring-1 ring-white/60" : ""
+        framed ? "rounded-3xl shadow-[0_30px_60px_-30px_rgba(11,37,64,0.45)] ring-1 ring-white/60" : ""
       } ${className}`}
     >
       <video
         ref={ref}
-        className="block h-full w-full max-w-full object-cover"
+        className={`block h-full w-full max-w-full object-cover ${videoClassName}`}
         autoPlay
         muted
         loop
