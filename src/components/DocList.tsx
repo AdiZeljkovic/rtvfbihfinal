@@ -1,38 +1,42 @@
-import { Download, ExternalLink, FileText } from "lucide-react";
+import { ArrowUpRight, Download } from "lucide-react";
+import FileTypeIcon from "./FileTypeIcon";
 
 export type DocItem = { label: string; href: string; format?: string };
 
 function formatLabel(href: string, format?: string) {
-  if (format) return format === "web" ? "WEB" : format.toUpperCase();
-  const m = href.toLowerCase().match(/\.(pdf|docx?|xlsx?|xps)(\?|$)/);
+  if (format) return format.toUpperCase();
+  const m = decodeURI(href).toLowerCase().match(/\.(pdf|docx?|xlsx?|xps)(\?|$)/);
   return m ? m[1].toUpperCase() : "WEB";
 }
 
-export default function DocList({ items, compact = false }: { items: DocItem[]; compact?: boolean }) {
+/** Lista dokumenata s pravim ikonama formata (PDF, DOC…), u stilu naslovnice */
+export default function DocList({ items }: { items: DocItem[]; compact?: boolean }) {
   return (
-    <ul className={`divide-y divide-line rounded-2xl border border-line bg-white ${compact ? "" : "shadow-[var(--shadow-card)]"}`}>
+    <ul className="overflow-hidden rounded-3xl border border-line bg-white shadow-[var(--shadow-card)]">
       {items.map((d) => {
         const fmt = formatLabel(d.href, d.format);
         const isWeb = fmt === "WEB";
         return (
-          <li key={d.href + d.label}>
+          <li key={d.href + d.label} className="border-b border-line last:border-b-0">
             <a
               href={d.href}
               target="_blank"
               rel="noopener"
-              className="group flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-sky-mist sm:px-5"
+              className="group relative flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-sky-mist sm:px-6"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-soft text-brand">
-                {isWeb ? <ExternalLink className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
+              <span
+                aria-hidden="true"
+                className="absolute inset-y-2.5 left-0 w-[3px] origin-center scale-y-0 rounded-r bg-brand transition-transform duration-300 group-hover:scale-y-100"
+              />
+              <FileTypeIcon
+                format={fmt}
+                className="h-10 w-9 shrink-0 drop-shadow-[0_3px_6px_rgba(11,37,64,0.12)] transition-transform duration-300 group-hover:-translate-y-0.5"
+              />
+              <span className="min-w-0 flex-1 text-sm font-medium leading-snug text-navy group-hover:text-brand-deep sm:text-[0.95rem]">
+                {d.label}
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium leading-snug text-navy group-hover:text-brand sm:text-[0.95rem]">
-                  {d.label}
-                </span>
-              </span>
-              <span className="hidden shrink-0 items-center gap-2 text-xs font-semibold tracking-wide text-muted sm:flex">
-                {fmt}
-                {!isWeb && <Download className="h-4 w-4 opacity-60 group-hover:opacity-100" />}
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line text-navy transition-colors duration-300 group-hover:border-brand group-hover:bg-brand group-hover:text-white">
+                {isWeb ? <ArrowUpRight className="h-4 w-4" /> : <Download className="h-4 w-4" />}
               </span>
             </a>
           </li>

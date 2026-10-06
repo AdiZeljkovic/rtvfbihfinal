@@ -38,12 +38,29 @@ export const historijat = {
   ],
 };
 
+/**
+ * Vremenska linija. Uz godinu i opis svaki događaj nosi:
+ *  - `kratko`  – natpis na memorijskoj tipki (skala na početnoj),
+ *  - `datum`   – tačan datum/čas kad je poznat (iz teksta historijata),
+ *  - `opseg`   – „talas“ na kojem se dogodilo, kao natpis na displeju,
+ *  - `polozaj` – godina sa decimalom (mjesec), da igla stane na pravo mjesto.
+ */
 export const timeline = [
-  { year: "1971", title: "Sarajevo 202", text: "Počinje program Radija Sarajevo 202, 25. lokalne radiostanice u BiH." },
-  { year: "1984", title: "Teletekst", text: "Teletekst pokrenut uz Zimske olimpijske igre u Sarajevu – jedan od najstarijih u regiji." },
-  { year: "2001", title: "Radio Federacije BiH", text: "7. maja u 06.00 počinje emitovanje Radija Federacije Bosne i Hercegovine." },
-  { year: "2001", title: "Federalna televizija", text: "27. oktobra emitovan prvi TV dnevnik – zvanični početak rada FTV-a." },
-  { year: "2003", title: "Jedan TV kanal", text: "Program FTV1 i FTV2 objedinjen u jedan kanal." },
-  { year: "2006", title: "rtvfbih.ba", text: "Prva web stranica javnog servisa." },
-  { year: "2011", title: "federalna.ba", text: "Pokrenut informativni portal federalna.ba." },
+  { year: "1971", kratko: "202", datum: "1. 7. 1971. · 14.30", opseg: "SV · 202 m", polozaj: 1971.5, title: "Sarajevo 202", text: "Počinje program Radija Sarajevo 202, 25. lokalne radiostanice u BiH." },
+  { year: "1984", kratko: "TTX", datum: "ZOI Sarajevo 1984.", opseg: "Teletekst", polozaj: 1984.1, title: "Teletekst", text: "Teletekst pokrenut uz Zimske olimpijske igre u Sarajevu – jedan od najstarijih u regiji." },
+  { year: "2001", kratko: "Radio", datum: "7. 5. 2001. · 06.00", opseg: "FM · 9 predajnika", polozaj: 2001.35, title: "Radio Federacije BiH", text: "7. maja u 06.00 počinje emitovanje Radija Federacije Bosne i Hercegovine." },
+  { year: "2001", kratko: "FTV", datum: "27. 10. 2001. · 19.30", opseg: "TV · prvi dnevnik", polozaj: 2001.82, title: "Federalna televizija", text: "27. oktobra emitovan prvi TV dnevnik – zvanični početak rada FTV-a." },
+  { year: "2003", kratko: "1 kanal", datum: "april 2003.", opseg: "FTV1 + FTV2", polozaj: 2003.27, title: "Jedan TV kanal", text: "Program FTV1 i FTV2 objedinjen u jedan kanal." },
+  { year: "2006", kratko: "Web", datum: "2006.", opseg: "www", polozaj: 2006.5, title: "rtvfbih.ba", text: "Prva web stranica javnog servisa." },
+  { year: "2011", kratko: "Portal", datum: "oktobar 2011.", opseg: "federalna.ba", polozaj: 2011.8, title: "federalna.ba", text: "Pokrenut informativni portal federalna.ba." },
+];
+
+/** Filmovi iz produkcije/koprodukcije Televizije Sarajevo (za stranicu O nama) */
+export const filmovi = [
+  { naziv: "Žena s krajolikom", autor: "Ivica Matić" },
+  { naziv: "Sjećaš li se Doli Bel", autor: "Emir Kusturica" },
+  { naziv: "Otac na službenom putu", autor: "Emir Kusturica" },
+  { naziv: "Ovo malo duše", autor: "Ademir Kenović" },
+  { naziv: "Aleksa Šantić", autor: "Aleksandar Jevđević" },
+  { naziv: "Stanica običnih vozova", autor: "Nenad Dizdarević" },
 ];

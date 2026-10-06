@@ -10,6 +10,8 @@ type SectionProps = {
   className?: string;
   /** Poravnanje naslova */
   align?: "left" | "center";
+  /** Dugmad/linkovi desno od naslova (na širim ekranima) */
+  actions?: ReactNode;
 };
 
 export default function Section({
@@ -21,6 +23,7 @@ export default function Section({
   tone = "white",
   className = "",
   align = "left",
+  actions,
 }: SectionProps) {
   const bg =
     tone === "mist"
@@ -36,8 +39,9 @@ export default function Section({
     <section id={id} className={`${bg} py-16 sm:py-20 ${className}`}>
       <div className="container-x">
         {(eyebrow || title || lead) && (
+          <div className={actions ? "mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between" : ""}>
           <div
-            className={`mb-10 max-w-2xl ${
+            className={`max-w-2xl ${actions ? "" : "mb-10"} ${
               align === "center" ? "mx-auto text-center" : ""
             }`}
           >
@@ -54,6 +58,8 @@ export default function Section({
                 {lead}
               </p>
             )}
+          </div>
+          {actions && <div className="flex shrink-0 flex-wrap gap-3">{actions}</div>}
           </div>
         )}
         {children}

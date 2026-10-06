@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
-import { Mail, Phone } from "lucide-react";
+import { ChevronDown, Mail, Phone } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
+import DvbRegije from "@/components/DvbRegije";
+import FmLista from "@/components/FmLista";
+import { PillButton, UnderlineLink } from "@/components/Tiles";
+import { TowerIcon, TvIcon, TunerIcon } from "@/components/StatIcons";
 import {
   dvbt2Regije,
   dvbt2Tekst,
@@ -18,22 +22,40 @@ export const metadata: Metadata = {
     "DVB-T2 digitalne regije, mreža predajnika i repetitora Federalne televizije te FM frekvencije Radija Federacije BiH.",
 };
 
+const koraci = [
+  {
+    icon: TvIcon,
+    naslov: "Prijemnik DVB-T2",
+    tekst: "TV prijemnik ili set-top box koji podržava DVB-T2 i dekodiranje H.264/MPEG-4.",
+  },
+  {
+    icon: TowerIcon,
+    naslov: "Usmjerena antena",
+    tekst: "Prijemna antena usmjerena prema najbližoj emisionoj lokaciji, kao i kod analognog prijema.",
+  },
+  {
+    icon: TunerIcon,
+    naslov: "Pretraga kanala",
+    tekst: "Pokrenite automatsku pretragu. Kanal emitovanja je isti za cijelu digitalnu regiju.",
+  },
+];
+
 function TvTabela({ rows, caption }: { rows: TvPredajnik[]; caption: string }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-line bg-white">
       <table className="w-full text-sm">
         <caption className="sr-only">{caption}</caption>
-        <thead className="bg-sky-mist text-left text-xs uppercase tracking-wider text-muted">
+        <thead className="sticky top-0 bg-navy text-left text-[0.68rem] uppercase tracking-wider text-white/70">
           <tr>
-            <th className="px-4 py-3">Mjesto</th>
-            <th className="px-4 py-3">Lokacija</th>
-            <th className="px-4 py-3 text-right">f (MHz)</th>
-            <th className="px-4 py-3 text-right">Kanal</th>
+            <th className="px-4 py-3 font-semibold">Mjesto</th>
+            <th className="px-4 py-3 font-semibold">Lokacija</th>
+            <th className="px-4 py-3 text-right font-semibold">f (MHz)</th>
+            <th className="px-4 py-3 text-right font-semibold">Kanal</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-line">
+        <tbody>
           {rows.map((r, i) => (
-            <tr key={i}>
+            <tr key={i} className="border-t border-line even:bg-sky-mist/60 hover:bg-sky-soft">
               <td className="px-4 py-2.5 font-medium text-navy">{r.mjesto}</td>
               <td className="px-4 py-2.5 text-muted">{r.lokacija}</td>
               <td className="px-4 py-2.5 text-right tabular-nums">{r.mhz}</td>
@@ -51,93 +73,113 @@ export default function FrekvencijePage() {
     <>
       <PageHero
         eyebrow="Prijem signala"
-        title="Frekvencije i prijem"
-        lead="Digitalna zemaljska televizija DVB-T2/MPEG-4, mreža predajnika i repetitora Federalne televizije te FM frekvencije Radija Federacije BiH."
+        title="Frekvencije i"
+        highlight="prijem"
+        lead="Digitalna zemaljska televizija DVB-T2/MPEG-4, FM frekvencije Radija Federacije BiH i arhiva analogne mreže predajnika Federalne televizije."
         crumbs={[{ label: "Frekvencije" }]}
+        actions={
+          <>
+            <PillButton href="#dvb-t2">DVB-T2 regije</PillButton>
+            <UnderlineLink href="#radio">FM frekvencije</UnderlineLink>
+          </>
+        }
+        stats={[
+          { value: dvbt2Regije.length, label: "DVB-T2 regija" },
+          { value: radioFM.length, label: "FM frekvencija" },
+          { value: tvPredajnici.length, label: "TV predajnika" },
+          { value: tvRepetitori.length, label: "TV repetitora" },
+        ]}
       />
 
       <Section
         id="dvb-t2"
         eyebrow="Televizija"
-        title="DVB-T2/MPEG-4 zemaljska digitalna televizija"
+        title="DVB-T2 zemaljska digitalna televizija"
+        lead="Multipleks A pokriva cijelu Bosnu i Hercegovinu u devet digitalnih regija. Svi programi emituju se u HD rezoluciji."
+        className="scroll-mt-16"
       >
-        <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
-          <div className="prose-ftv">
+        <ol className="grid gap-4 md:grid-cols-3">
+          {koraci.map((k, i) => {
+            const Icon = k.icon;
+            return (
+              <li key={k.naslov} className="relative overflow-hidden rounded-3xl bg-navy p-7 text-white shadow-[var(--shadow-card)]">
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-2 -top-6 font-display text-[7rem] font-bold leading-none text-white/[0.06]"
+                >
+                  {i + 1}
+                </span>
+                <Icon className="relative h-10 w-10 text-sky" />
+                <p className="relative mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-sky">Korak {i + 1}</p>
+                <h3 className="relative mt-1 font-display text-xl font-semibold">{k.naslov}</h3>
+                <p className="relative mt-2 text-sm leading-relaxed text-white/75">{k.tekst}</p>
+              </li>
+            );
+          })}
+        </ol>
+
+        <div className="mt-10">
+          <DvbRegije />
+        </div>
+
+        <div className="mt-10 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
+          <div className="space-y-4 text-[0.98rem] leading-relaxed text-ink">
             {dvbt2Tekst.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
-            <div className="mt-6 rounded-2xl border border-line bg-sky-mist p-5 text-sm">
-              <p className="font-semibold text-navy">Tehnička podrška za gledaoce Multipleksa A (BHRT)</p>
-              <p className="mt-2 flex items-center gap-2"><Phone className="h-4 w-4 text-brand" /> 033 464 064</p>
-              <a href="mailto:terminal@bhrt.ba" className="mt-1 flex items-center gap-2 text-brand hover:underline">
+          </div>
+          <aside className="h-fit rounded-3xl border border-line bg-sky-mist p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">Tehnička podrška</p>
+            <p className="mt-2 font-display text-lg font-semibold text-navy">Gledaoci Multipleksa A</p>
+            <p className="mt-1 text-sm text-muted">Pitanja o prijemu digitalnog signala rješava BHRT.</p>
+            <div className="mt-4 space-y-2 text-sm">
+              <a href="tel:+38733464064" className="flex items-center gap-2 text-ink hover:text-brand">
+                <Phone className="h-4 w-4 text-brand" /> 033 464 064
+              </a>
+              <a href="mailto:terminal@bhrt.ba" className="flex items-center gap-2 text-brand hover:underline">
                 <Mail className="h-4 w-4" /> terminal@bhrt.ba
               </a>
             </div>
-          </div>
-          <div className="overflow-hidden rounded-2xl border border-line bg-white">
-            <table className="w-full text-sm">
-              <caption className="sr-only">Digitalne regije Multipleksa A</caption>
-              <thead className="bg-sky-mist text-left text-xs uppercase tracking-wider text-muted">
-                <tr>
-                  <th className="px-4 py-3">Digitalna regija</th>
-                  <th className="px-4 py-3">Kanal</th>
-                  <th className="px-4 py-3">Područje</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {dvbt2Regije.map((r) => (
-                  <tr key={r.naziv} className="align-top">
-                    <td className="px-4 py-3 font-semibold text-navy">{r.naziv}</td>
-                    <td className="px-4 py-3 font-display font-bold text-brand">{r.kanal}</td>
-                    <td className="px-4 py-3 text-xs leading-relaxed text-muted">{r.podrucje}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          </aside>
         </div>
       </Section>
 
-      <Section
-        id="radio"
-        tone="mist"
-        eyebrow="Radio"
-        title="FM frekvencije Radija Federacije BiH"
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {radioFM.map((f) => (
-            <div key={f.lokacija} className="card p-5">
-              <div className="flex items-baseline justify-between gap-3">
-                <h3 className="font-display font-semibold text-navy">{f.lokacija}</h3>
-                <span className="font-display text-xl font-bold text-brand">
-                  {f.mhz} <span className="text-xs font-semibold text-muted">MHz</span>
-                </span>
-              </div>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{f.pokriva}</p>
-            </div>
-          ))}
-        </div>
+      <Section id="radio" tone="mist" eyebrow="Radio" title="FM frekvencije Radija Federacije BiH" className="scroll-mt-16">
+        <FmLista />
       </Section>
 
       <Section
         id="analogna-mreza"
         eyebrow="Arhiva"
-        title="Mreža predajnika i repetitora FTV-a"
-        lead="Historijski pregled analogne emisione mreže Federalne televizije na području Federacije BiH. Za aktuelni digitalni prijem pogledajte DVB-T2 regije."
+        title="Analogna mreža predajnika FTV-a"
+        lead="Historijski pregled analogne emisione mreže Federalne televizije na području Federacije BiH. Za aktuelni prijem koristite DVB-T2 regije."
       >
-        <div className="grid gap-8 lg:grid-cols-[1fr_2fr]">
-          <div>
-            <h3 className="mb-3 font-display font-semibold text-navy">Predajnici</h3>
-            <TvTabela rows={tvPredajnici} caption="Predajnici FTV" />
-            <p className="mt-4 text-sm text-muted">{tvNapomena}</p>
-          </div>
-          <div>
-            <h3 className="mb-3 font-display font-semibold text-navy">Repetitori</h3>
-            <div className="max-h-[36rem] overflow-y-auto rounded-2xl">
-              <TvTabela rows={tvRepetitori} caption="Repetitori FTV" />
+        <details className="group rounded-3xl border border-line bg-white shadow-[var(--shadow-card)]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 font-display font-semibold text-navy marker:content-none sm:px-8">
+            <span>
+              Prikaži tabele predajnika i repetitora
+              <span className="ml-2 text-sm font-normal text-muted">
+                ({tvPredajnici.length} + {tvRepetitori.length})
+              </span>
+            </span>
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line transition-transform group-open:rotate-180">
+              <ChevronDown className="h-4 w-4" />
+            </span>
+          </summary>
+          <div className="grid gap-8 border-t border-line p-6 sm:p-8 lg:grid-cols-[1fr_2fr]">
+            <div className="min-w-0">
+              <h3 className="mb-3 font-display font-semibold text-navy">Predajnici</h3>
+              <TvTabela rows={tvPredajnici} caption="Predajnici FTV" />
+              <p className="mt-4 text-sm text-muted">{tvNapomena}</p>
+            </div>
+            <div className="min-w-0">
+              <h3 className="mb-3 font-display font-semibold text-navy">Repetitori</h3>
+              <div className="max-h-[36rem] overflow-y-auto rounded-2xl">
+                <TvTabela rows={tvRepetitori} caption="Repetitori FTV" />
+              </div>
             </div>
           </div>
-        </div>
+        </details>
       </Section>
     </>
   );

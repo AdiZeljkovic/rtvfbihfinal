@@ -16,12 +16,19 @@ export type Emisija = {
   opis: string;
   /** Istaknuto na početnoj stranici */
   istaknuto?: boolean;
+  /** Kratki dan i vrijeme za prikaz u programskoj shemi na početnoj */
+  dan?: string;
+  vrijeme?: string;
+  /** Glavna emisija – prikazuje se kao velika kartica */
+  glavna?: boolean;
 };
 
 /** Najave i emisije iz programa Federalne televizije (izvor: rtvfbih.ba, sezona 2025/26) */
 export const emisije: Emisija[] = [
   {
     naziv: "Dobro jutro, Bosno i Hercegovino!",
+    dan: "Radnim danima",
+    vrijeme: "06:45",
     termin: "Radnim danima 06:45–09:00, vikendom 07:45–10:00",
     vrsta: "Informativni",
     istaknuto: true,
@@ -29,6 +36,9 @@ export const emisije: Emisija[] = [
   },
   {
     naziv: "Dnevnik 2",
+    dan: "Svakog dana",
+    vrijeme: "19:30",
+    glavna: true,
     termin: "Svakog dana u 19:30",
     vrsta: "Informativni",
     istaknuto: true,
@@ -36,6 +46,8 @@ export const emisije: Emisija[] = [
   },
   {
     naziv: "Nedjeljno popodne",
+    dan: "Nedjeljom",
+    vrijeme: "16:45",
     termin: "Nedjeljom u 16:45",
     vrsta: "Zabavni",
     istaknuto: true,
@@ -43,6 +55,8 @@ export const emisije: Emisija[] = [
   },
   {
     naziv: "Plenum",
+    dan: "Pon – čet",
+    vrijeme: "21:15",
     termin: "Ponedjeljak–četvrtak u 21:15",
     vrsta: "Informativni",
     istaknuto: true,
@@ -50,6 +64,8 @@ export const emisije: Emisija[] = [
   },
   {
     naziv: "Znzkvi",
+    dan: "Petkom, uživo",
+    vrijeme: "18:20",
     termin: "Petkom u 18:20, uživo",
     vrsta: "Zabavni",
     istaknuto: true,
@@ -57,6 +73,8 @@ export const emisije: Emisija[] = [
   },
   {
     naziv: "U žensko ime",
+    dan: "Nedjeljom",
+    vrijeme: "13:00",
     termin: "Nedjeljom u 13:00",
     vrsta: "Magazin",
     istaknuto: true,

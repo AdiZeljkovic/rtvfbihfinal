@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Headphones, Mail, Phone, Radio } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
+import FmLista from "@/components/FmLista";
+import ContactCard from "@/components/ContactCard";
+import { UnderlineLink } from "@/components/Tiles";
 import { radioFM } from "@/content/frekvencije";
 import { historijat } from "@/content/historijat";
 import { site } from "@/content/site";
@@ -15,8 +17,8 @@ export const metadata: Metadata = {
 
 const redakcije = [
   { naziv: "Redakcija informativnog programa", email: "radiof2@rtvfbih.ba" },
-  { naziv: "Redakcija zabavno-edukativnog programa", tel: "+387 (0)33 455 135", email: "ljiljana.simic@rtvfbih.ba" },
-  { naziv: "Redakcija dokumentarno-dramskog programa", tel: "+387 (0)33 455 152", email: "selmadc@rtvfbih.ba" },
+  { naziv: "Redakcija zabavno-edukativnog programa", osoba: "Ljiljana Simić", tel: "+387 (0)33 455 135", email: "ljiljana.simic@rtvfbih.ba" },
+  { naziv: "Redakcija dokumentarno-dramskog programa", osoba: "Selma Dizdar-Cerović", tel: "+387 (0)33 455 152", email: "selmadc@rtvfbih.ba" },
   { naziv: "Redakcija muzičkog programa", tel: "+387 (0)33 453 230", email: "muzicka.rf@rtvfbih.ba" },
 ];
 
@@ -25,58 +27,74 @@ export default function RadioPage() {
     <>
       <PageHero
         eyebrow="Radio"
-        title="Radio Federacije Bosne i Hercegovine"
-        lead="Od 7. maja 2001. godine u eteru. Brza i tačna informacija, priče o ljudima, kultura i muzika – 24 sata dnevno na 15 FM frekvencija i uživo na internetu."
+        title="Radio Federacije"
+        highlight="Bosne i Hercegovine"
+        lead="Od 7. maja 2001. godine u eteru. Brza i tačna informacija, priče o ljudima, kultura i muzika – na FM frekvencijama širom Federacije i uživo na internetu."
         crumbs={[{ label: "Radio" }]}
+        actions={
+          <>
+            <a
+              href={site.external.radioLive}
+              target="_blank"
+              rel="noopener"
+              className="group inline-flex items-center gap-3 rounded-full bg-white py-3 pl-5 pr-6 font-display text-[0.95rem] font-semibold text-navy shadow-[0_10px_30px_-12px_rgba(0,0,0,0.5)] transition-colors hover:bg-sky-soft"
+            >
+              <span aria-hidden="true" className="eq flex h-4 items-end gap-[3px] [&>span]:!bg-brand">
+                <span />
+                <span />
+                <span />
+                <span />
+              </span>
+              Slušajte uživo
+            </a>
+            <UnderlineLink href="#frekvencije">FM frekvencije</UnderlineLink>
+          </>
+        }
+        stats={[
+          { value: "2001.", label: "u eteru od 7. maja, 06.00" },
+          { value: radioFM.length, label: "FM frekvencija" },
+          { value: redakcije.length, label: "redakcije" },
+          { value: "1971.", label: "tradicija Radija 202" },
+        ]}
       />
 
-      {/* Uživo */}
-      <section className="bg-navy text-white">
-        <div className="container-x flex flex-col gap-6 py-10 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand">
-              <Radio className="h-7 w-7" />
-              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-red-500" />
-              </span>
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold">Slušajte program uživo</p>
-              <p className="text-sm text-white/70">Internet stream Radija Federacije BiH</p>
+      <Section>
+        <div className="grid gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-14">
+          <div>
+            <p className="eyebrow">O radiju</p>
+            <h2 className="mt-2 text-balance text-2xl font-bold text-navy sm:text-3xl md:text-[2.1rem]">
+              Medij kojem se može vjerovati
+            </h2>
+            <div className="mt-5 space-y-4 text-[0.98rem] leading-relaxed text-ink">
+              {historijat.radio.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
             </div>
           </div>
-          <a href={site.external.radioLive} target="_blank" rel="noopener" className="btn btn-light">
-            <Headphones className="h-4 w-4" /> Pokreni stream
-          </a>
-        </div>
-      </section>
 
-      <Section eyebrow="O radiju" title="Medij kojem se može vjerovati">
-        <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">
-          <div className="prose-ftv max-w-3xl">
-            {historijat.radio.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </div>
-          <aside>
-            <p className="eyebrow mb-3">Redakcije</p>
-            <ul className="space-y-3">
-              <li className="card p-4">
-                <p className="font-semibold text-navy">Odjel za radijski program</p>
-                <p className="text-xs text-muted">Jara Orozović, odgovorna urednica</p>
-                <p className="mt-1.5 flex items-center gap-1.5 text-sm"><Phone className="h-3.5 w-3.5 text-brand" /> +387 (0)33 455 102</p>
-                <a href="mailto:jara.orozovic@rtvfbih.ba" className="flex items-center gap-1.5 text-sm text-brand hover:underline"><Mail className="h-3.5 w-3.5" /> jara.orozovic@rtvfbih.ba</a>
-              </li>
+          <aside className="space-y-4">
+            <ContactCard
+              dark
+              ime="Jara Orozović"
+              uloga="Odgovorna urednica radijskog programa"
+              tel="+387 (0)33 455 102"
+              email="jara.orozovic@rtvfbih.ba"
+            />
+            <ul className="overflow-hidden rounded-3xl border border-line bg-white shadow-[var(--shadow-card)]">
               {redakcije.map((r) => (
-                <li key={r.naziv} className="card p-4">
-                  <p className="font-semibold text-navy">{r.naziv}</p>
-                  {r.tel && <p className="mt-1.5 flex items-center gap-1.5 text-sm"><Phone className="h-3.5 w-3.5 text-brand" /> {r.tel}</p>}
-                  {r.email && (
-                    <a href={`mailto:${r.email}`} className="flex items-center gap-1.5 text-sm text-brand hover:underline">
+                <li key={r.naziv} className="border-b border-line px-6 py-4 last:border-b-0">
+                  <p className="font-display font-semibold text-navy">{r.naziv}</p>
+                  {r.osoba && <p className="text-sm text-muted">{r.osoba}, urednica redakcije</p>}
+                  <div className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                    {r.tel && (
+                      <span className="inline-flex items-center gap-1.5 text-ink">
+                        <Phone className="h-3.5 w-3.5 text-brand" /> {r.tel}
+                      </span>
+                    )}
+                    <a href={`mailto:${r.email}`} className="inline-flex items-center gap-1.5 text-brand hover:underline">
                       <Mail className="h-3.5 w-3.5" /> {r.email}
                     </a>
-                  )}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -90,23 +108,14 @@ export default function RadioPage() {
         eyebrow="FM frekvencije"
         title="Gdje nas možete slušati"
         lead="Emisioni objekti s kojih se emitira FM program Radija Federacije BiH i područja koja pokrivaju."
+        className="scroll-mt-16"
+        actions={
+          <UnderlineLink href="/frekvencije" dark={false}>
+            Sve frekvencije
+          </UnderlineLink>
+        }
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {radioFM.map((f) => (
-            <div key={f.lokacija} className="card p-5">
-              <div className="flex items-baseline justify-between gap-3">
-                <h3 className="font-display font-semibold text-navy">{f.lokacija}</h3>
-                <span className="font-display text-xl font-bold text-brand">
-                  {f.mhz} <span className="text-xs font-semibold text-muted">MHz</span>
-                </span>
-              </div>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{f.pokriva}</p>
-            </div>
-          ))}
-        </div>
-        <Link href="/frekvencije" className="mt-8 inline-flex items-center gap-1.5 font-semibold text-brand hover:underline">
-          Sve frekvencije televizije i radija <ArrowRight className="h-4 w-4" />
-        </Link>
+        <FmLista />
       </Section>
     </>
   );
