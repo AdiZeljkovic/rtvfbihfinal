@@ -1,7 +1,6 @@
-import { site } from "./site";
+import { docUrl } from "@/lib/doc";
 
-const legacy = site.external.legacy;
-const doc = (path: string) => `${legacy}/doc/${path}`;
+const doc = (path: string) => docUrl(decodeURIComponent(path));
 
 export type Dokument = { label: string; href: string; format?: "pdf" | "doc" | "docx" | "xps" | "web" };
 export type DokumentGrupa = { naslov: string; opis?: string; stavke: Dokument[] };
@@ -10,23 +9,25 @@ export const opciAkti: DokumentGrupa[] = [
   {
     naslov: "Zakoni i statut",
     stavke: [
-      { label: "Zakon o Javnom radiotelevizijskom sistemu Bosne i Hercegovine", href: `${legacy}/loc/template.wbsp?wbf_id=25&section=info`, format: "web" },
-      { label: "Zakon o Javnom RTV servisu Federacije BiH", href: `${legacy}/loc/template.wbsp?wbf_id=206`, format: "web" },
+      { label: "Zakon o Javnom radiotelevizijskom sistemu Bosne i Hercegovine", href: "/dokumenti/zakon-o-javnom-rtv-sistemu", format: "web" },
+      { label: "Zakon o Javnom RTV servisu Federacije BiH", href: "/dokumenti/zakon-o-rtvfbih", format: "web" },
       { label: "Statut Radio-televizije Federacije Bosne i Hercegovine", href: doc("U5913288_novo.pdf"), format: "pdf" },
+      { label: "Statut Radio-televizije Federacije Bosne i Hercegovine – tekst na stranici", href: "/dokumenti/statut", format: "web" },
     ],
   },
   {
     naslov: "Uređivačka načela / principi Javnog RTV sistema u BiH",
     stavke: [
-      { label: "Bosanski jezik", href: `${legacy}/loc/template.wbsp?wbf_id=173`, format: "web" },
-      { label: "Hrvatski jezik", href: `${legacy}/loc/template.wbsp?wbf_id=175`, format: "web" },
-      { label: "Srpski jezik", href: `${legacy}/loc/template.wbsp?wbf_id=174`, format: "web" },
+      { label: "Bosanski jezik", href: "/dokumenti/uredjivacka-nacela", format: "web" },
+      { label: "Hrvatski jezik", href: "/dokumenti/uredjivacka-nacela-hrvatski", format: "web" },
+      { label: "Srpski jezik", href: "/dokumenti/uredjivacka-nacela-srpski", format: "web" },
     ],
   },
   {
     naslov: "Pravilnici",
     stavke: [
       { label: "Pravilnik o radu RTVFBiH", href: doc("PRAVILNIK%20O%20RADU%20MAJ%202026_compressed.pdf"), format: "pdf" },
+      { label: "Pravilnik o radu RTVFBiH – prethodna verzija", href: doc("U5ED5416_novo.pdf"), format: "pdf" },
       { label: "Odluka UO o izmjenama i dopunama Pravilnika o radu (maj 2026.)", href: doc("Odluka%20UO%20izmjena%20i%20dop%20Pr%20o%20radu%20maj%202026.pdf"), format: "pdf" },
       { label: "Pravilnik o plaćama i naknadama radnika RTVFBiH", href: doc("U349185C_novo.pdf"), format: "pdf" },
       { label: "Pravilnik o sistematizaciji radnih mjesta RTVFBiH s prilozima", href: doc("U2EBD8B3_novo.pdf"), format: "pdf" },
@@ -62,7 +63,7 @@ export const izvjestajiORadu: Dokument[] = [
   { label: "Izvještaj o radu i poslovanju januar–decembar 2010.", href: doc("Izvjestaj%20o%20radu%20i%20poslovanju%20januar%20-%20decembar%202010.%20godine-bosanska%20verzija_2.doc"), format: "doc" },
   { label: "Izvještaj o radu i poslovanju januar–decembar 2009.", href: doc("Izvjestaj%20o%20radu%20i%20poslovanju%20januar%20-%20decembar%202009.%20godine.doc"), format: "doc" },
   { label: "Izvještaj o radu i poslovanju januar–decembar 2008.", href: doc("Izvjestaj%20o%20radu%20i%20poslovanju%20januar%20-%20decembar%202008%20-%20KONACNI%20uz%20numeraciju.doc"), format: "doc" },
-  { label: "Izvještaj o radu RTVFBiH u 2007. godini i proširena Informacija o stanju u RTVFBiH", href: `${legacy}/loc/template.wbsp?wbf_id=169`, format: "web" },
+  { label: "Izvještaj o radu RTVFBiH u 2007. godini i proširena Informacija o stanju u RTVFBiH", href: "/dokumenti/izvjestaj-o-radu-2007", format: "web" },
 ];
 
 export const revizorskiIzvjestaji: Dokument[] = [

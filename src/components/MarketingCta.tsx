@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Mail, Phone } from "lucide-react";
 import { RadioSetIcon, TeletextIcon, TvIcon, WebIcon } from "./StatIcons";
-import { marketingKontakti } from "@/content/uprava";
+import { cjenovnik as nadjiCjenovnik, marketingOdjeli, telHref } from "@/server/sadrzaj";
 
-/** Cjenovnik po kanalu – traži se po dijelu naziva, pa ostaje vezan za sadržaj u uprava.ts */
-const cjenovnik = (dio: string) =>
-  marketingKontakti.cjenovnici.find((c) => c.label.includes(dio))?.href ?? "/marketing#cjenovnici";
+/** Cjenovnik po kanalu – traži se po dijelu naziva među cjenovnicima u CMS-u */
+const cjenovnik = (dio: string) => nadjiCjenovnik(dio, "/marketing#cjenovnici");
 
-const kanali = [
+const kanali = () => [
   { icon: TvIcon, naziv: "Televizija", opis: "Spotovi i sponzorstva", href: cjenovnik("CPP cjenovnik") },
   { icon: RadioSetIcon, naziv: "Radio", opis: "15 FM frekvencija", href: cjenovnik("Radio Federacije BiH 2026") },
   { icon: WebIcon, naziv: "Portal", opis: "Banner oglašavanje", href: cjenovnik("web portal") },
@@ -15,8 +14,8 @@ const kanali = [
 ];
 
 export default function MarketingCta() {
-  const { direktor } = marketingKontakti;
-  const telefon = direktor.tel.split(",")[0].trim();
+  const direktor = marketingOdjeli().rukovodstvo[0];
+  const telefon = (direktor?.telefon ?? "").split(",")[0].trim();
 
   return (
     <section className="relative overflow-hidden bg-navy text-white">
@@ -66,6 +65,7 @@ export default function MarketingCta() {
               </Link>
             </div>
 
+            {direktor && (
             <div className="mt-10 border-t border-white/10 pt-6">
               <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-white/50">Direktan kontakt</p>
               <p className="mt-2 font-display font-semibold">
@@ -73,7 +73,7 @@ export default function MarketingCta() {
                 <span className="ml-2 text-sm font-normal text-white/60">Sektor marketinga</span>
               </p>
               <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
-                <a href={`tel:${telefon.replace(/[^\d+]/g, "")}`} className="inline-flex items-center gap-2 text-white/80 hover:text-white">
+                <a href={telHref(telefon)} className="inline-flex items-center gap-2 text-white/80 hover:text-white">
                   <Phone className="h-4 w-4 text-sky" /> {telefon}
                 </a>
                 <a href={`mailto:${direktor.email}`} className="inline-flex items-center gap-2 text-white/80 hover:text-white">
@@ -81,12 +81,13 @@ export default function MarketingCta() {
                 </a>
               </div>
             </div>
+            )}
           </div>
 
           {/* Desno: kanali s cjenovnicima */}
           <div className="flex items-center">
             <ul className="grid w-full grid-cols-2 gap-3 sm:gap-4">
-              {kanali.map((k) => {
+              {kanali().map((k) => {
                 const Icon = k.icon;
                 return (
                   <li key={k.naziv}>

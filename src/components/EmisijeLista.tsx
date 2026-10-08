@@ -1,18 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { Emisija } from "@/content/program";
+
+export type EmisijaUShemi = { naziv: string; slug: string; termin: string; vrsta: string; opis: string };
 
 /** Iz slobodnog teksta termina izvlači vrijeme (HH:MM) i dan za prikaz u shemi */
-function rastavi(e: Emisija) {
-  const vrijeme = e.vrijeme ?? e.termin.match(/\d{1,2}:\d{2}/)?.[0];
-  const dan = e.dan ?? e.termin.split(/ u |,|\s\d/)[0].trim();
+function rastavi(e: EmisijaUShemi) {
+  const vrijeme = e.termin.match(/\d{1,2}:\d{2}/)?.[0];
+  const dan = e.termin.split(/ u |,|\s\d/)[0].trim();
   const dodatak = /uživo/i.test(e.termin) ? "uživo" : undefined;
   return { vrijeme, dan, dodatak };
 }
 
-export default function EmisijeLista({ emisije }: { emisije: Emisija[] }) {
-  const vrste = useMemo(() => Array.from(new Set(emisije.map((e) => e.vrsta))), [emisije]);
+export default function EmisijeLista({ emisije }: { emisije: EmisijaUShemi[] }) {
+  const vrste = useMemo(() => Array.from(new Set(emisije.map((e) => e.vrsta).filter(Boolean))), [emisije]);
   const [filter, setFilter] = useState<string | null>(null);
 
   const prikaz = useMemo(
@@ -69,7 +71,11 @@ export default function EmisijeLista({ emisije }: { emisije: Emisija[] }) {
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <h3 className="font-display text-lg font-semibold text-navy">{e.naziv}</h3>
+                <h3 className="font-display text-lg font-semibold text-navy">
+                  <Link href={`/televizija/emisije/${e.slug}`} className="after:absolute after:inset-0 hover:text-brand-deep">
+                    {e.naziv}
+                  </Link>
+                </h3>
                 <span className="text-[0.68rem] font-semibold uppercase tracking-wider text-brand">{e.vrsta}</span>
               </div>
               <p className="mt-1 text-sm leading-relaxed text-muted">{e.opis}</p>

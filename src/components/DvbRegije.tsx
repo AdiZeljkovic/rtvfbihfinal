@@ -1,11 +1,11 @@
 import { TowerIcon } from "./StatIcons";
-import { dvbt2Regije } from "@/content/frekvencije";
+import { dvbRegije } from "@/server/sadrzaj";
 
 /** Devet DVB-T2 digitalnih regija Multipleksa A, s kanalom krupno */
 export default function DvbRegije() {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {dvbt2Regije.map((r) => (
+      {dvbRegije().map((r) => (
         <li
           key={r.naziv}
           className="flex gap-5 rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow-card)] transition-colors hover:border-brand/40"

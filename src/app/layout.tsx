@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -49,11 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Preskoči na sadržaj
         </a>
-        <Header />
-        <main id="sadrzaj" className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

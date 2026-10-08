@@ -3,11 +3,12 @@
 Nova korporativna stranica Radio-televizije Federacije Bosne i Hercegovine (zamjena za
 rtvfbih.ba/loc). Stranica pokriva sve **osim vijesti** – vijesti ostaju na federalna.ba.
 
-Stack: **Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · lucide-react**.
-Sve rute su statičke (SSG), pa se stranica može hostati bilo gdje (Vercel, Node server ili
-`next build` + reverse proxy).
+Stack: **Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · lucide-react**,
+uz ugrađeni CMS (admin na `/admin`) i SQLite bazu ugrađenu u Node.js (`node:sqlite`).
 
 ## Pokretanje
+
+Potreban je **Node.js 24** (zbog ugrađenog `node:sqlite`).
 
 ```bash
 npm install
@@ -17,25 +18,90 @@ npm start        # pokretanje produkcijskog builda
 npm run lint
 ```
 
-## Struktura
+## CMS – uređivanje sadržaja
+
+Admin je na **`/admin`**. Pri prvom otvaranju (dok nema nijednog urednika) prikazuje se
+obrazac za pravljenje prvog računa; poslije toga se novi urednici dodaju u
+*Urednici i lozinka*. Prijava traje 90 dana na istom računaru.
+
+Admin je napravljen da bude što jednostavniji i pristupačan:
+
+- krupan tekst, s izborom veličine (A / A+ / A++) i načinom **visokog kontrasta**
+  (pamti se na računaru);
+- velika dugmad (najmanje 48 px), sve radi tastaturom i s čitačem ekrana
+  (oznake, opisi polja, poruke o greškama sa skokom na polje, `aria-live` obavijesti);
+- na početnoj su velike kartice za najčešće radnje: *Objavi javnu nabavku*,
+  *Dodaj dokument*, *Objavi obavijest ili konkurs*, *Uredi emisije*;
+- dokument se doda klikom ili prevlačenjem, uz traku napretka, a **naziv se upiše sam**
+  iz imena fajla;
+- izbori (vrsta, godina, kategorija) su velike kartice umjesto padajućih lista;
+- nakon čuvanja: ekran „Objavljeno!“ s dugmadima *Pogledaj na stranici* i *Dodaj još*;
+- obrisano ide u **korpu** (odmah ima i dugme *Poništi*) i može se vratiti;
+- upozorenje ako se stranica zatvori s nesačuvanim promjenama.
+
+Izmjene su na javnoj stranici vidljive odmah (`revalidatePath` nakon svakog čuvanja).
+
+### Gdje su podaci
+
+Sve što CMS mijenja nalazi se u folderu **`podaci/`** (nije u gitu):
+
+```
+podaci/
+  rtvfbih.db     # baza (sadržaj, historija izmjena, urednici, sesije)
+  doc/           # dokumenti (PDF, Word, Excel) – služe se na /doc/<ime>
+  mediji/        # slike iz admina – služe se na /mediji/<ime>
+```
+
+Pri prvom pokretanju prazna baza se automatski napuni postojećim sadržajem iz
+`src/content/` (to je samo početno stanje – poslije se sve uređuje u adminu).
+**Folder `podaci/` treba redovno praviti rezervnu kopiju (backup).**
+
+Varijable okruženja (nisu obavezne):
+
+| Varijabla | Značenje |
+| --- | --- |
+| `CMS_PODACI` | putanja do foldera s podacima (zadano `./podaci`) |
+| `NEXT_PUBLIC_DOC_BASE` | adresa s koje se služe dokumenti, ako nisu na istom serveru (zadano `/doc`) |
+
+### Hosting
+
+CMS piše u lokalne fajlove, pa stranica treba **vlastiti Node.js server** (VPS ili server
+RTV-a) s trajnim diskom: `npm run build` pa `npm start` (npr. preko PM2 ili systemd),
+iza Nginx/Apache reverse proxyja s HTTPS-om. Za upload velikih dokumenata u proxyju
+dozvoliti tijelo zahtjeva do 60 MB (`client_max_body_size 60m;`).
+Serverless hosting (npr. Vercel) nije pogodan bez vanjske baze i skladišta fajlova.
+
+### Kako je napravljen
+
+```
+src/cms/kolekcije.ts      # opis svih vrsta sadržaja → iz njega se prave obrasci u adminu
+src/server/db.ts          # baza: zapisi, korpa, redoslijed, historija
+src/server/auth.ts        # urednici (scrypt), sesije (kolačić rtv_sesija)
+src/server/provjera.ts    # provjera podataka iz obrazaca
+src/server/sadrzaj.ts     # javne stranice čitaju sadržaj samo odavde
+src/server/pocetni-sadrzaj.ts  # početno punjenje baze
+src/app/admin/            # admin (prijava, početna, liste, obrasci, korpa, urednici)
+src/app/admin/akcije.ts   # server akcije (čuvanje, brisanje, prijava…)
+src/app/api/admin/upload  # upload dokumenata i slika
+src/components/admin/     # polja obrazaca, upload, uređivač teksta po dijelovima
+```
+
+Nova vrsta sadržaja dodaje se opisom u `src/cms/kolekcije.ts` (polja, naziv, gdje se vidi)
+i funkcijom u `src/server/sadrzaj.ts` koju koristi javna stranica.
+
+## Struktura javnog dijela
 
 ```
 src/
-  app/                    # rute (App Router)
+  app/(stranica)/         # javne rute (zaglavlje i podnožje u layout.tsx)
     page.tsx              # početna (hero s brend animacijom)
-    o-nama/               # historijat, upravni-odbor, organizacija
-    televizija/  radio/   # servisi
-    frekvencije/          # DVB-T2, FM, arhiva analogne mreže
-    dokumenti/            # opći akti, izvještaji, revizije
-    javne-nabavke/        # 2026 + arhiva po godinama
-    obavijesti/  rtv-taksa/  marketing/  kontakt/
-    sitemap.ts robots.ts not-found.tsx
-  components/             # Header, Footer, Logo, VideoHero, Section, PageHero, DocList, ContactCard
-  content/                # SAV SADRŽAJ – uređujte ovdje, bez diranja komponenti
-    site.ts               # naziv, adresa, e-mailovi, vanjski linkovi, navigacija
-    historijat.ts  uprava.ts  frekvencije.ts  dokumenti.ts
-    javne-nabavke.ts  rtv-taksa.ts  program.ts
+    o-nama/  televizija/  radio/  frekvencije/  dokumenti/
+    javne-nabavke/  obavijesti/  rtv-taksa/  marketing/  kontakt/
+  app/doc/  app/mediji/   # služenje dokumenata i slika iz podaci/
+  components/             # Header, Footer, Logo, VideoHero, Section, PageHero, DocList…
+  content/                # statični tekstovi (historijat, arhiva analogne mreže…) i početni sadržaj
 public/video/             # ftv-intro.mp4 / .webm / poster (brend animacija, 5,5 s petlja)
+scripts/uvoz-stare-stranice/  # skripte kojima je prenesen sadržaj sa stare stranice
 ```
 
 ## Dizajn
@@ -50,12 +116,8 @@ prikazuje se statični poster.
 
 ## Prije objave – provjeriti
 
-- [ ] **Logotip**: `src/components/Logo.tsx` sadrži SVG znak nacrtan po uzoru na animaciju.
-      Zamijeniti službenim vektorskim logotipom.
-- [ ] **Društvene mreže**: linkovi u `src/content/site.ts` označeni s `PROVJERITI`.
-- [ ] **Dokumenti**: PDF/DOC linkovi trenutno vode na `rtvfbih.ba/doc/...` (stara stranica).
-      Kod migracije prebaciti fajlove u `public/doc/` i ažurirati `legacy` u `site.ts`.
-- [ ] **Javne nabavke**: starije godine (2015–2025) vode na arhivu stare stranice.
-- [ ] **Programska shema**: termini emisija u `src/content/program.ts` preuzeti s najava
-      sezone 2025/26 – uskladiti s aktuelnom shemom.
-- [ ] **Domena** u `site.url` (koristi se za sitemap, robots i Open Graph).
+- [ ] **Društvene mreže**: provjeriti adrese u adminu → *Osnovni podaci*.
+- [ ] **Programska shema**: termini emisija preuzeti s najava sezone 2025/26 – uskladiti
+      u adminu → *Emisije i serije*.
+- [ ] **Domena** u `site.url` (`src/content/site.ts`; koristi se za sitemap, robots i Open Graph).
+- [ ] **Backup** foldera `podaci/` na serveru.

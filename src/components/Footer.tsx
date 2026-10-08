@@ -3,6 +3,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from "./SocialIcons";
 import Logo from "./Logo";
 import { footerNav, site } from "@/content/site";
+import { osnovno, telHref } from "@/server/sadrzaj";
 
 type FooterLink = { label: string; href: string; external?: boolean };
 
@@ -35,6 +36,7 @@ function LinkList({ title, items }: { title: string; items: FooterLink[] }) {
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const o = osnovno();
   return (
     <footer className="bg-navy text-white">
       <div className="h-1 w-full bg-gradient-to-r from-brand via-sky to-brand/40" />
@@ -49,27 +51,27 @@ export default function Footer() {
             <p className="flex items-start gap-2.5">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-sky" />
               <span>
-                {site.address.street}
+                {o.adresa}
                 <br />
-                {site.address.city}, {site.address.country}
+                {o.grad}, {site.address.country}
               </span>
             </p>
             <p className="flex items-center gap-2.5">
               <Phone className="h-4 w-4 shrink-0 text-sky" />
-              <a href={`tel:${site.phoneHref}`} className="hover:text-white">
-                {site.phone}
+              <a href={telHref(o.telefon)} className="hover:text-white">
+                {o.telefon}
               </a>
             </p>
             <p className="flex items-center gap-2.5">
               <Mail className="h-4 w-4 shrink-0 text-sky" />
-              <a href={`mailto:${site.emails.direkcija}`} className="hover:text-white">
-                {site.emails.direkcija}
+              <a href={`mailto:${o.emailDirekcija}`} className="hover:text-white">
+                {o.emailDirekcija}
               </a>
             </p>
           </address>
           <div className="mt-6 flex items-center gap-2">
             <a
-              href={site.social.youtube}
+              href={o.youtube}
               target="_blank"
               rel="noopener"
               aria-label="YouTube"
@@ -78,7 +80,7 @@ export default function Footer() {
               <YoutubeIcon className="h-5 w-5" />
             </a>
             <a
-              href={site.social.facebook}
+              href={o.facebook}
               target="_blank"
               rel="noopener"
               aria-label="Facebook"
@@ -87,7 +89,7 @@ export default function Footer() {
               <FacebookIcon className="h-5 w-5" />
             </a>
             <a
-              href={site.social.instagram}
+              href={o.instagram}
               target="_blank"
               rel="noopener"
               aria-label="Instagram"

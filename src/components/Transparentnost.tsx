@@ -3,22 +3,17 @@ import { ArrowRight, ArrowUpRight, Download } from "lucide-react";
 import Section from "./Section";
 import FileTypeIcon from "./FileTypeIcon";
 import { BoardIcon, DocsIcon, ReceiptIcon, TenderIcon } from "./StatIcons";
-import { izvjestajiORadu, opciAkti, programskiPlanovi, revizorskiIzvjestaji } from "@/content/dokumenti";
-import { godineNabavki, nabavke2026 } from "@/content/javne-nabavke";
-import { upravniOdbor } from "@/content/uprava";
-import { rtvTaksaFaq } from "@/content/rtv-taksa";
+import { godineNabavki } from "@/content/javne-nabavke";
+import { docUrl } from "@/lib/doc";
+import { clanoviUO, dokumenti, najnovijaNabavka, pitanja } from "@/server/sadrzaj";
+
+const AKTI = ["Zakoni i statut", "Uređivačka načela", "Pravilnici", "Programski planovi", "Izvještaji o radu", "Revizorski izvještaji"];
 
 /** Brojevi se računaju iz stvarnog sadržaja, pa se sami ažuriraju */
-const brojDokumenata =
-  opciAkti.reduce((n, g) => n + g.stavke.length, 0) +
-  programskiPlanovi.length +
-  izvjestajiORadu.length +
-  revizorskiIzvjestaji.length;
-
-const oblasti = [
+const oblasti = () => [
   {
     icon: DocsIcon,
-    broj: brojDokumenata,
+    broj: AKTI.reduce((n, k) => n + dokumenti(k).length, 0),
     jedinica: "dokumenata",
     naziv: "Opći akti i izvještaji",
     opis: "Zakoni, statut, pravilnici, izvještaji o radu i revizorski izvještaji.",
@@ -26,7 +21,7 @@ const oblasti = [
   },
   {
     icon: TenderIcon,
-    broj: godineNabavki.length,
+    broj: godineNabavki().length,
     jedinica: "godina arhive",
     naziv: "Javne nabavke",
     opis: "Planovi nabavki, obavještenja, odluke o izboru i izvještaji o postupcima.",
@@ -34,7 +29,7 @@ const oblasti = [
   },
   {
     icon: BoardIcon,
-    broj: upravniOdbor.clanovi.length,
+    broj: clanoviUO().length,
     jedinica: "člana",
     naziv: "Upravni odbor",
     opis: "Sastav Upravnog odbora, poslovnik o radu i javna saopštenja.",
@@ -42,7 +37,7 @@ const oblasti = [
   },
   {
     icon: ReceiptIcon,
-    broj: rtvTaksaFaq.length,
+    broj: pitanja().length,
     jedinica: "odgovora",
     naziv: "RTV taksa",
     opis: "Odgovori na najčešća pitanja građana o plaćanju RTV takse.",
@@ -50,14 +45,18 @@ const oblasti = [
   },
 ];
 
-/** Prvi dokument u svakoj listi je najnoviji */
-const najnovije = [
-  { kategorija: "Izvještaj o radu", ...izvjestajiORadu[0] },
-  { kategorija: "Revizija", ...revizorskiIzvjestaji[0] },
-  { kategorija: "Javne nabavke", ...nabavke2026[0].stavke[0] },
-];
+/** Prvi dokument u svakoj listi je najnoviji (nove objave idu na vrh) */
+function najnovije() {
+  const nabavka = najnovijaNabavka();
+  return [
+    { kategorija: "Izvještaj o radu", ...dokumenti("Izvještaji o radu")[0] },
+    { kategorija: "Revizija", ...dokumenti("Revizorski izvještaji")[0] },
+    nabavka && { kategorija: "Javne nabavke", label: nabavka.naziv, href: docUrl(nabavka.dokument) },
+  ].filter((d): d is { kategorija: string; label: string; href: string } => Boolean(d?.label));
+}
 
-const format = (href: string) => href.toLowerCase().match(/\.(pdf|docx?|xps)$/)?.[1]?.toUpperCase() ?? "WEB";
+const format = (href: string) =>
+  decodeURIComponent(href).toLowerCase().match(/\.(pdf|docx?|xps)$/)?.[1]?.toUpperCase() ?? "WEB";
 
 export default function Transparentnost() {
   return (
@@ -72,7 +71,7 @@ export default function Transparentnost() {
             postupke javnih nabavki.
           </p>
 
-          <div className="mt-8 rounded-3xl bg-navy p-6 text-white sm:p-7 lg:mt-10">
+          <div className="mt-8 rounded-3xl bg-navy p-6 text-white sm:p-7 lg:mt-auto">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sky">Najnovije objave</p>
               <Link href="/dokumenti" className="text-xs font-semibold text-white/70 hover:text-white">
@@ -80,7 +79,7 @@ export default function Transparentnost() {
               </Link>
             </div>
             <ul className="mt-4 divide-y divide-white/10">
-              {najnovije.map((d) => (
+              {najnovije().map((d) => (
                 <li key={d.href}>
                   <a
                     href={d.href}
@@ -111,7 +110,7 @@ export default function Transparentnost() {
 
         {/* Desno: oblasti s brojevima */}
         <div className="grid gap-5 sm:grid-cols-2">
-          {oblasti.map((o) => {
+          {oblasti().map((o) => {
             const Icon = o.icon;
             return (
               <Link

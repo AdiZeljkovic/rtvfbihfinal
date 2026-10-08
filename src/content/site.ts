@@ -27,8 +27,6 @@ export const site = {
     radioLive: "https://s2.free-shoutcast.com/stream/18170",
     bhrt: "https://www.bhrt.ba",
     rtrs: "https://www.rtrs.tv",
-    /** Stara stranica – koristi se za dokumente koji još nisu migrirani */
-    legacy: "https://rtvfbih.ba",
   },
   social: {
     youtube: "https://www.youtube.com/@federalnatv", // PROVJERITI
@@ -55,7 +53,15 @@ export const mainNav: NavItem[] = [
       { label: "Organizacija i uredništva", href: "/o-nama/organizacija", description: "Sektori, odjeli i redakcije" },
     ],
   },
-  { label: "Televizija", href: "/televizija" },
+  {
+    label: "Televizija",
+    href: "/televizija",
+    children: [
+      { label: "Federalna televizija", href: "/televizija", description: "Programske cjeline i programska shema" },
+      { label: "Emisije i serije", href: "/televizija/emisije", description: "Emisije, strani program i arhiva" },
+      { label: "DVB-T2 prijem", href: "/frekvencije/dvb-t2", description: "Zemaljska digitalna televizija" },
+    ],
+  },
   { label: "Radio", href: "/radio" },
   {
     label: "Dokumenti",
@@ -76,6 +82,7 @@ export const footerNav = {
   servisi: [
     { label: "Federalna televizija", href: "/televizija" },
     { label: "Radio Federacije BiH", href: "/radio" },
+    { label: "Emisije i serije", href: "/televizija/emisije" },
     { label: "Portal federalna.ba", href: site.external.federalna, external: true },
     { label: "Teletext", href: site.external.teletext, external: true },
     { label: "Radio uživo", href: site.external.radioLive, external: true },

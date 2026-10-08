@@ -1,10 +1,10 @@
-import { radioFM } from "@/content/frekvencije";
+import { fmFrekvencije } from "@/server/sadrzaj";
 
 /** FM predajnici Radija Federacije BiH – frekvencija krupno, kao na skali prijemnika */
 export default function FmLista() {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {radioFM.map((f) => (
+      {fmFrekvencije().map((f) => (
         <li
           key={f.lokacija}
           className="group relative flex flex-col overflow-hidden rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow-card)] transition-colors hover:border-brand/40"

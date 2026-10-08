@@ -1,6 +1,4 @@
-import { site } from "./site";
-
-const legacy = site.external.legacy;
+import { docUrl } from "@/lib/doc";
 
 export const upravniOdbor = {
   osnov:
@@ -20,10 +18,10 @@ export const upravniOdbor = {
     potpis: "Daniela Gogić, predsjednica UO RTV FBiH",
   },
   dokumenti: [
-    { label: "Poslovnik o radu UO RTVFBiH", href: `${legacy}/doc/Poslovnik_o_radu_UORTVFBiH.pdf` },
+    { label: "Poslovnik o radu UO RTVFBiH", href: docUrl("Poslovnik_o_radu_UORTVFBiH.pdf") },
     {
       label: "Javni konkurs/natječaj za izbor generalnog direktora RTVFBiH",
-      href: `${legacy}/doc/Javni%20konkurs%20za%20izbor%20generalnog%20direktora%20RTVFBiH.pdf`,
+      href: docUrl("Javni konkurs za izbor generalnog direktora RTVFBiH.pdf"),
     },
   ],
 };
@@ -151,12 +149,15 @@ export const marketingKontakti = {
     { ime: "Admir Numić", uloga: "Odjel plana i realizacije", tel: "+387 (0)33 462 463", fax: "+387 (0)33 455 157", email: "admir.numic@rtvfbih.ba" },
   ],
   cjenovnici: [
-    { label: "CPP cjenovnik usluga oglašavanja s opštim uslovima – Federalna TV 2026.", href: `${legacy}/doc/Marketing_CCP%20Cjenovnik_2026.pdf` },
-    { label: "Cjenovnik usluga oglašavanja i sponzorstva s opštim uslovima – Federalna TV 2026.", href: `${legacy}/doc/CJENOVNIK.pdf` },
-    { label: "Cjenovnik za opšte izbore 2026. – Federalna televizija", href: `${legacy}/doc/Cjenovnik%20za%20op%C5%A1te%20izbore%20za%202026.%20godinu%20za%20TV.pdf` },
-    { label: "Cjenovnik usluga oglašavanja – Radio Federacije BiH 2026.", href: `${legacy}/doc/Marketing_Cjenovnik%20Radio%20FBiH_2026.pdf` },
-    { label: "Cjenovnik za opšte izbore 2026. – Federalni radio", href: `${legacy}/doc/Cjenovnik%20za%20op%C5%A1te%20izbore%20za%202026.%20godinu%20za%20Federalni%20Radio.pdf` },
-    { label: "Cjenovnik usluga oglašavanja – web portal 2026.", href: `${legacy}/doc/Marketing_Cjenovnik%20za%20portal_2026.pdf` },
-    { label: "Cjenovnik oglašavanja na Teletekstu", href: `${legacy}/loc/template.wbsp?wbf_id=29&section=mark` },
+    { label: "CPP cjenovnik usluga oglašavanja s opštim uslovima – Federalna TV 2026.", href: docUrl("Marketing_CCP Cjenovnik_2026.pdf") },
+    { label: "Cjenovnik usluga oglašavanja i sponzorstva s opštim uslovima – Federalna TV 2026.", href: docUrl("CJENOVNIK.pdf") },
+    { label: "Cjenovnik za opšte izbore 2026. – Federalna televizija", href: docUrl("Cjenovnik za opšte izbore za 2026. godinu za TV.pdf") },
+    { label: "Cjenovnik usluga oglašavanja – Radio Federacije BiH 2026.", href: docUrl("Marketing_Cjenovnik Radio FBiH_2026.pdf") },
+    { label: "Cjenovnik za opšte izbore 2026. – Federalni radio", href: docUrl("Cjenovnik za opšte izbore za 2026. godinu za Federalni Radio.pdf") },
+    { label: "Cjenovnik usluga oglašavanja – web portal 2026.", href: docUrl("Marketing_Cjenovnik za portal_2026.pdf") },
+    { label: "Cjenovnik oglašavanja na Teletekstu", href: "/marketing/cjenovnik-teletext" },
+    { label: "Cjenovnik web oglašavanja – opšti uslovi i formati banera", href: "/marketing/cjenovnik-web" },
+    { label: "Izbori 2010. – cjenovnik oglašavanja političkih subjekata, Federalna televizija", href: "/marketing/izbori-2010-ftv" },
+    { label: "Izbori 2010. – cjenovnik oglašavanja političkih subjekata, Radio Federacije BiH", href: "/marketing/izbori-2010-radio" },
   ],
 };

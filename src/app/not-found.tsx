@@ -1,8 +1,13 @@
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { LogoMark } from "@/components/Logo";
 import { PillButton, UnderlineLink } from "@/components/Tiles";
 
 export default function NotFound() {
   return (
+    <>
+    <Header />
+    <main id="sadrzaj" className="flex-1">
     <section className="relative -mt-[4.5rem] flex min-h-[80svh] items-center overflow-hidden bg-navy text-white">
       <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-70" />
       <div
@@ -26,5 +31,8 @@ export default function NotFound() {
         </div>
       </div>
     </section>
+    </main>
+    <Footer />
+    </>
   );
 }
