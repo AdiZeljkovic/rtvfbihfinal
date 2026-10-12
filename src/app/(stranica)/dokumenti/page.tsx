@@ -55,7 +55,7 @@ export default function DokumentiPage() {
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-sky-mist hover:text-brand"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-sky-mist hover:text-brand-strong"
             >
               {s.label}
               <span className="rounded-full bg-sky-soft px-2 py-0.5 text-[0.7rem] tabular-nums text-brand-deep">{s.broj}</span>

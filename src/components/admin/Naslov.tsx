@@ -18,7 +18,7 @@ export default function Naslov({
       {nazad && (
         <Link
           href={nazad.href}
-          className="-ml-3 mb-3 inline-flex min-h-12 items-center gap-2 rounded-xl px-3 text-lg font-semibold text-brand hover:bg-white"
+          className="-ml-3 mb-3 inline-flex min-h-12 items-center gap-2 rounded-xl px-3 text-lg font-semibold text-brand-strong hover:bg-white"
         >
           <ArrowLeft className="h-5 w-5" aria-hidden="true" /> {nazad.tekst}
         </Link>

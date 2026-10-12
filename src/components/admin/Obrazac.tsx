@@ -53,6 +53,7 @@ export default function Obrazac({
   const [podaci, setPodaci] = useState<Podaci>(() => pocetno ?? pocetne(def.polja));
   const [greske, setGreske] = useState<Record<string, string>>({});
   const [poruka, setPoruka] = useState("");
+  const [istekla, setIstekla] = useState(false);
   const [prljavo, setPrljavo] = useState(false);
   const [pitajOdustani, setPitajOdustani] = useState(false);
   const [cuvanje, startCuvanje] = useTransition();
@@ -81,12 +82,14 @@ export default function Obrazac({
 
   function sacuvaj() {
     setPoruka("");
+    setIstekla(false);
     startCuvanje(async () => {
       try {
         const r = await sacuvajZapis(kljuc, id, podaci);
         if (r.greske || r.poruka) {
           setGreske(r.greske ?? {});
           setPoruka(r.poruka ?? "");
+          setIstekla(Boolean(r.istekla));
           requestAnimationFrame(() => sazetak.current?.focus());
           return;
         }
@@ -117,8 +120,17 @@ export default function Obrazac({
           className="mb-8 rounded-3xl border-2 border-red-700 bg-red-50 p-6 text-red-900"
         >
           <p className="flex items-center gap-3 font-display text-xl font-bold">
-            <CircleAlert className="h-7 w-7 shrink-0" aria-hidden="true" /> {poruka || "Nešto nije popunjeno."}
+            <CircleAlert className="h-7 w-7 shrink-0" aria-hidden="true" /> {poruka || "Nešto treba ispraviti."}
           </p>
+          {istekla && (
+            <a
+              href="/admin/prijava"
+              target="_blank"
+              className="mt-4 inline-flex min-h-14 items-center gap-2 rounded-2xl bg-red-800 px-6 font-display text-lg font-semibold text-white hover:bg-red-900"
+            >
+              <ExternalLink className="h-5 w-5" aria-hidden="true" /> Prijavi se u novom prozoru
+            </a>
+          )}
           {listaGresaka.length > 0 && (
             <ul className="mt-3 list-disc space-y-1 pl-12 text-lg">
               {listaGresaka.map((f) => (
@@ -178,7 +190,7 @@ export default function Obrazac({
             >
               <span
                 aria-hidden="true"
-                className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-soft font-display text-lg font-bold text-brand sm:absolute sm:left-6 sm:top-7 sm:mb-0"
+                className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-soft font-display text-lg font-bold text-brand-strong sm:absolute sm:left-6 sm:top-7 sm:mb-0"
               >
                 {i + 1}
               </span>
@@ -194,7 +206,7 @@ export default function Obrazac({
           <button
             type="submit"
             disabled={cuvanje}
-            className="inline-flex min-h-16 flex-1 items-center justify-center gap-3 rounded-2xl bg-brand px-6 sm:flex-none sm:px-8 font-display text-xl font-bold text-white shadow-[0_10px_30px_-12px_rgba(43,141,222,0.8)] hover:bg-brand-deep disabled:opacity-70"
+            className="inline-flex min-h-16 flex-1 items-center justify-center gap-3 rounded-2xl bg-brand-strong px-6 sm:flex-none sm:px-8 font-display text-xl font-bold text-white shadow-[0_10px_30px_-12px_rgba(43,141,222,0.8)] hover:bg-brand-deep disabled:opacity-70"
           >
             {cuvanje ? <LoaderCircle className="h-6 w-6 animate-spin" aria-hidden="true" /> : <Save className="h-6 w-6" aria-hidden="true" />}
             {cuvanje ? "Čuvam…" : def.jedinstven ? "Sačuvaj promjene" : id ? "Sačuvaj promjene" : "Sačuvaj i objavi"}
@@ -210,7 +222,7 @@ export default function Obrazac({
             <Link
               href={naStranici}
               target="_blank"
-              className="inline-flex min-h-12 items-center justify-center gap-2 px-4 font-semibold text-brand underline-offset-4 hover:underline sm:ml-auto"
+              className="inline-flex min-h-12 items-center justify-center gap-2 px-4 font-semibold text-brand-strong underline-offset-4 hover:underline sm:ml-auto"
             >
               <ExternalLink className="h-5 w-5" aria-hidden="true" /> Pogledaj na stranici
             </Link>

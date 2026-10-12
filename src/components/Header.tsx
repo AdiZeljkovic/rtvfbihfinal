@@ -61,7 +61,7 @@ export default function Header() {
   const solid = scrolled && !open;
 
   const navBase = "whitespace-nowrap rounded-full px-2.5 py-2 font-display text-[0.9rem] font-semibold transition-colors";
-  const navIdle = solid ? "text-navy hover:bg-sky-mist hover:text-brand" : "text-white/90 hover:bg-white/10 hover:text-white";
+  const navIdle = solid ? "text-navy hover:bg-sky-mist hover:text-brand-strong" : "text-white/90 hover:bg-white/10 hover:text-white";
   const navActive = solid ? "bg-sky-soft text-brand-deep" : "bg-white/15 text-white";
 
   return (
@@ -77,8 +77,10 @@ export default function Header() {
         } ${scrolled && !open ? "shadow-[0_6px_24px_-12px_rgba(11,37,64,0.25)]" : ""}`}
       >
         <div className="container-x flex h-[4.5rem] items-center justify-between gap-5">
-          <Link href="/" aria-label="Početna stranica" className="shrink-0">
+          <Link href="/" className="shrink-0">
             <Logo light={!solid} />
+            {/* naziv linka = vidljivi tekst logotipa + odredište (glasovno upravljanje traži vidljive riječi) */}
+            <span className="sr-only">, početna stranica</span>
           </Link>
 
           <nav aria-label="Glavna navigacija" className="hidden xl:block">
@@ -164,7 +166,7 @@ export default function Header() {
         inert={!open}
       >
         <div className="relative min-h-full">
-          <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-30" />
+          <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-30" />
           <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-navy/70 via-navy/90 to-navy" />
 
           <nav aria-label="Mobilna navigacija" className="container-x relative flex min-h-full flex-col pb-10 pt-4">

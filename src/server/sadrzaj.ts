@@ -1,5 +1,6 @@
 import "server-only";
-import { jedinstven, podaci } from "./db";
+import { cache } from "react";
+import { jedinstven as jedinstvenIzBaze, podaci as podaciIzBaze } from "./db";
 import { VRSTE_NABAVKI } from "@/cms/kolekcije";
 import { sazetak, type Blok, type NabavkaGodina } from "@/content/arhiva";
 import { docUrl } from "@/lib/doc";
@@ -8,7 +9,14 @@ import { site } from "@/content/site";
 /**
  * Sadržaj stranice iz baze CMS-a. Javne stranice čitaju samo odavde;
  * nakon svake izmjene u adminu stranice se automatski osvježe.
+ *
+ * Kolekcija se tokom jednog prikaza stranice čita iz baze samo jednom (React `cache`),
+ * pa ne smeta što je više komponenti traži. Vraćene liste se ne smiju mijenjati na mjestu.
  */
+const ucitajKolekciju = cache((kolekcija: string) => podaciIzBaze<Record<string, unknown>>(kolekcija));
+const podaci = <T,>(kolekcija: string) => ucitajKolekciju(kolekcija) as unknown as (T & { _id: number })[];
+const ucitajJedinstven = cache((kolekcija: string) => jedinstvenIzBaze<Record<string, unknown>>(kolekcija));
+const jedinstven = <T,>(kolekcija: string) => ucitajJedinstven(kolekcija) as T;
 
 /** Tekst iz obrasca → pasusi (prazan red odvaja pasuse) */
 export const pasusi = (s?: string) =>
@@ -20,7 +28,8 @@ export const pasusi = (s?: string) =>
 // ── javne nabavke ───────────────────────────────────────────────────────
 type NabavkaZ = { naziv: string; dokument: string; vrsta: string; godina: string; postupak?: string };
 
-export function nabavkePoGodinama(): NabavkaGodina[] {
+/** Nabavke grupisane po godini i vrsti (računa se jednom po prikazu stranice) */
+export const nabavkePoGodinama = cache(function nabavkePoGodinama(): NabavkaGodina[] {
   const sve = podaci<NabavkaZ>("nabavke");
   const godine = [...new Set(sve.map((n) => Number(n.godina)))].sort((a, b) => b - a);
   return godine.map((g) => {
@@ -41,7 +50,7 @@ export function nabavkePoGodinama(): NabavkaGodina[] {
       })),
     };
   });
-}
+});
 
 /** Posljednja objavljena nabavka (nove idu na vrh liste) iz najnovije godine */
 export function najnovijaNabavka() {
@@ -128,11 +137,23 @@ export type JedinicaCms = { naziv: string; telefon: string; email: string; osobe
 
 export function organizacija(): JedinicaCms[] {
   const sve = podaci<{ naziv: string; nadredjena: string; telefon: string; email: string; osobe: OsobaCms[] }>("jedinice");
-  const gradi = (nad: string): JedinicaCms[] =>
+  const nazivi = new Set(sve.map((j) => j.naziv));
+  // jedinica čija nadređena ne postoji (npr. greškom upisana) prikazuje se kao glavna, ne nestaje
+  const nad = (j: (typeof sve)[number]) => (j.nadredjena && nazivi.has(j.nadredjena) && j.nadredjena !== j.naziv ? j.nadredjena : "");
+  const iskoristene = new Set<number>();
+  const gradi = (roditelj: string): JedinicaCms[] =>
     sve
-      .filter((j) => (j.nadredjena || "") === nad)
-      .map((j) => ({ naziv: j.naziv, telefon: j.telefon, email: j.email, osobe: j.osobe ?? [], pod: gradi(j.naziv) }));
-  return gradi("");
+      .filter((j) => nad(j) === roditelj && !iskoristene.has(j._id))
+      .map((j) => {
+        iskoristene.add(j._id); // zaštita od kruga (A pod B, B pod A)
+        return { naziv: j.naziv, telefon: j.telefon, email: j.email, osobe: j.osobe ?? [], pod: gradi(j.naziv) };
+      });
+  const stablo = gradi("");
+  // jedinice zarobljene u krugu ipak se prikažu
+  const ostale = sve.filter((j) => !iskoristene.has(j._id));
+  return ostale.length
+    ? [...stablo, ...ostale.map((j) => ({ naziv: j.naziv, telefon: j.telefon, email: j.email, osobe: j.osobe ?? [], pod: [] }))]
+    : stablo;
 }
 
 // ── marketing ───────────────────────────────────────────────────────────

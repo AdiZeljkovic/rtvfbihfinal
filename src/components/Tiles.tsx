@@ -59,7 +59,7 @@ export function DarkTile({
     >
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-60 transition-transform duration-700 group-hover:scale-105"
+        className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-60 transition-transform duration-700 group-hover:scale-105"
       />
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/60 to-transparent" />
       <div className="relative flex flex-1 flex-col sm:max-w-md">
@@ -119,7 +119,7 @@ export function IconCard({
       )}
       {(Icon || href) && (
         <div className="relative flex items-start justify-between">
-          {Icon ? <Icon className="h-10 w-10 text-brand" /> : <span />}
+          {Icon ? <Icon className="h-10 w-10 text-brand-strong" /> : <span />}
           {href && (
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-navy transition-colors duration-300 group-hover:border-brand group-hover:bg-brand group-hover:text-white">
               <ArrowUpRight className="h-4 w-4" />
@@ -139,7 +139,7 @@ export function IconCard({
       {text && <p className="relative mt-1.5 flex-1 text-sm leading-relaxed text-muted">{text}</p>}
       {children && <div className="relative">{children}</div>}
       {cta && (
-        <span className="relative mt-5 inline-flex items-center gap-1 text-sm font-semibold text-brand">
+        <span className="relative mt-5 inline-flex items-center gap-1 text-sm font-semibold text-brand-strong">
           {cta}
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </span>
@@ -185,7 +185,7 @@ export function UnderlineLink({
   dark?: boolean;
 }) {
   const cls = `group inline-flex items-center gap-2 px-1 py-3 font-display text-[0.95rem] font-semibold transition-colors ${
-    dark ? "text-white/85 hover:text-white" : "text-navy hover:text-brand"
+    dark ? "text-white/85 hover:text-white" : "text-navy hover:text-brand-strong"
   }`;
   const inner = (
     <>

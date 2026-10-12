@@ -62,7 +62,7 @@ export default function Potvrda({
               onZatvori();
             }}
             className={`min-h-14 rounded-2xl px-6 font-display text-lg font-semibold text-white ${
-              opasno ? "bg-red-700 hover:bg-red-800" : "bg-brand hover:bg-brand-deep"
+              opasno ? "bg-red-700 hover:bg-red-800" : "bg-brand-strong hover:bg-brand-deep"
             }`}
           >
             {potvrdi}

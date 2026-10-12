@@ -2,7 +2,7 @@ import json, os, shutil, time, urllib.parse, urllib.request
 
 D = r"./scripts/uvoz-stare-stranice/podaci"
 OLDDOC = r"../RTV OLD/doc"
-CILJ = r"./public/doc"
+CILJ = r"./podaci/doc"
 os.makedirs(CILJ, exist_ok=True)
 
 lokalno = {f.lower(): f for f in os.listdir(OLDDOC)}
@@ -32,7 +32,7 @@ for ime in docs:
 
 ukupno = sum(os.path.getsize(os.path.join(CILJ, f)) for f in os.listdir(CILJ))
 print(f"kopirano iz kopije servera: {kopirano}, preuzeto sa žive: {preuzeto}, već postojalo: {postoji}")
-print(f"u public/doc: {len(os.listdir(CILJ))} fajlova, {ukupno/1024/1024:.0f} MB")
+print(f"u podaci/doc: {len(os.listdir(CILJ))} fajlova, {ukupno/1024/1024:.0f} MB")
 print("neuspjeh:", len(neuspjeh))
 for n in neuspjeh:
     print("   ", n)

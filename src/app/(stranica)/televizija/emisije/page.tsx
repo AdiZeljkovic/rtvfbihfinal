@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import PageHero from "@/components/PageHero";
@@ -28,17 +29,15 @@ function Kartica({ e }: { e: EmisijaCms }) {
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-navy">
         {slika ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={slika}
             alt=""
-            loading="lazy"
-            className={`h-full w-full transition-transform duration-700 group-hover:scale-105 ${
-              e.slika ? "object-cover" : "object-contain p-8"
-            }`}
+            fill
+            sizes="(min-width: 1280px) 18rem, (min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"
+            className={`transition-transform duration-700 group-hover:scale-105 ${e.slika ? "object-cover" : "object-contain p-8"}`}
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right">
+          <div className="flex h-full items-center justify-center bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right">
             <TvIcon className="h-12 w-12 text-sky" />
           </div>
         )}
@@ -50,9 +49,9 @@ function Kartica({ e }: { e: EmisijaCms }) {
       </div>
       <div className="flex flex-1 flex-col p-5">
         <h3 className="font-display text-lg font-semibold leading-snug text-navy group-hover:text-brand-deep">{e.naziv}</h3>
-        {e.termin && <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-brand">{e.termin}</p>}
+        {e.termin && <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-brand-strong">{e.termin}</p>}
         <p className="mt-1.5 line-clamp-3 flex-1 text-sm leading-relaxed text-muted">{opisEmisije(e, 150)}</p>
-        <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand">
+        <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-strong">
           Opširnije <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </span>
       </div>
@@ -81,7 +80,7 @@ export default function EmisijePage() {
             <a
               key={g.id}
               href={`#${g.id}`}
-              className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-sky-mist hover:text-brand"
+              className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-sky-mist hover:text-brand-strong"
             >
               {g.naziv}
             </a>

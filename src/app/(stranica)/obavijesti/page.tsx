@@ -39,7 +39,7 @@ export default function ObavijestiPage() {
                     return (
                       <li key={o._id} className="rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold uppercase tracking-[0.14em]">
-                          {o.datum && <time dateTime={o.datum} className="text-brand">{datumBs(o.datum)}</time>}
+                          {o.datum && <time dateTime={o.datum} className="text-brand-strong">{datumBs(o.datum)}</time>}
                           {o.rok && (
                             <span
                               className={`rounded-full px-3 py-1 tracking-wider ${

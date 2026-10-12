@@ -48,19 +48,19 @@ export default async function NabavkeGodinePage({ params }: PageProps<"/javne-na
         <NabavkeLista godina={g} />
         <nav aria-label="Druge godine" className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
           {starija ? (
-            <Link href={`/javne-nabavke/${starija}`} className="inline-flex items-center gap-2 font-semibold text-brand hover:underline">
+            <Link href={`/javne-nabavke/${starija}`} className="inline-flex items-center gap-2 font-semibold text-brand-strong hover:underline">
               <ArrowLeft className="h-4 w-4" /> {starija}.
             </Link>
           ) : (
             <span />
           )}
-          <Link href="/javne-nabavke#arhiva" className="text-sm font-semibold text-muted hover:text-brand">
+          <Link href="/javne-nabavke#arhiva" className="text-sm font-semibold text-muted hover:text-brand-strong">
             Sve godine
           </Link>
           {novija ? (
             <Link
               href={novija === godine[0] ? "/javne-nabavke" : `/javne-nabavke/${novija}`}
-              className="inline-flex items-center gap-2 font-semibold text-brand hover:underline"
+              className="inline-flex items-center gap-2 font-semibold text-brand-strong hover:underline"
             >
               {novija}. <ArrowRight className="h-4 w-4" />
             </Link>

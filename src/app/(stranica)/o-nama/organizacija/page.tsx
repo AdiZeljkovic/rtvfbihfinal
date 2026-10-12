@@ -35,12 +35,12 @@ function Kontakt({ tel, email }: { tel?: string; email?: string }) {
   return (
     <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
       {tel && (
-        <a href={telHref(tel)} className="inline-flex items-center gap-1.5 text-ink hover:text-brand">
-          <Phone className="h-3.5 w-3.5 text-brand" /> {tel}
+        <a href={telHref(tel)} className="inline-flex items-center gap-1.5 text-ink hover:text-brand-strong">
+          <Phone className="h-3.5 w-3.5 text-brand-strong" /> {tel}
         </a>
       )}
       {email && (
-        <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 break-all text-brand hover:underline">
+        <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 break-all text-brand-strong hover:underline">
           <Mail className="h-3.5 w-3.5 shrink-0" /> {email}
         </a>
       )}
@@ -51,7 +51,7 @@ function Kontakt({ tel, email }: { tel?: string; email?: string }) {
 function OsobaRed({ o }: { o: Osoba }) {
   return (
     <li className="flex items-start gap-3.5">
-      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-xs font-bold text-brand ring-1 ring-line">
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-xs font-bold text-brand-strong ring-1 ring-line">
         {inicijali(o.ime)}
       </span>
       <div className="min-w-0">
@@ -88,11 +88,35 @@ function Odjel({ j }: { j: Jedinica }) {
                   ))}
                 </ul>
               )}
+              <Podjedinice pod={p.pod} />
             </li>
           ))}
         </ul>
       )}
     </div>
+  );
+}
+
+/** Dublji nivoi (odsjek unutar odjela…) – uvučena lista unutar kartice */
+function Podjedinice({ pod }: { pod?: Jedinica[] }) {
+  if (!pod?.length) return null;
+  return (
+    <ul className="mt-4 space-y-4 border-l-2 border-line pl-4">
+      {pod.map((p) => (
+        <li key={p.naziv}>
+          <p className="font-semibold text-navy">{p.naziv}</p>
+          <Kontakt tel={p.telefon} email={p.email} />
+          {p.osobe?.length > 0 && (
+            <ul className="mt-3 space-y-3">
+              {p.osobe.map((o) => (
+                <OsobaRed key={o.ime} o={o} />
+              ))}
+            </ul>
+          )}
+          <Podjedinice pod={p.pod} />
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -122,9 +146,9 @@ export default function OrganizacijaPage() {
                 <li key={s.naziv} className="shrink-0">
                   <a
                     href={`#${slug(s.naziv)}`}
-                    className="flex items-baseline gap-3 rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy transition-colors hover:border-brand hover:text-brand lg:rounded-xl lg:border-transparent lg:px-3 lg:hover:bg-sky-mist"
+                    className="flex items-baseline gap-3 rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy transition-colors hover:border-brand hover:text-brand-strong lg:rounded-xl lg:border-transparent lg:px-3 lg:hover:bg-sky-mist"
                   >
-                    <span className="font-mono text-xs tabular-nums text-brand">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-mono text-xs tabular-nums text-brand-strong">{String(i + 1).padStart(2, "0")}</span>
                     {s.naziv.replace(" RTVFBiH", "")}
                   </a>
                 </li>
@@ -141,13 +165,13 @@ export default function OrganizacijaPage() {
               >
                 <header className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="font-mono text-sm tabular-nums text-brand">{String(i + 1).padStart(2, "0")}</p>
+                    <p className="font-mono text-sm tabular-nums text-brand-strong">{String(i + 1).padStart(2, "0")}</p>
                     <h2 className="mt-1 font-display text-2xl font-bold text-navy">{s.naziv}</h2>
                     <Kontakt tel={s.telefon} email={s.email} />
                   </div>
                 </header>
                 {s.osobe && (
-                  <ul className="mt-6 grid gap-4 rounded-2xl bg-navy p-5 text-white sm:grid-cols-2 [&_.text-muted]:text-white/60 [&_.text-navy]:text-white [&_.text-ink]:text-white/85 [&_.text-brand]:text-sky [&_.ring-line]:ring-white/25">
+                  <ul className="mt-6 grid gap-4 rounded-2xl bg-navy p-5 text-white sm:grid-cols-2 [&_.text-muted]:text-white/60 [&_.text-navy]:text-white [&_.text-ink]:text-white/85 [&_.text-brand-strong]:text-sky [&_.ring-line]:ring-white/25">
                     {s.osobe.map((o) => (
                       <OsobaRed key={o.ime} o={o} />
                     ))}

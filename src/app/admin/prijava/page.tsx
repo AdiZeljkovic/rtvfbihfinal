@@ -3,18 +3,19 @@ import { redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import PrijavaObrazac from "@/components/admin/PrijavaObrazac";
 import Pristupacnost from "@/components/admin/Pristupacnost";
-import { imaKorisnika, trenutniKorisnik } from "@/server/auth";
+import { imaKorisnika, kodZaPostavljanje, prviUrednikPrekoWeba, trenutniKorisnik } from "@/server/auth";
 
 export const metadata: Metadata = { title: "Prijava" };
 
 export default async function PrijavaPage() {
   if (await trenutniKorisnik()) redirect("/admin");
   const prvi = !imaKorisnika();
+  const zakljucano = prvi && !prviUrednikPrekoWeba();
 
   return (
     <div className="grid min-h-svh flex-1 lg:grid-cols-[1fr_1.1fr]">
       <div className="relative hidden overflow-hidden bg-navy text-white lg:sticky lg:top-0 lg:block lg:h-svh">
-        <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-70" />
+        <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-70" />
         <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-navy via-navy/70 to-navy/30" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Logo light />
@@ -44,7 +45,17 @@ export default async function PrijavaPage() {
               : "Upišite korisničko ime i lozinku. Na ovom računaru ostat ćete prijavljeni 90 dana."}
           </p>
           <div className="mt-8">
-            <PrijavaObrazac prvi={prvi} />
+            {zakljucano ? (
+              <div className="rounded-3xl border-2 border-line bg-white p-6 text-lg leading-relaxed text-ink">
+                <p className="font-display text-xl font-semibold text-navy">Prvi urednik se pravi na serveru</p>
+                <p className="mt-2">
+                  Osoba koja održava server treba pokrenuti komandu <code className="rounded bg-sky-soft px-2 py-0.5">npm run urednik</code>{" "}
+                  ili postaviti kod za postavljanje (<code className="rounded bg-sky-soft px-2 py-0.5">CMS_KOD_ZA_POSTAVLJANJE</code>).
+                </p>
+              </div>
+            ) : (
+              <PrijavaObrazac prvi={prvi} trebaKod={prvi && kodZaPostavljanje().length > 0} />
+            )}
           </div>
         </div>
       </main>

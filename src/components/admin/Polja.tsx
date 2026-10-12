@@ -35,7 +35,7 @@ export function Okvir({
     <>
       <Oznaka {...(grupa ? {} : { htmlFor: id })} className="block font-display text-xl font-semibold text-navy">
         {naziv}
-        {obavezno && <span className="ml-2 align-middle text-sm font-semibold text-brand">obavezno</span>}
+        {obavezno && <span className="ml-2 align-middle text-sm font-semibold text-brand-strong">obavezno</span>}
       </Oznaka>
       {pomoc && (
         <p id={`${id}-pomoc`} className="mt-1 text-base text-muted">
@@ -172,7 +172,7 @@ export function IzborPolje({ polje, vrijednost, postavi, greska, opcije }: Svojs
     return (
       <Okvir id={id} naziv={polje.naziv} pomoc={polje.pomoc} greska={greska} obavezno={polje.obavezno}>
         <select id={id} value={vrijednost ?? ""} onChange={(e) => postavi(e.target.value)} className={ULAZ} {...a}>
-          <option value="">— odaberite —</option>
+          <option value="">{polje.prazno ?? (polje.obavezno ? "— odaberite —" : "— ništa —")}</option>
           {sve.map((o) => (
             <option key={o}>{o}</option>
           ))}
@@ -242,7 +242,7 @@ export function PrekidacPolje({ polje, vrijednost, postavi }: Svojstva<boolean>)
         aria-labelledby={id}
         onClick={() => postavi(!ukljuceno)}
         className={`relative inline-flex h-12 w-28 shrink-0 items-center rounded-full px-1.5 font-display font-bold transition-colors ${
-          ukljuceno ? "bg-brand text-white" : "bg-line text-navy"
+          ukljuceno ? "bg-brand-strong text-white" : "bg-line text-navy"
         }`}
       >
         <span
@@ -292,7 +292,7 @@ export function DokumentiPolje({ polje, vrijednost, postavi, greska }: Svojstva<
               <KarticaDokumenta ime={d.dokument} onUkloni={() => postavi(lista.filter((_, j) => j !== i))} />
             ) : (
               <div className="flex items-center gap-3">
-                <LinkIkona className="h-5 w-5 text-brand" aria-hidden="true" />
+                <LinkIkona className="h-5 w-5 text-brand-strong" aria-hidden="true" />
                 <span className="break-all">{d.adresa}</span>
                 <button type="button" onClick={() => postavi(lista.filter((_, j) => j !== i))} className={`${MALO_DUGME} ml-auto text-red-700 hover:bg-red-50`}>
                   <Trash2 className="h-5 w-5" aria-hidden="true" /> Ukloni
@@ -388,7 +388,7 @@ export function ListaPolje({ polje, vrijednost, postavi, greska }: Svojstva<Reco
       <button
         type="button"
         onClick={() => postavi([...lista, Object.fromEntries(polje.polja.map((pp) => [pp.ime, ""]))])}
-        className="mt-4 inline-flex min-h-14 items-center gap-2 rounded-2xl border-2 border-dashed border-brand px-5 font-display text-lg font-semibold text-brand hover:bg-sky-soft"
+        className="mt-4 inline-flex min-h-14 items-center gap-2 rounded-2xl border-2 border-dashed border-brand px-5 font-display text-lg font-semibold text-brand-strong hover:bg-sky-soft"
       >
         <Plus className="h-5 w-5" aria-hidden="true" /> Dodaj {polje.stavka}
       </button>

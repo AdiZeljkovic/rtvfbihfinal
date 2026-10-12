@@ -96,7 +96,7 @@ export default function HomePage() {
                 href="/televizija"
                 className="group inline-flex items-center gap-3 rounded-full bg-white py-1.5 pl-5 pr-1.5 font-display text-[0.95rem] font-semibold text-navy shadow-[0_10px_30px_-12px_rgba(0,0,0,0.5)] transition-colors hover:bg-sky-soft"
               >
-                <TvIcon className="h-5 w-5 text-brand" />
+                <TvIcon className="h-5 w-5 text-brand-strong" />
                 Federalna televizija
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-navy text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:bg-brand">
                   <ArrowRight className="h-4 w-4" />
@@ -144,7 +144,7 @@ export default function HomePage() {
         </a>
       </section>
 
-      {/* SERVISI – tamne kartice s pozadinom klijenta (public/brand/kartice-bg.jpg) */}
+      {/* SERVISI – tamne kartice s pozadinom klijenta (public/brand/kartice-bg.webp) */}
       <Section
         id="servisi"
         eyebrow="Naši servisi"
@@ -160,7 +160,7 @@ export default function HomePage() {
               <>
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right transition-transform duration-700 group-hover:scale-105"
+                  className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right transition-transform duration-700 group-hover:scale-105"
                 />
                 <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/55 to-transparent" />
                 <div className="relative flex flex-1 flex-col sm:max-w-sm">
@@ -212,7 +212,7 @@ export default function HomePage() {
             >
               <div
                 aria-hidden="true"
-                className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-70 transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-70 transition-transform duration-700 group-hover:scale-105"
               />
               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-navy via-navy/75 to-navy/30" />
 
@@ -252,11 +252,11 @@ export default function HomePage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <h3 className="font-display text-base font-semibold text-navy sm:text-lg">{e.naziv}</h3>
-                      <span className="text-[0.68rem] font-semibold uppercase tracking-wider text-brand">{e.vrsta}</span>
+                      <span className="text-[0.68rem] font-semibold uppercase tracking-wider text-brand-strong">{e.vrsta}</span>
                     </div>
                     <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted sm:line-clamp-1">{e.opis}</p>
                   </div>
-                  <ArrowRight className="h-4 w-4 -translate-x-1 text-brand opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                  <ArrowRight className="h-4 w-4 -translate-x-1 text-brand-strong opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
                 </Link>
               </li>
             ))}

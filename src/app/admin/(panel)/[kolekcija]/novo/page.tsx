@@ -4,6 +4,7 @@ import { kolekcija } from "@/cms/kolekcije";
 import Naslov from "@/components/admin/Naslov";
 import Obrazac from "@/components/admin/Obrazac";
 import { opcijeObrasca } from "@/server/admin";
+import { obaveznaPrijava } from "@/server/auth";
 
 const POMOC: Record<string, string> = {
   nabavke: "Odaberite dokument – naziv se upiše sam. Zatim označite vrstu objave i godinu, pa sačuvajte.",
@@ -17,6 +18,7 @@ export async function generateMetadata({ params }: PageProps<"/admin/[kolekcija]
 }
 
 export default async function NovoPage({ params }: PageProps<"/admin/[kolekcija]/novo">) {
+  await obaveznaPrijava();
   const def = kolekcija((await params).kolekcija);
   if (!def) notFound();
   if (def.jedinstven || !def.dodavanje) redirect(`/admin/${def.kljuc}`);

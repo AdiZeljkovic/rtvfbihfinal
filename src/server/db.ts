@@ -27,9 +27,10 @@ const g = globalThis as unknown as { __rtvBaza?: DatabaseSync };
 
 function otvori() {
   const db = new DatabaseSync(BAZA);
+  // busy_timeout prvo: više build radnika može otvoriti bazu u isto vrijeme
   db.exec(`
-    PRAGMA journal_mode = WAL;
     PRAGMA busy_timeout = 15000;
+    PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS zapisi (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       kolekcija TEXT NOT NULL,
@@ -69,30 +70,59 @@ function otvori() {
 
 export function baza(): DatabaseSync {
   if (!g.__rtvBaza) {
-    g.__rtvBaza = otvori();
-    pocetniSadrzaj(g.__rtvBaza);
+    const db = otvori();
+    pocetniSadrzaj(db);
+    // konekcija se pamti tek kad je baza spremna (neuspjelo punjenje se ponovi)
+    g.__rtvBaza = db;
   }
   return g.__rtvBaza;
+}
+
+/**
+ * Izmjena u transakciji: sve ili ništa. Ako bilo šta pukne, transakcija se poništi,
+ * pa konekcija nikad ne ostane u otvorenoj transakciji.
+ */
+function transakcija<T>(db: DatabaseSync, fn: () => T, vrsta: "" | "IMMEDIATE" = "IMMEDIATE"): T {
+  db.exec(`BEGIN ${vrsta}`);
+  try {
+    const r = fn();
+    db.exec("COMMIT");
+    return r;
+  } catch (e) {
+    if (db.isTransaction) db.exec("ROLLBACK");
+    throw e;
+  }
+}
+
+/**
+ * Prepisuje WAL dnevnik u glavni fajl baze. Poslije ovoga je sav sadržaj u `rtvfbih.db`,
+ * pa je i kopija samo tog fajla potpuna.
+ */
+export function zapisiNaDisk() {
+  try {
+    baza().exec("PRAGMA wal_checkpoint(TRUNCATE)");
+  } catch {
+    // baza je zauzeta (npr. backup u toku) – pokušat će se pri sljedećoj izmjeni
+  }
 }
 
 /** Prvo pokretanje: prazna baza se puni postojećim sadržajem stranice (jednom, zaključano). */
 function pocetniSadrzaj(db: DatabaseSync) {
   const n = (db.prepare("SELECT COUNT(*) AS n FROM zapisi").get() as { n: number }).n;
   if (n > 0) return;
-  db.exec("BEGIN IMMEDIATE");
-  try {
+  transakcija(db, () => {
     const opet = (db.prepare("SELECT COUNT(*) AS n FROM zapisi").get() as { n: number }).n;
-    if (opet === 0) {
-      const ins = db.prepare("INSERT INTO zapisi (kolekcija, podaci, redoslijed, izmijenio) VALUES (?, ?, ?, 'početni sadržaj')");
-      for (const [kol, lista] of Object.entries(pocetniZapisi())) {
-        lista.forEach((p, i) => ins.run(kol, JSON.stringify(p), i));
-      }
+    if (opet > 0) return;
+    console.warn(
+      `[CMS] Baza ${BAZA} je prazna – puni se početnim sadržajem. ` +
+        "Ako ste vraćali backup, provjerite da je vraćen cijeli fajl baze."
+    );
+    const ins = db.prepare("INSERT INTO zapisi (kolekcija, podaci, redoslijed, izmijenio) VALUES (?, ?, ?, 'početni sadržaj')");
+    for (const [kol, lista] of Object.entries(pocetniZapisi())) {
+      lista.forEach((p, i) => ins.run(kol, JSON.stringify(p), i));
     }
-    db.exec("COMMIT");
-  } catch (e) {
-    db.exec("ROLLBACK");
-    throw e;
-  }
+  });
+  db.exec("PRAGMA wal_checkpoint(TRUNCATE)");
 }
 
 const uZapis = (r: Red): Zapis => ({ ...r, podaci: JSON.parse(r.podaci), status: r.status as Zapis["status"] });
@@ -139,48 +169,77 @@ const naslovZapisa = (kolekcija: string, p: Record<string, unknown>) => {
 export function sacuvaj(kolekcija: string, id: number | null, p: Record<string, unknown>, korisnik: string): number {
   const db = baza();
   const def = defKolekcije(kolekcija);
-  if (id) {
-    const prije = jedan(id);
-    if (!prije || prije.kolekcija !== kolekcija) throw new Error("Zapis nije pronađen.");
-    db.prepare("UPDATE zapisi SET podaci = ?, izmijenjeno = datetime('now'), izmijenio = ? WHERE id = ?").run(JSON.stringify(p), korisnik, id);
-    zabiljezi(id, kolekcija, "izmjena", naslovZapisa(kolekcija, p), prije.podaci, korisnik);
-    return id;
-  }
-  const ekstrem = db
-    .prepare(`SELECT ${def?.noveNaVrh ? "MIN" : "MAX"}(redoslijed) AS r FROM zapisi WHERE kolekcija = ?`)
-    .get(kolekcija) as { r: number | null };
-  const red = ekstrem.r === null ? 0 : def?.noveNaVrh ? ekstrem.r - 1 : ekstrem.r + 1;
-  const res = db
-    .prepare("INSERT INTO zapisi (kolekcija, podaci, redoslijed, izmijenio) VALUES (?, ?, ?, ?)")
-    .run(kolekcija, JSON.stringify(p), red, korisnik);
-  const noviId = Number(res.lastInsertRowid);
-  zabiljezi(noviId, kolekcija, "dodavanje", naslovZapisa(kolekcija, p), null, korisnik);
-  return noviId;
+  const rezultat = transakcija(db, () => {
+    if (id) {
+      const prije = jedan(id);
+      if (!prije || prije.kolekcija !== kolekcija) throw new Error("Zapis nije pronađen.");
+      db.prepare("UPDATE zapisi SET podaci = ?, izmijenjeno = datetime('now'), izmijenio = ? WHERE id = ?").run(JSON.stringify(p), korisnik, id);
+      zabiljezi(id, kolekcija, "izmjena", naslovZapisa(kolekcija, p), prije.podaci, korisnik);
+      return id;
+    }
+    const ekstrem = db
+      .prepare(`SELECT ${def?.noveNaVrh ? "MIN" : "MAX"}(redoslijed) AS r FROM zapisi WHERE kolekcija = ?`)
+      .get(kolekcija) as { r: number | null };
+    const red = ekstrem.r === null ? 0 : def?.noveNaVrh ? ekstrem.r - 1 : ekstrem.r + 1;
+    const res = db
+      .prepare("INSERT INTO zapisi (kolekcija, podaci, redoslijed, izmijenio) VALUES (?, ?, ?, ?)")
+      .run(kolekcija, JSON.stringify(p), red, korisnik);
+    const noviId = Number(res.lastInsertRowid);
+    zabiljezi(noviId, kolekcija, "dodavanje", naslovZapisa(kolekcija, p), null, korisnik);
+    return noviId;
+  });
+  zapisiNaDisk();
+  return rezultat;
 }
 
 export function postaviStatus(id: number, status: Zapis["status"], korisnik: string) {
-  const z = jedan(id);
-  if (!z) throw new Error("Zapis nije pronađen.");
-  baza().prepare("UPDATE zapisi SET status = ?, izmijenjeno = datetime('now'), izmijenio = ? WHERE id = ?").run(status, korisnik, id);
-  zabiljezi(id, z.kolekcija, status === "korpa" ? "u korpu" : "vraćeno", naslovZapisa(z.kolekcija, z.podaci), null, korisnik);
+  const db = baza();
+  const z = transakcija(db, () => {
+    const z = jedan(id);
+    if (!z) throw new Error("Zapis nije pronađen.");
+    if (z.status === status) return z;
+    db.prepare("UPDATE zapisi SET status = ?, izmijenjeno = datetime('now'), izmijenio = ? WHERE id = ?").run(status, korisnik, id);
+    zabiljezi(id, z.kolekcija, status === "korpa" ? "u korpu" : "vraćeno", naslovZapisa(z.kolekcija, z.podaci), null, korisnik);
+    return z;
+  });
+  zapisiNaDisk();
   return z;
 }
 
-/** Pomjeri zapis gore/dolje u listi (zamjena redoslijeda sa susjedom) */
-export function pomjeri(id: number, smjer: -1 | 1) {
-  const z = jedan(id);
-  if (!z) return;
-  const svi = lista(z.kolekcija);
-  const i = svi.findIndex((x) => x.id === id);
-  const j = i + smjer;
-  if (j < 0 || j >= svi.length) return;
+/** Trajno brisanje – samo za stavke koje su već u korpi */
+export function obrisiTrajno(id: number, korisnik: string) {
   const db = baza();
-  // normalizuj redoslijed pa zamijeni
-  db.exec("BEGIN");
-  svi.forEach((x, k) => db.prepare("UPDATE zapisi SET redoslijed = ? WHERE id = ?").run(k, x.id));
-  db.prepare("UPDATE zapisi SET redoslijed = ? WHERE id = ?").run(j, svi[i].id);
-  db.prepare("UPDATE zapisi SET redoslijed = ? WHERE id = ?").run(i, svi[j].id);
-  db.exec("COMMIT");
+  transakcija(db, () => {
+    const z = jedan(id);
+    if (!z || z.status !== "korpa") return;
+    db.prepare("DELETE FROM zapisi WHERE id = ?").run(id);
+    zabiljezi(id, z.kolekcija, "trajno obrisano", naslovZapisa(z.kolekcija, z.podaci), z.podaci, korisnik);
+  });
+  zapisiNaDisk();
+}
+
+/**
+ * Pomjeri objavljeni zapis gore/dolje: zamjenjuje mjesto sa susjedom.
+ * Mijenjaju se samo dva reda (osim ako imaju isti redoslijed – tada se lista jednom renumeriše).
+ */
+export function pomjeri(id: number, smjer: -1 | 1) {
+  const db = baza();
+  transakcija(db, () => {
+    const z = jedan(id);
+    if (!z || z.status !== "objavljeno") return;
+    let svi = lista(z.kolekcija);
+    const i = svi.findIndex((x) => x.id === id);
+    const j = i + smjer;
+    if (i < 0 || j < 0 || j >= svi.length) return;
+    const upd = db.prepare("UPDATE zapisi SET redoslijed = ? WHERE id = ?");
+    if (svi[i].redoslijed === svi[j].redoslijed) {
+      svi.forEach((x, k) => upd.run(k, x.id));
+      svi = svi.map((x, k) => ({ ...x, redoslijed: k }));
+    }
+    upd.run(svi[j].redoslijed, svi[i].id);
+    upd.run(svi[i].redoslijed, svi[j].id);
+  });
+  zapisiNaDisk();
 }
 
 export type Promjena = { id: number; zapis_id: number | null; kolekcija: string; akcija: string; opis: string; korisnik: string; vrijeme: string };

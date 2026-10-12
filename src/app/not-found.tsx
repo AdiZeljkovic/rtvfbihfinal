@@ -9,7 +9,7 @@ export default function NotFound() {
     <Header />
     <main id="sadrzaj" className="flex-1">
     <section className="relative -mt-[4.5rem] flex min-h-[80svh] items-center overflow-hidden bg-navy text-white">
-      <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-70" />
+      <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-70" />
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-gradient-to-t from-navy via-navy/80 to-navy/40 lg:bg-gradient-to-r lg:from-navy lg:via-navy/80 lg:to-navy/20"

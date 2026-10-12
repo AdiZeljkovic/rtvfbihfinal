@@ -33,7 +33,7 @@ export default function ContactCard({ ime, uloga, tel, fax, email, className = "
       <div className="flex items-center gap-4">
         <span
           className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold tracking-wide ring-1 ${
-            dark ? "text-sky ring-white/25" : "text-brand ring-line"
+            dark ? "text-sky ring-white/25" : "text-brand-strong ring-line"
           }`}
         >
           {inicijali(ime)}
@@ -47,22 +47,22 @@ export default function ContactCard({ ime, uloga, tel, fax, email, className = "
         <ul className={`mt-5 space-y-2 border-t pt-4 text-sm ${dark ? "border-white/10" : "border-line"}`}>
           {tel && (
             <li className={`flex items-start gap-2.5 ${dark ? "text-white/85" : "text-ink"}`}>
-              <Phone className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand"}`} />
+              <Phone className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand-strong"}`} />
               <span>{tel}</span>
             </li>
           )}
           {fax && (
             <li className={`flex items-start gap-2.5 ${dark ? "text-white/70" : "text-muted"}`}>
-              <Printer className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand"}`} />
+              <Printer className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand-strong"}`} />
               <span>fax: {fax}</span>
             </li>
           )}
           {email && (
             <li className="flex items-start gap-2.5">
-              <Mail className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand"}`} />
+              <Mail className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand-strong"}`} />
               <a
                 href={`mailto:${email}`}
-                className={`break-all hover:underline ${dark ? "text-white" : "text-brand"}`}
+                className={`break-all hover:underline ${dark ? "text-white" : "text-brand-strong"}`}
               >
                 {email}
               </a>

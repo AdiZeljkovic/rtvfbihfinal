@@ -3,8 +3,8 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, CircleCheck, ExternalLink, Pencil, Search, Trash2, Undo2, X } from "lucide-react";
-import { pomjeriZapis, uKorpu, vratiIzKorpe } from "@/app/admin/akcije";
+import { ArrowDown, ArrowUp, CircleAlert, CircleCheck, ExternalLink, Pencil, Search, Trash2, Undo2, X } from "lucide-react";
+import { pomjeriZapis, uKorpu, vratiIzKorpe, type Rezultat } from "@/app/admin/akcije";
 import Potvrda from "./Potvrda";
 import { ULAZ } from "./Polja";
 
@@ -38,7 +38,7 @@ export default function ListaZapisa({
   const [filter, setFilter] = useState(pocetniFilter);
   const [prikazano, setPrikazano] = useState(KORAK);
   const [zaBrisanje, setZaBrisanje] = useState<Red | null>(null);
-  const [obavijest, setObavijest] = useState<{ tekst: string; vrati?: number } | null>(null);
+  const [obavijest, setObavijest] = useState<{ tekst: string; vrati?: number; greska?: boolean; istekla?: boolean } | null>(null);
   const [radi, start] = useTransition();
 
   const vidljivi = useMemo(() => {
@@ -49,10 +49,16 @@ export default function ListaZapisa({
   }, [redovi, trazi, filter]);
   const mozePomjerati = !trazi && !filter;
 
-  const radnja = (fn: () => Promise<void>, poruka?: { tekst: string; vrati?: number }) =>
+  const radnja = (fn: () => Promise<Rezultat>, poruka?: { tekst: string; vrati?: number }) =>
     start(async () => {
-      await fn();
-      if (poruka) setObavijest(poruka);
+      let r: Rezultat;
+      try {
+        r = await fn();
+      } catch {
+        r = { poruka: "Nema veze sa serverom. Provjerite internet i pokušajte ponovo." };
+      }
+      if (r.poruka) setObavijest({ tekst: r.poruka, greska: true, istekla: r.istekla });
+      else if (poruka) setObavijest(poruka);
       router.refresh();
     });
 
@@ -115,7 +121,7 @@ export default function ListaZapisa({
                 setTrazi("");
                 setFilter("");
               }}
-              className="mt-4 min-h-12 rounded-xl px-4 text-lg font-semibold text-brand underline"
+              className="mt-4 min-h-12 rounded-xl px-4 text-lg font-semibold text-brand-strong underline"
             >
               Prikaži sve
             </button>
@@ -129,7 +135,7 @@ export default function ListaZapisa({
               className="admin-kartica flex flex-col gap-3 rounded-3xl border border-line bg-white p-4 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:p-5"
             >
               <Link href={`/admin/${kljuc}/${r.id}`} className="group min-w-0 flex-1 rounded-xl">
-                <span className="block break-words font-display text-lg font-semibold leading-snug text-navy group-hover:text-brand">
+                <span className="block break-words font-display text-lg font-semibold leading-snug text-navy group-hover:text-brand-strong">
                   {r.naslov || "(bez naziva)"}
                 </span>
                 {r.podnaslov && <span className="mt-0.5 block text-base text-muted">{r.podnaslov}</span>}
@@ -172,7 +178,7 @@ export default function ListaZapisa({
                   rel="noopener"
                   aria-label={`Pogledaj na stranici: ${r.naslov}`}
                   title="Pogledaj na stranici"
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-brand hover:bg-sky-soft"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-brand-strong hover:bg-sky-soft"
                 >
                   <ExternalLink className="h-6 w-6" aria-hidden="true" />
                 </a>
@@ -224,10 +230,24 @@ export default function ListaZapisa({
       {/* obavijest s mogućnošću poništavanja */}
       <div aria-live="polite" className="fixed inset-x-4 bottom-4 z-40 flex justify-center">
         {obavijest && (
-          <div className="flex w-full max-w-2xl flex-wrap items-center gap-3 rounded-3xl bg-navy p-4 pl-6 text-lg text-white shadow-2xl">
-            <CircleCheck className="h-6 w-6 shrink-0 text-sky" aria-hidden="true" />
+          <div
+            role={obavijest.greska ? "alert" : undefined}
+            className={`flex w-full max-w-2xl flex-wrap items-center gap-3 rounded-3xl p-4 pl-6 text-lg text-white shadow-2xl ${
+              obavijest.greska ? "bg-red-800" : "bg-navy"
+            }`}
+          >
+            {obavijest.greska ? (
+              <CircleAlert className="h-6 w-6 shrink-0" aria-hidden="true" />
+            ) : (
+              <CircleCheck className="h-6 w-6 shrink-0 text-sky" aria-hidden="true" />
+            )}
             <p className="min-w-0 flex-1">{obavijest.tekst}</p>
-            {obavijest.vrati && (
+            {obavijest.istekla && (
+              <a href="/admin/prijava" target="_blank" className="inline-flex min-h-12 items-center rounded-xl bg-white px-4 font-semibold text-red-900">
+                Prijavi se
+              </a>
+            )}
+            {obavijest.vrati && !obavijest.greska && (
               <button
                 type="button"
                 onClick={() => {

@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Plus } from "lucide-react";
-import { GODINE, kolekcija } from "@/cms/kolekcije";
+import { kolekcija } from "@/cms/kolekcije";
 import Naslov from "@/components/admin/Naslov";
 import ListaZapisa from "@/components/admin/ListaZapisa";
 import Obrazac from "@/components/admin/Obrazac";
 import { lista } from "@/server/db";
 import { opcijeFiltera, redoviKolekcije } from "@/server/admin";
+import { tekucaGodina } from "@/lib/datum";
+import { obaveznaPrijava } from "@/server/auth";
 
 export async function generateMetadata({ params }: PageProps<"/admin/[kolekcija]">): Promise<Metadata> {
   const def = kolekcija((await params).kolekcija);
@@ -15,6 +17,7 @@ export async function generateMetadata({ params }: PageProps<"/admin/[kolekcija]
 }
 
 export default async function KolekcijaPage({ params }: PageProps<"/admin/[kolekcija]">) {
+  await obaveznaPrijava();
   const def = kolekcija((await params).kolekcija);
   if (!def) notFound();
   const nazad = { href: "/admin", tekst: "Početna" };
@@ -34,8 +37,8 @@ export default async function KolekcijaPage({ params }: PageProps<"/admin/[kolek
   const filterPolje = def.polja.find((f) => f.ime === def.filter);
   const opcije = opcijeFiltera(def, redovi);
   // javne nabavke se otvaraju na tekućoj godini (ima ih preko hiljadu)
-  const tekuca = String(new Date().getFullYear());
-  const pocetniFilter = def.filter === "godina" ? (opcije.includes(tekuca) ? tekuca : (opcije.find((o) => GODINE.includes(o)) ?? "")) : "";
+  const tekuca = String(tekucaGodina());
+  const pocetniFilter = def.filter === "godina" ? (opcije.includes(tekuca) ? tekuca : (opcije[0] ?? "")) : "";
 
   return (
     <>
@@ -43,7 +46,7 @@ export default async function KolekcijaPage({ params }: PageProps<"/admin/[kolek
         {def.dodavanje && (
           <Link
             href={`/admin/${def.kljuc}/novo`}
-            className="inline-flex min-h-16 items-center gap-3 rounded-2xl bg-brand px-7 font-display text-xl font-bold text-white shadow-[0_10px_30px_-12px_rgba(43,141,222,0.8)] hover:bg-brand-deep"
+            className="inline-flex min-h-16 items-center gap-3 rounded-2xl bg-brand-strong px-7 font-display text-xl font-bold text-white shadow-[0_10px_30px_-12px_rgba(43,141,222,0.8)] hover:bg-brand-deep"
           >
             <Plus className="h-6 w-6" aria-hidden="true" /> Dodaj {def.jednina}
           </Link>

@@ -57,7 +57,7 @@ export default function ONamaPage() {
                 <a
                   key={p.id}
                   href={`#${p.id}`}
-                  className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-navy transition-colors hover:border-brand hover:text-brand"
+                  className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-navy transition-colors hover:border-brand hover:text-brand-strong"
                 >
                   {p.naslov.replace(" Bosne i Hercegovine", " BiH")}
                 </a>
@@ -80,7 +80,7 @@ export default function ONamaPage() {
                 className="scroll-mt-28 grid gap-8 rounded-3xl border border-line bg-white p-7 shadow-[var(--shadow-card)] sm:p-10 lg:grid-cols-[15rem_1fr] lg:gap-12"
               >
                 <header className="lg:sticky lg:top-28 lg:self-start">
-                  <Icon className="h-11 w-11 text-brand" />
+                  <Icon className="h-11 w-11 text-brand-strong" />
                   <p className="skala-broj mt-5 font-display text-6xl font-bold leading-none tracking-tight tabular-nums">
                     {p.godina}
                   </p>
@@ -102,7 +102,7 @@ export default function ONamaPage() {
                       <ul className="mt-4 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
                         {historijat.radioRedakcije.map((r, i) => (
                           <li key={r} className="flex items-baseline gap-3 text-sm text-navy">
-                            <span className="font-mono text-xs tabular-nums text-brand">{String(i + 1).padStart(2, "0")}</span>
+                            <span className="font-mono text-xs tabular-nums text-brand-strong">{String(i + 1).padStart(2, "0")}</span>
                             {r}
                           </li>
                         ))}

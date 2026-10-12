@@ -126,7 +126,7 @@ export function ZonaZaFajl({
             >
               <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${slanje.p}%` }} />
             </div>
-            <p className="mt-2 text-lg font-semibold tabular-nums text-brand">{slanje.p}%</p>
+            <p className="mt-2 text-lg font-semibold tabular-nums text-brand-strong">{slanje.p}%</p>
           </div>
         ) : (
           <>
@@ -183,7 +183,7 @@ export function KarticaDokumenta({
             setMijenja(false);
           }}
         />
-        <button type="button" onClick={() => setMijenja(false)} className="mt-2 min-h-12 px-2 font-semibold text-brand underline">
+        <button type="button" onClick={() => setMijenja(false)} className="mt-2 min-h-12 px-2 font-semibold text-brand-strong underline">
           Odustani od zamjene
         </button>
       </div>
@@ -201,7 +201,7 @@ export function KarticaDokumenta({
           href={`/doc/${encodeURIComponent(ime)}`}
           target="_blank"
           rel="noopener"
-          className="inline-flex min-h-12 items-center gap-2 rounded-xl px-3 font-semibold text-brand hover:bg-sky-soft"
+          className="inline-flex min-h-12 items-center gap-2 rounded-xl px-3 font-semibold text-brand-strong hover:bg-sky-soft"
         >
           <ExternalLink className="h-5 w-5" aria-hidden="true" /> Otvori
         </a>

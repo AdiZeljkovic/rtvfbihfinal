@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 
 type Props = {
   className?: string;
@@ -17,6 +18,9 @@ type Props = {
  * - poster = prvi kadar, pa nema "skoka" pri učitavanju
  */
 export default function VideoHero({ className = "", videoClassName = "", framed = true }: Props) {
+  // poster je prvo što se vidi (LCP): traži se odmah. U klijentskoj komponenti, pa ga
+  // ne povuče prefetch naslovne s drugih stranica (kao što bi hint iz server komponente)
+  preload("/video/ftv-intro-poster.webp", { as: "image", fetchPriority: "high" });
   const ref = useRef<HTMLVideoElement>(null);
   const [reduced, setReduced] = useState(false);
 
@@ -54,7 +58,7 @@ export default function VideoHero({ className = "", videoClassName = "", framed 
         loop
         playsInline
         preload="metadata"
-        poster="/video/ftv-intro-poster.jpg"
+        poster="/video/ftv-intro-poster.webp"
         aria-label="Animacija logotipa Radio-televizije Federacije BiH"
       >
         <source src="/video/ftv-intro.webm" type="video/webm" />

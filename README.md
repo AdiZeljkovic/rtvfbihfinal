@@ -20,9 +20,20 @@ npm run lint
 
 ## CMS – uređivanje sadržaja
 
-Admin je na **`/admin`**. Pri prvom otvaranju (dok nema nijednog urednika) prikazuje se
-obrazac za pravljenje prvog računa; poslije toga se novi urednici dodaju u
-*Urednici i lozinka*. Prijava traje 90 dana na istom računaru.
+Admin je na **`/admin`**. Prijava traje 90 dana na istom računaru; novi urednici se
+dodaju u *Urednici i lozinka*.
+
+**Prvi urednik** (dok u bazi nema nijednog):
+
+- na serveru: `npm run urednik` (pita korisničko ime, ime i lozinku); ista komanda
+  postavlja novu lozinku ako se zaboravi;
+- ili preko weba, uz kod iz varijable `CMS_KOD_ZA_POSTAVLJANJE` (obrazac na `/admin/prijava`
+  tada traži taj kod). Bez koda produkcijski server ne dozvoljava pravljenje prvog računa
+  preko weba, da ga ne bi napravio neko ko prvi otvori stranicu. U razvoju kod nije potreban.
+
+Zaštita prijave: lozinke su scrypt hash; nakon 5 pogrešnih pokušaja za isto korisničko ime
+dozvoljen je jedan pokušaj svakih 30 sekundi, a s iste IP adrese najviše 10 pogrešnih u
+15 minuta. Promjena lozinke traži trenutnu lozinku i odjavljuje sve druge uređaje.
 
 Admin je napravljen da bude što jednostavniji i pristupačan:
 
@@ -53,15 +64,27 @@ podaci/
 ```
 
 Pri prvom pokretanju prazna baza se automatski napuni postojećim sadržajem iz
-`src/content/` (to je samo početno stanje – poslije se sve uređuje u adminu).
-**Folder `podaci/` treba redovno praviti rezervnu kopiju (backup).**
+`src/content/` (to je samo početno stanje – poslije se sve uređuje u adminu; u logu servera
+piše upozorenje kad se to desi).
 
-Varijable okruženja (nisu obavezne):
+### Rezervna kopija (backup)
+
+```bash
+npm run backup     # → podaci/backup/rtvfbih-GGGG-MM-DD-SSMM.db (čuva posljednjih 30)
+```
+
+Komanda pravi potpunu, provjerenu kopiju baze dok stranica radi. **Ne kopirajte samo fajl
+`rtvfbih.db`** dok server radi – dio izmjena može biti u `rtvfbih.db-wal`. Preporuka: cron
+svaki dan (`0 3 * * * cd /putanja/do/rtvfbih && npm run backup`) i kopiranje cijelog foldera
+`podaci/` (s dokumentima) na drugi disk ili server. Vraćanje: zaustaviti server, kopiju
+preimenovati u `podaci/rtvfbih.db` (i obrisati stare `-wal`/`-shm` fajlove), pokrenuti server.
+
+### Varijable okruženja (nisu obavezne)
 
 | Varijabla | Značenje |
 | --- | --- |
 | `CMS_PODACI` | putanja do foldera s podacima (zadano `./podaci`) |
-| `NEXT_PUBLIC_DOC_BASE` | adresa s koje se služe dokumenti, ako nisu na istom serveru (zadano `/doc`) |
+| `CMS_KOD_ZA_POSTAVLJANJE` | kod s kojim se prvi urednik može napraviti preko weba |
 
 ### Hosting
 
@@ -69,6 +92,10 @@ CMS piše u lokalne fajlove, pa stranica treba **vlastiti Node.js server** (VPS 
 RTV-a) s trajnim diskom: `npm run build` pa `npm start` (npr. preko PM2 ili systemd),
 iza Nginx/Apache reverse proxyja s HTTPS-om. Za upload velikih dokumenata u proxyju
 dozvoliti tijelo zahtjeva do 60 MB (`client_max_body_size 60m;`).
+Proxy treba prosljeđivati stvarnu IP adresu posjetioca u `X-Forwarded-For` (ograničenje
+pokušaja prijave) i postaviti HSTS zaglavlje. Ostala sigurnosna zaglavlja postavlja sama
+aplikacija (`next.config.ts`). Javne stranice se same obnavljaju svakih sat vremena
+(i odmah nakon izmjene u adminu).
 Serverless hosting (npr. Vercel) nije pogodan bez vanjske baze i skladišta fajlova.
 
 ### Kako je napravljen

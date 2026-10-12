@@ -4,8 +4,11 @@ import { docUrl } from "@/lib/doc";
 import DocList from "./DocList";
 
 /** Adresa linka iz uvezenog sadržaja */
+/** Vanjska adresa upisana bez https:// (npr. www.fbih.gov.ba) dobije ga, da link radi */
+const saProtokolom = (h: string) => (h && !/^([a-z]+:|\/|#)/i.test(h) ? `https://${h}` : h);
+
 export const hrefLinka = (l: { doc?: string; ruta?: string; href?: string }) =>
-  l.doc ? docUrl(l.doc) : (l.ruta ?? l.href ?? "");
+  l.doc ? docUrl(l.doc) : (l.ruta ?? saProtokolom(l.href ?? ""));
 
 /* „Član 12.“, „POGLAVLJE II“, „I – OPĆE ODREDBE“… su naslovi odjeljaka */
 const jeClan = (t: string) => /^(član|članak|clan)\s+\d+/i.test(t);
@@ -16,13 +19,13 @@ function InlineLink({ l }: { l: ArhivaLink }) {
   if (!href) return <>{tekst}</>;
   if (l.ruta) {
     return (
-      <Link href={href} className="font-medium text-brand underline-offset-4 hover:underline">
+      <Link href={href} className="font-medium text-brand-strong underline-offset-4 hover:underline">
         {tekst}
       </Link>
     );
   }
   return (
-    <a href={href} target="_blank" rel="noopener" className="font-medium text-brand underline-offset-4 hover:underline">
+    <a href={href} target="_blank" rel="noopener" className="font-medium text-brand-strong underline-offset-4 hover:underline">
       {tekst}
     </a>
   );

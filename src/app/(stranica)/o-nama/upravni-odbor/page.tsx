@@ -52,17 +52,17 @@ export default function UpravniOdborPage() {
                 {prvi && (
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-40"
+                    className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-40"
                   />
                 )}
                 <span
                   className={`relative inline-flex h-14 w-14 items-center justify-center rounded-full font-display text-base font-bold ring-1 ${
-                    prvi ? "text-sky ring-white/30" : "text-brand ring-line"
+                    prvi ? "text-sky ring-white/30" : "text-brand-strong ring-line"
                   }`}
                 >
                   {inicijali(c.ime)}
                 </span>
-                <p className={`relative mt-6 text-xs font-semibold uppercase tracking-[0.14em] ${prvi ? "text-sky" : "text-brand"}`}>
+                <p className={`relative mt-6 text-xs font-semibold uppercase tracking-[0.14em] ${prvi ? "text-sky" : "text-brand-strong"}`}>
                   {c.uloga}
                 </p>
                 <p className={`relative mt-1 font-display text-xl font-semibold ${prvi ? "text-white" : "text-navy"}`}>{c.ime}</p>
@@ -86,7 +86,7 @@ export default function UpravniOdborPage() {
         <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
           {/* Saopštenje */}
           <article className="relative overflow-hidden rounded-3xl bg-navy p-8 text-white shadow-[var(--shadow-card)] sm:p-10">
-            <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-40" />
+            <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-40" />
             <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-navy via-navy/90 to-navy/50" />
             <div className="relative">
               <span

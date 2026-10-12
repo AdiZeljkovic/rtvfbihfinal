@@ -11,7 +11,7 @@ export default function DvbRegije() {
           className="flex gap-5 rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow-card)] transition-colors hover:border-brand/40"
         >
           <div className="shrink-0 text-center">
-            <TowerIcon className="mx-auto h-8 w-8 text-brand" />
+            <TowerIcon className="mx-auto h-8 w-8 text-brand-strong" />
             <p className="mt-2 font-display text-3xl font-bold leading-none tabular-nums">
               <span className="skala-broj">{r.kanal}</span>
             </p>

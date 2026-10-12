@@ -9,7 +9,7 @@ export type Polje =
   | { ime: string; vrsta: "dugiTekst"; naziv: string; pomoc?: string; obavezno?: boolean; redova?: number }
   | { ime: string; vrsta: "broj"; naziv: string; pomoc?: string; obavezno?: boolean }
   | { ime: string; vrsta: "datum"; naziv: string; pomoc?: string; obavezno?: boolean; danas?: boolean }
-  | { ime: string; vrsta: "izbor"; naziv: string; pomoc?: string; obavezno?: boolean; opcije: string[]; kartice?: boolean; slobodno?: boolean }
+  | { ime: string; vrsta: "izbor"; naziv: string; pomoc?: string; obavezno?: boolean; opcije: string[]; kartice?: boolean; slobodno?: boolean; /** Natpis za prazan izbor u padajućoj listi */ prazno?: string }
   | { ime: string; vrsta: "prekidac"; naziv: string; pomoc?: string }
   | { ime: string; vrsta: "dokument"; naziv: string; pomoc?: string; obavezno?: boolean; nazivIz?: string }
   | { ime: string; vrsta: "dokumenti"; naziv: string; pomoc?: string }
@@ -44,8 +44,8 @@ export type Kolekcija = {
   grupa: "cesto" | "sadrzaj" | "institucija" | "podesavanja";
 };
 
-const tekucaGodina = new Date().getFullYear();
-export const GODINE = Array.from({ length: tekucaGodina + 1 - 2015 + 1 }, (_, i) => String(tekucaGodina + 1 - i));
+/** Prva godina u arhivi javnih nabavki (spisak godina pravi server, da bude uvijek tačan) */
+export const PRVA_GODINA_NABAVKI = 2015;
 
 export const VRSTE_NABAVKI = [
   "Plan javnih nabavki",
@@ -88,12 +88,12 @@ export const KOLEKCIJE: Kolekcija[] = [
     naslovPolje: "naziv",
     podnaslov: ["vrsta", "godina"],
     filter: "godina",
-    naStranici: (z) => (String(z.godina) === GODINE[1] || String(z.godina) === GODINE[0] ? "/javne-nabavke" : `/javne-nabavke/${z.godina}`),
+    naStranici: (z) => `/javne-nabavke/${z.godina}`,
     polja: [
       { ime: "dokument", vrsta: "dokument", naziv: "Dokument", obavezno: true, nazivIz: "naziv", pomoc: "Odaberite PDF ili Word dokument sa računara." },
       { ime: "naziv", vrsta: "tekst", naziv: "Naziv dokumenta", obavezno: true, pomoc: "Upisuje se sam iz naziva fajla. Možete ga promijeniti.", primjer: "Obavještenje o nabavci – kancelarijski materijal" },
       { ime: "vrsta", vrsta: "izbor", naziv: "Vrsta objave", obavezno: true, opcije: VRSTE_NABAVKI, kartice: true },
-      { ime: "godina", vrsta: "izbor", naziv: "Godina", obavezno: true, opcije: GODINE, kartice: true },
+      { ime: "godina", vrsta: "izbor", naziv: "Godina", obavezno: true, opcije: [], kartice: true },
       { ime: "postupak", vrsta: "tekst", naziv: "Postupak (nije obavezno)", pomoc: "Npr. „Otvoreni postupak“ ili „Direktni sporazum“. Prikazuje se sitno iznad naziva." },
     ],
   },
@@ -226,7 +226,7 @@ export const KOLEKCIJE: Kolekcija[] = [
     naStranici: () => "/o-nama/organizacija",
     polja: [
       { ime: "naziv", vrsta: "tekst", naziv: "Naziv", obavezno: true, primjer: "Odjel za radijski program" },
-      { ime: "nadredjena", vrsta: "izbor", naziv: "Pripada pod (prazno = glavni sektor)", opcije: [], slobodno: true },
+      { ime: "nadredjena", vrsta: "izbor", naziv: "Pripada pod", pomoc: "Odaberite sektor ili odjel kojem pripada.", opcije: [], prazno: "— nije pod drugim (glavni sektor) —" },
       { ime: "telefon", vrsta: "tekst", naziv: "Telefon" },
       { ime: "email", vrsta: "tekst", naziv: "E-mail" },
       {

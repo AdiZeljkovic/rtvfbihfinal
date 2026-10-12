@@ -124,7 +124,7 @@ export default function Transparentnost() {
                   className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-sky/0 blur-2xl transition-colors duration-500 group-hover:bg-sky/30"
                 />
                 <div className="relative flex items-start justify-between">
-                  <Icon className="h-10 w-10 text-brand" />
+                  <Icon className="h-10 w-10 text-brand-strong" />
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-navy transition-colors duration-300 group-hover:border-brand group-hover:bg-brand group-hover:text-white">
                     <ArrowUpRight className="h-4 w-4" />
                   </span>
@@ -135,7 +135,7 @@ export default function Transparentnost() {
                 </p>
                 <h3 className="relative mt-3 font-display text-lg font-semibold text-navy">{o.naziv}</h3>
                 <p className="relative mt-1.5 flex-1 text-sm leading-relaxed text-muted">{o.opis}</p>
-                <span className="relative mt-5 inline-flex items-center gap-1 text-sm font-semibold text-brand">
+                <span className="relative mt-5 inline-flex items-center gap-1 text-sm font-semibold text-brand-strong">
                   Otvori
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>

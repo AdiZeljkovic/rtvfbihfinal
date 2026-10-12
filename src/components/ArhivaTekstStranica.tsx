@@ -27,7 +27,7 @@ export default function ArhivaTekstStranica({ tekst, roditelj }: Props) {
         <div className="mx-auto max-w-3xl">
           <ArhivaBlokovi blokovi={tekst.blokovi} />
           <div className="mt-14 border-t border-line pt-6">
-            <Link href={roditelj.href} className="inline-flex items-center gap-2 font-semibold text-brand hover:underline">
+            <Link href={roditelj.href} className="inline-flex items-center gap-2 font-semibold text-brand-strong hover:underline">
               <ArrowLeft className="h-4 w-4" /> Nazad: {roditelj.label}
             </Link>
           </div>

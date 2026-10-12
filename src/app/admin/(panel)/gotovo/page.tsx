@@ -5,6 +5,7 @@ import { ArrowLeft, Check, ExternalLink, House, Plus } from "lucide-react";
 import { kolekcija } from "@/cms/kolekcije";
 import Fokus from "@/components/admin/Fokus";
 import { jedan } from "@/server/db";
+import { obaveznaPrijava } from "@/server/auth";
 
 export const metadata: Metadata = { title: "Sačuvano" };
 
@@ -12,6 +13,7 @@ const dugme =
   "inline-flex min-h-16 items-center justify-center gap-3 rounded-2xl px-7 font-display text-lg font-semibold transition-colors";
 
 export default async function GotovoPage({ searchParams }: PageProps<"/admin/gotovo">) {
+  await obaveznaPrijava();
   const sp = await searchParams;
   const def = kolekcija(String(sp.k ?? ""));
   const z = jedan(Number(sp.id));
@@ -42,11 +44,11 @@ export default async function GotovoPage({ searchParams }: PageProps<"/admin/got
           <ExternalLink className="h-6 w-6" aria-hidden="true" /> Pogledaj na stranici
         </a>
         {def.dodavanje ? (
-          <Link href={`/admin/${def.kljuc}/novo`} className={`${dugme} bg-brand text-white hover:bg-brand-deep`}>
+          <Link href={`/admin/${def.kljuc}/novo`} className={`${dugme} bg-brand-strong text-white hover:bg-brand-deep`}>
             <Plus className="h-6 w-6" aria-hidden="true" /> Dodaj još {def.jednina}
           </Link>
         ) : (
-          <Link href={`/admin/${def.kljuc}/${z.id}`} className={`${dugme} bg-brand text-white hover:bg-brand-deep`}>
+          <Link href={`/admin/${def.kljuc}/${z.id}`} className={`${dugme} bg-brand-strong text-white hover:bg-brand-deep`}>
             Nastavi uređivanje
           </Link>
         )}

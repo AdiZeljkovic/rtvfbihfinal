@@ -5,6 +5,7 @@ import Naslov from "@/components/admin/Naslov";
 import Obrazac from "@/components/admin/Obrazac";
 import { jedan } from "@/server/db";
 import { opcijeObrasca, vrijemeBs } from "@/server/admin";
+import { obaveznaPrijava, trenutniKorisnik } from "@/server/auth";
 
 async function ucitaj(params: PageProps<"/admin/[kolekcija]/[id]">["params"]) {
   const { kolekcija: k, id } = await params;
@@ -15,11 +16,13 @@ async function ucitaj(params: PageProps<"/admin/[kolekcija]/[id]">["params"]) {
 }
 
 export async function generateMetadata({ params }: PageProps<"/admin/[kolekcija]/[id]">): Promise<Metadata> {
+  if (!(await trenutniKorisnik())) return {};
   const r = await ucitaj(params);
   return { title: r ? `Uredi: ${String(r.z.podaci[r.def.naslovPolje] ?? "").slice(0, 60)}` : undefined };
 }
 
 export default async function UrediPage({ params }: PageProps<"/admin/[kolekcija]/[id]">) {
+  await obaveznaPrijava();
   const r = await ucitaj(params);
   if (!r) notFound();
   const { def, z } = r;

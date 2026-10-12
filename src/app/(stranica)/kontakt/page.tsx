@@ -53,7 +53,7 @@ export default function KontaktPage() {
       <Section>
         <div className="grid gap-6 lg:grid-cols-[1fr_1.3fr]">
           <div className="relative overflow-hidden rounded-3xl bg-navy p-8 text-white shadow-[var(--shadow-card)] sm:p-10">
-            <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-45" />
+            <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-45" />
             <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-navy via-navy/85 to-navy/40" />
             <div className="relative">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sky">RTV dom Sarajevo</p>
@@ -117,16 +117,16 @@ export default function KontaktPage() {
               <ul className="mt-4 space-y-1.5 text-sm">
                 {k.tel && (
                   <li className="flex items-center gap-2 text-ink">
-                    <Phone className="h-3.5 w-3.5 shrink-0 text-brand" /> {k.tel}
+                    <Phone className="h-3.5 w-3.5 shrink-0 text-brand-strong" /> {k.tel}
                   </li>
                 )}
                 {k.email && (
-                  <li className="flex items-center gap-2 break-all text-brand">
+                  <li className="flex items-center gap-2 break-all text-brand-strong">
                     <Mail className="h-3.5 w-3.5 shrink-0" /> {k.email}
                   </li>
                 )}
                 {k.email2 && (
-                  <li className="flex items-center gap-2 break-all text-brand">
+                  <li className="flex items-center gap-2 break-all text-brand-strong">
                     <Mail className="h-3.5 w-3.5 shrink-0" /> {k.email2}
                   </li>
                 )}

@@ -18,6 +18,13 @@ const vrsta = (t: Blok["t"]) => VRSTE.find((v) => v.t === t)!;
 
 type Promjena = (b: Blok | ((stari: Blok) => Blok)) => void;
 
+/** Stalni ključ svakog dijela teksta, da React ne pomiješa dijelove kad se pomjeraju */
+let sljedeciKljuc = 0;
+const noviKljuc = () => ++sljedeciKljuc;
+
+/** Adresa koja izgleda kao web stranica (npr. www.fbih.gov.ba) je vanjski link */
+const vanjskaAdresa = (v: string) => /^(https?:|mailto:|tel:)/i.test(v) || /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$)/i.test(v);
+
 /** Tabela se uređuje kao tekst: jedan red po liniji, ćelije odvojene znakom | */
 function TabelaUredi({ blok, promijeni }: { blok: Extract<Blok, { t: "tabela" }>; promijeni: Promjena }) {
   const [tekst, setTekst] = useState(() => blok.redovi.map((r) => r.join("|")).join("\n"));
@@ -60,8 +67,7 @@ function LinkoviUredi({ blok, promijeni }: { blok: Extract<Blok, { t: "linkovi" 
                     placeholder="npr. /javne-nabavke ili https://…"
                     onChange={(e) => {
                       const v = e.target.value.trim();
-                      const vanjski = /^(https?:|mailto:|tel:)/i.test(v);
-                      postavi(stavke.map((x, j) => (j === i ? { tekst: x.tekst, ...(vanjski ? { href: v } : { ruta: v }) } : x)));
+                      postavi(stavke.map((x, j) => (j === i ? { tekst: x.tekst, ...(vanjskaAdresa(v) ? { href: v } : { ruta: v }) } : x)));
                     }}
                     className={`${ULAZ} mt-1.5`}
                   />
@@ -118,19 +124,31 @@ export default function BlokoviPolje({
   const id = useId();
   const blokovi = vrijednost ?? [];
   const [zadnjiDodan, setZadnjiDodan] = useState<number | null>(null);
+  const [kljucevi, setKljucevi] = useState<number[]>(() => blokovi.map(noviKljuc));
+  // ako se broj dijelova promijeni izvana, dopuni ključeve
+  const k = kljucevi.length === blokovi.length ? kljucevi : blokovi.map((_, i) => kljucevi[i] ?? -1 - i);
 
   const promijeni =
     (i: number): Promjena =>
     (b) =>
       postavi((s) => s.map((x, j) => (j === i ? (typeof b === "function" ? b(x) : b) : x)));
-  const pomjeri = (i: number, s: number) =>
-    postavi((sv) => {
-      const n = [...sv];
-      [n[i], n[i + s]] = [n[i + s], n[i]];
-      return n;
-    });
+  const zamijeni = <T,>(niz: T[], i: number, j: number) => {
+    const n = [...niz];
+    [n[i], n[j]] = [n[j], n[i]];
+    return n;
+  };
+  const pomjeri = (i: number, s: number) => {
+    setKljucevi(zamijeni(k, i, i + s));
+    postavi((sv) => zamijeni(sv, i, i + s));
+  };
+  const ukloni = (i: number) => {
+    setKljucevi(k.filter((_, j) => j !== i));
+    postavi((s) => s.filter((_, j) => j !== i));
+  };
   const dodaj = (b: Blok) => {
-    setZadnjiDodan(blokovi.length);
+    const novi = noviKljuc();
+    setKljucevi([...k, novi]);
+    setZadnjiDodan(novi);
     postavi((s) => [...s, b]);
   };
 
@@ -139,6 +157,7 @@ export default function BlokoviPolje({
     const b = blokovi[i];
     if (b.t !== "pasus" || !/\n\s*\n/.test(b.tekst)) return;
     const dijelovi = b.tekst.split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean);
+    setKljucevi([...k.slice(0, i), k[i], ...dijelovi.slice(1).map(noviKljuc), ...k.slice(i + 1)]);
     postavi((s) => [...s.slice(0, i), ...dijelovi.map((tekst) => ({ t: "pasus" as const, tekst })), ...s.slice(i + 1)]);
   };
 
@@ -152,10 +171,10 @@ export default function BlokoviPolje({
           const v = vrsta(b.t);
           const Ikona = v.ikona;
           return (
-            <li key={i} className="admin-kartica rounded-3xl border border-line bg-sky-mist p-4 sm:p-5">
+            <li key={k[i]} className="admin-kartica rounded-3xl border border-line bg-sky-mist p-4 sm:p-5">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <p className="flex items-center gap-2 font-display text-lg font-semibold text-navy">
-                  <Ikona className="h-5 w-5 text-brand" aria-hidden="true" /> {i + 1}. {v.naziv}
+                  <Ikona className="h-5 w-5 text-brand-strong" aria-hidden="true" /> {i + 1}. {v.naziv}
                 </p>
                 <div className="flex flex-wrap gap-1">
                   <button type="button" disabled={i === 0} onClick={() => pomjeri(i, -1)} aria-label={`Pomjeri dio ${i + 1} gore`} className={`${MALO_DUGME} text-navy hover:bg-white`}>
@@ -164,7 +183,7 @@ export default function BlokoviPolje({
                   <button type="button" disabled={i === blokovi.length - 1} onClick={() => pomjeri(i, 1)} aria-label={`Pomjeri dio ${i + 1} dolje`} className={`${MALO_DUGME} text-navy hover:bg-white`}>
                     <ArrowDown className="h-5 w-5" aria-hidden="true" /> Dolje
                   </button>
-                  <button type="button" onClick={() => postavi((s) => s.filter((_, j) => j !== i))} aria-label={`Ukloni dio ${i + 1}`} className={`${MALO_DUGME} text-red-700 hover:bg-red-50`}>
+                  <button type="button" onClick={() => ukloni(i)} aria-label={`Ukloni dio ${i + 1}`} className={`${MALO_DUGME} text-red-700 hover:bg-red-50`}>
                     <Trash2 className="h-5 w-5" aria-hidden="true" /> Ukloni
                   </button>
                 </div>
@@ -173,7 +192,7 @@ export default function BlokoviPolje({
               {b.t === "pasus" && (
                 <textarea
                   aria-label={`Tekst, dio ${i + 1}`}
-                  autoFocus={zadnjiDodan === i}
+                  autoFocus={zadnjiDodan === k[i]}
                   rows={Math.min(12, Math.max(3, Math.ceil(b.tekst.length / 80)))}
                   value={b.tekst}
                   onChange={(e) => promijeni(i)({ t: "pasus", tekst: e.target.value })}
@@ -184,7 +203,7 @@ export default function BlokoviPolje({
               {b.t === "naslov" && (
                 <input
                   aria-label={`Podnaslov, dio ${i + 1}`}
-                  autoFocus={zadnjiDodan === i}
+                  autoFocus={zadnjiDodan === k[i]}
                   value={b.tekst}
                   onChange={(e) => promijeni(i)({ t: "naslov", tekst: e.target.value })}
                   className={`${ULAZ} font-display text-xl font-semibold`}
@@ -219,7 +238,7 @@ export default function BlokoviPolje({
                 key={v.t}
                 type="button"
                 onClick={() => dodaj(v.novi())}
-                className="inline-flex min-h-14 items-center gap-2 rounded-2xl border-2 border-line bg-white px-4 text-lg font-semibold text-navy hover:border-brand hover:text-brand"
+                className="inline-flex min-h-14 items-center gap-2 rounded-2xl border-2 border-line bg-white px-4 text-lg font-semibold text-navy hover:border-brand hover:text-brand-strong"
               >
                 <Ikona className="h-5 w-5" aria-hidden="true" /> {v.naziv}
               </button>

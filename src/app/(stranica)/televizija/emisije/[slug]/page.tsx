@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock } from "lucide-react";
@@ -6,6 +7,7 @@ import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import ArhivaBlokovi from "@/components/ArhivaBlokovi";
 import { emisijaPoSlugu, emisije, opisEmisije } from "@/server/sadrzaj";
+import { dimenzije } from "@/server/slike";
 
 export function generateStaticParams() {
   return emisije().map((e) => ({ slug: e.slug }));
@@ -24,6 +26,7 @@ export default async function EmisijaPage({ params }: PageProps<"/televizija/emi
   const iste = emisije()
     .filter((x) => x.grupa === e.grupa && x.slug !== e.slug)
     .slice(0, 4);
+  const [velSlike, velLoga] = await Promise.all([e.slika ? dimenzije(e.slika) : null, e.logo ? dimenzije(e.logo) : null]);
 
   return (
     <>
@@ -39,9 +42,15 @@ export default async function EmisijaPage({ params }: PageProps<"/televizija/emi
       <Section>
         <div className="grid gap-12 lg:grid-cols-[1fr_20rem] lg:gap-14">
           <article className="min-w-0">
-            {e.slika && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={e.slika} alt={e.naziv} className="mb-8 h-auto w-full rounded-3xl shadow-[var(--shadow-card)]" />
+            {e.slika && velSlike && (
+              <Image
+                src={e.slika}
+                alt={e.naziv}
+                {...velSlike}
+                priority
+                sizes="(min-width: 1280px) 48rem, (min-width: 1024px) 60vw, 92vw"
+                className="mb-8 h-auto w-full rounded-3xl shadow-[var(--shadow-card)]"
+              />
             )}
             {e.tekst?.length ? (
               <ArhivaBlokovi blokovi={e.tekst} />
@@ -64,17 +73,18 @@ export default async function EmisijaPage({ params }: PageProps<"/televizija/emi
             )}
             {e.logo && (
               <div className="flex items-center justify-center rounded-3xl bg-navy p-6">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={e.logo} alt={`${e.naziv} – logo emisije`} className="h-auto max-w-full" />
+                {velLoga ? (
+                  <Image src={e.logo} alt={`${e.naziv} – logo emisije`} {...velLoga} sizes="17rem" className="h-auto max-w-full" />
+                ) : null}
               </div>
             )}
             {iste.length > 0 && (
               <div className="rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow-card)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">{e.grupa}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-strong">{e.grupa}</p>
                 <ul className="mt-3 divide-y divide-line">
                   {iste.map((x) => (
                     <li key={x.slug}>
-                      <Link href={`/televizija/emisije/${x.slug}`} className="block py-3 font-display font-semibold text-navy hover:text-brand">
+                      <Link href={`/televizija/emisije/${x.slug}`} className="block py-3 font-display font-semibold text-navy hover:text-brand-strong">
                         {x.naziv}
                       </Link>
                     </li>
@@ -82,7 +92,7 @@ export default async function EmisijaPage({ params }: PageProps<"/televizija/emi
                 </ul>
               </div>
             )}
-            <Link href="/televizija/emisije" className="inline-flex items-center gap-2 font-semibold text-brand hover:underline">
+            <Link href="/televizija/emisije" className="inline-flex items-center gap-2 font-semibold text-brand-strong hover:underline">
               <ArrowLeft className="h-4 w-4" /> Sve emisije i serije
             </Link>
           </aside>

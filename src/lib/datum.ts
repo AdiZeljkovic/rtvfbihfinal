@@ -10,5 +10,12 @@ export function datumBs(iso?: string) {
   return `${Number(m[3])}. ${MJESECI[Number(m[2]) - 1]} ${m[1]}.`;
 }
 
-/** Je li datum (YYYY-MM-DD) prošao, računajući po danu */
-export const prosao = (iso?: string) => Boolean(iso) && iso! < new Date().toISOString().slice(0, 10);
+/** Današnji datum (YYYY-MM-DD) po sarajevskom vremenu, bez obzira na vremensku zonu servera */
+export const danasUSarajevu = () =>
+  new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Sarajevo" }).format(new Date());
+
+/** Tekuća godina po sarajevskom vremenu */
+export const tekucaGodina = () => Number(danasUSarajevu().slice(0, 4));
+
+/** Je li datum (YYYY-MM-DD) prošao, računajući po danu (rok traje cijeli taj dan) */
+export const prosao = (iso?: string) => Boolean(iso) && iso! < danasUSarajevu();

@@ -28,7 +28,7 @@ export default function EmisijeLista({ emisije }: { emisije: EmisijaUShemi[] }) 
 
   const chip = (aktivan: boolean) =>
     `rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-      aktivan ? "bg-navy text-white" : "border border-line bg-white text-navy hover:border-brand hover:text-brand"
+      aktivan ? "bg-navy text-white" : "border border-line bg-white text-navy hover:border-brand hover:text-brand-strong"
     }`;
 
   return (
@@ -76,7 +76,7 @@ export default function EmisijeLista({ emisije }: { emisije: EmisijaUShemi[] }) 
                     {e.naziv}
                   </Link>
                 </h3>
-                <span className="text-[0.68rem] font-semibold uppercase tracking-wider text-brand">{e.vrsta}</span>
+                <span className="text-[0.68rem] font-semibold uppercase tracking-wider text-brand-strong">{e.vrsta}</span>
               </div>
               <p className="mt-1 text-sm leading-relaxed text-muted">{e.opis}</p>
             </div>

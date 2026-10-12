@@ -13,6 +13,8 @@
   --ftv-sky-mist: #f5fafd;
   --ftv-blue: #2b8dde;
   --ftv-blue-deep: #1b5fa0;
+  /* brend plava za sitan tekst i dugmad s bijelim tekstom (kontrast 4,9:1 – WCAG AA) */
+  --ftv-blue-strong: #1d74bc;
   --ftv-navy: #0b2540;
   --ftv-steel: #5884b2;
   --ftv-ink: #14253a;
@@ -30,6 +32,7 @@
   --color-sky-mist: var(--ftv-sky-mist);
   --color-brand: var(--ftv-blue);
   --color-brand-deep: var(--ftv-blue-deep);
+  --color-brand-strong: var(--ftv-blue-strong);
   --color-navy: var(--ftv-navy);
   --color-steel: var(--ftv-steel);
   --color-ink: var(--ftv-ink);
@@ -88,7 +91,7 @@ h1, h2, h3, h4 {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ftv-blue);
+  color: var(--ftv-blue-strong);
 }
 .eyebrow::before {
   content: "";
@@ -132,10 +135,10 @@ h1, h2, h3, h4 {
 }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
-.btn-primary { background: var(--ftv-blue); color: #fff; }
+.btn-primary { background: var(--ftv-blue-strong); color: #fff; }
 .btn-primary:hover { background: var(--ftv-blue-deep); }
 .btn-ghost { background: transparent; color: var(--ftv-navy); border: 1px solid var(--ftv-line); }
-.btn-ghost:hover { border-color: var(--ftv-blue); color: var(--ftv-blue); }
+.btn-ghost:hover { border-color: var(--ftv-blue); color: var(--ftv-blue-strong); }
 .btn-light { background: #fff; color: var(--ftv-navy); }
 .btn-light:hover { background: var(--ftv-sky-soft); }
 .btn-glass {
@@ -474,6 +477,7 @@ html.admin-html {
   --ftv-muted: #1d2b3a;
   --ftv-line: #5e7a92;
   --ftv-blue: #0f5fb0;
+  --ftv-blue-strong: #0f5fb0;
   --ftv-sky-mist: #ffffff;
   background: #ffffff;
 }

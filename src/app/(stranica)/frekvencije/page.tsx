@@ -58,7 +58,7 @@ function TvTabela({ rows, caption }: { rows: TvPredajnik[]; caption: string }) {
               <td className="px-4 py-2.5 font-medium text-navy">{r.mjesto}</td>
               <td className="px-4 py-2.5 text-muted">{r.lokacija}</td>
               <td className="px-4 py-2.5 text-right tabular-nums">{r.mhz}</td>
-              <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-brand">{r.kanal}</td>
+              <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-brand-strong">{r.kanal}</td>
             </tr>
           ))}
         </tbody>
@@ -131,14 +131,14 @@ export default function FrekvencijePage() {
             </UnderlineLink>
           </div>
           <aside className="h-fit rounded-3xl border border-line bg-sky-mist p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">Tehnička podrška</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-strong">Tehnička podrška</p>
             <p className="mt-2 font-display text-lg font-semibold text-navy">Gledaoci Multipleksa A</p>
             <p className="mt-1 text-sm text-muted">Pitanja o prijemu digitalnog signala rješava BHRT.</p>
             <div className="mt-4 space-y-2 text-sm">
-              <a href="tel:+38733464064" className="flex items-center gap-2 text-ink hover:text-brand">
-                <Phone className="h-4 w-4 text-brand" /> 033 464 064
+              <a href="tel:+38733464064" className="flex items-center gap-2 text-ink hover:text-brand-strong">
+                <Phone className="h-4 w-4 text-brand-strong" /> 033 464 064
               </a>
-              <a href="mailto:terminal@bhrt.ba" className="flex items-center gap-2 text-brand hover:underline">
+              <a href="mailto:terminal@bhrt.ba" className="flex items-center gap-2 text-brand-strong hover:underline">
                 <Mail className="h-4 w-4" /> terminal@bhrt.ba
               </a>
             </div>

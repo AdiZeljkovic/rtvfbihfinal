@@ -37,13 +37,20 @@ export function Greska({ stanje }: { stanje: StanjeObrasca }) {
   );
 }
 
-export default function PrijavaObrazac({ prvi }: { prvi: boolean }) {
+export default function PrijavaObrazac({ prvi, trebaKod = false }: { prvi: boolean; trebaKod?: boolean }) {
   const [stanje, akcija, salje] = useActionState(prvi ? prviKorisnikAkcija : prijavaAkcija, undefined);
   const Ikona = salje ? LoaderCircle : prvi ? UserPlus : LogIn;
 
   return (
     <form action={akcija} className="space-y-6">
       <Greska stanje={stanje} />
+      {prvi && trebaKod && (
+        <label className="block">
+          <span className="font-display text-lg font-semibold text-navy">Kod za postavljanje</span>
+          <span className="block text-base text-muted">Dobili ste ga od osobe koja je postavila stranicu.</span>
+          <input name="kod" required autoComplete="off" autoCapitalize="none" className={`${ULAZ} mt-2`} />
+        </label>
+      )}
       {prvi && (
         <label className="block">
           <span className="font-display text-lg font-semibold text-navy">Vaše ime i prezime</span>
@@ -60,7 +67,7 @@ export default function PrijavaObrazac({ prvi }: { prvi: boolean }) {
       <button
         type="submit"
         disabled={salje}
-        className="inline-flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-brand px-8 font-display text-xl font-bold text-white hover:bg-brand-deep disabled:opacity-70"
+        className="inline-flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-brand-strong px-8 font-display text-xl font-bold text-white hover:bg-brand-deep disabled:opacity-70"
       >
         <Ikona className={`h-6 w-6 ${salje ? "animate-spin" : ""}`} aria-hidden="true" />
         {salje ? "Trenutak…" : prvi ? "Napravi račun i uđi" : "Prijavi se"}

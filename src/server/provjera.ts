@@ -17,6 +17,9 @@ const slug = (s: string) =>
     .replace(/(^-|-$)/g, "")
     .slice(0, 70) || "stavka";
 
+/** Svi zapisi kolekcije, i objavljeni i u korpi */
+const svi = (kolekcija: string) => [...lista(kolekcija, "objavljeno"), ...lista(kolekcija, "korpa")];
+
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : v == null ? "" : String(v).trim());
 const postojiDokument = (ime: string) => fs.existsSync(path.join(DOC_DIR, sigurnoIme(ime)));
 
@@ -89,8 +92,23 @@ export function provjeri(def: Kolekcija, ulaz: Record<string, unknown>, id: numb
   if (def.kljuc === "dokumenti" && !p.dokument && !p.adresa) {
     greske.dokument = "Dodajte dokument ili upišite adresu stranice.";
   }
+  if (def.kljuc === "jedinice" && str(p.nadredjena)) {
+    // jedinica ne smije biti pod samom sobom ni pod svojom podjedinicom (krug)
+    const sve = svi("jedinice").filter((z) => z.id !== id);
+    const roditelj = new Map(sve.map((z) => [String(z.podaci.naziv), String(z.podaci.nadredjena ?? "")]));
+    const ime = str(p.naziv);
+    let trenutna = str(p.nadredjena);
+    for (let korak = 0; trenutna && korak < 50; korak++) {
+      if (trenutna === ime) {
+        greske.nadredjena = "Jedinica ne može biti pod samom sobom ni pod svojim odjelom. Odaberite drugu.";
+        break;
+      }
+      trenutna = roditelj.get(trenutna) ?? "";
+    }
+  }
   if (def.kljuc === "emisije") {
-    const zauzeti = new Set(lista("emisije").filter((z) => z.id !== id).map((z) => String(z.podaci.slug)));
+    // provjera i u korpi: vraćena emisija ne smije dobiti istu adresu kao nova
+    const zauzeti = new Set(svi("emisije").filter((z) => z.id !== id).map((z) => String(z.podaci.slug)));
     let s = str(p.slug) || slug(str(p.naziv));
     if (!stari?.slug || zauzeti.has(s)) {
       const osnova = slug(str(p.naziv));
@@ -100,7 +118,7 @@ export function provjeri(def: Kolekcija, ulaz: Record<string, unknown>, id: numb
     p.slug = s;
   }
   if (def.kljuc === "tekstovi" && !str(p.ruta)) {
-    const zauzete = new Set(lista("tekstovi").map((z) => String(z.podaci.ruta)));
+    const zauzete = new Set(svi("tekstovi").map((z) => String(z.podaci.ruta)));
     let r = `/dokumenti/${slug(str(p.naslov))}`;
     for (let i = 2; zauzete.has(r); i++) r = `/dokumenti/${slug(str(p.naslov))}-${i}`;
     p.ruta = r;

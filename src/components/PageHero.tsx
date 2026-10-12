@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { preload } from "react-dom";
 import type { ReactNode } from "react";
 
 type Crumb = { label: string; href?: string };
@@ -19,14 +20,16 @@ type Props = {
 
 /**
  * Tamno zaglavlje podstranice u stilu naslovnice: pozadina klijenta
- * (public/brand/kartice-bg.jpg), prozirni header preko nje, stakleni brojevi.
+ * (public/brand/kartice-bg.webp), prozirni header preko nje, stakleni brojevi.
  */
 export default function PageHero({ eyebrow, title, highlight, lead, crumbs, stats, actions }: Props) {
+  // pozadina je najveći element na vrhu (LCP): preglednik je traži odmah, ne tek kad pročita CSS
+  preload("/brand/kartice-bg.webp", { as: "image", fetchPriority: "high" });
   return (
     <header className="relative -mt-[4.5rem] overflow-hidden bg-navy text-white">
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-70"
+        className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-70"
       />
       <div
         aria-hidden="true"

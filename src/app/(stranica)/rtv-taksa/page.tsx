@@ -37,7 +37,7 @@ export default function RtvTaksaPage() {
           <div>
             {/* citat zakona */}
             <blockquote className="relative overflow-hidden rounded-3xl bg-navy p-8 text-white shadow-[var(--shadow-card)] sm:p-10">
-              <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-35" />
+              <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-35" />
               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-navy via-navy/90 to-navy/50" />
               <div className="relative">
                 <span
@@ -59,7 +59,7 @@ export default function RtvTaksaPage() {
                 {faq.map((f, i) => (
                   <details key={i} className="group border-b border-line last:border-b-0 open:bg-sky-mist/50">
                     <summary className="flex cursor-pointer list-none items-start gap-4 px-6 py-5 marker:content-none sm:px-7">
-                      <span className="mt-0.5 font-mono text-sm tabular-nums text-brand">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="mt-0.5 font-mono text-sm tabular-nums text-brand-strong">{String(i + 1).padStart(2, "0")}</span>
                       <span className="flex-1 font-display font-semibold leading-snug text-navy">{f.pitanje}</span>
                       <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line text-navy transition-[transform,background-color,color] duration-300 group-open:rotate-180 group-open:border-brand group-open:bg-brand group-open:text-white">
                         <ChevronDown className="h-4 w-4" />
@@ -78,8 +78,8 @@ export default function RtvTaksaPage() {
 
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <div className="rounded-3xl border border-line bg-white p-7 shadow-[var(--shadow-card)]">
-              <ReceiptIcon className="h-11 w-11 text-brand" />
-              <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-brand">{rtvTaksaUvod.kontakt.odjel}</p>
+              <ReceiptIcon className="h-11 w-11 text-brand-strong" />
+              <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-brand-strong">{rtvTaksaUvod.kontakt.odjel}</p>
               <p className="mt-1 font-display text-xl font-semibold text-navy">Imate pitanje o taksi?</p>
               <p className="mt-2 text-sm text-muted">Za nejasnoće u vezi s evidencijom i plaćanjem RTV takse nazovite:</p>
               <a
@@ -92,14 +92,14 @@ export default function RtvTaksaPage() {
               <ul className="mt-4 space-y-1.5 text-sm text-ink">
                 {rtvTaksaUvod.kontakt.tel.slice(1).map((t) => (
                   <li key={t} className="flex items-start gap-2">
-                    <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" /> {t}
+                    <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" /> {t}
                   </li>
                 ))}
               </ul>
               <div className="mt-5 border-t border-line pt-4 text-sm">
                 <p className="font-semibold text-navy">Denis Hajdarević</p>
                 <p className="text-muted">rukovodilac Odjela RTV takse</p>
-                <a href="mailto:denis.hajdarevic@rtvfbih.ba" className="mt-1.5 inline-flex items-center gap-2 text-brand hover:underline">
+                <a href="mailto:denis.hajdarevic@rtvfbih.ba" className="mt-1.5 inline-flex items-center gap-2 text-brand-strong hover:underline">
                   <Mail className="h-3.5 w-3.5" /> denis.hajdarevic@rtvfbih.ba
                 </a>
               </div>

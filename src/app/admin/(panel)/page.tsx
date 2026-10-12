@@ -58,11 +58,11 @@ export default async function AdminPocetna() {
                 }`}
               >
                 {glavna && (
-                  <span aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-35" />
+                  <span aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-35" />
                 )}
                 <span
                   className={`relative inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${
-                    glavna ? "bg-white/15 text-sky" : "bg-sky-soft text-brand"
+                    glavna ? "bg-white/15 text-sky" : "bg-sky-soft text-brand-strong"
                   }`}
                 >
                   <Ikona className="h-8 w-8" aria-hidden="true" />
@@ -94,9 +94,9 @@ export default async function AdminPocetna() {
                     href={`/admin/${c.kljuc}`}
                     className="admin-kartica group flex h-full items-start gap-4 rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow-card)] transition-colors hover:border-brand"
                   >
-                    <Ikona className="mt-1 h-7 w-7 shrink-0 text-brand" aria-hidden="true" />
+                    <Ikona className="mt-1 h-7 w-7 shrink-0 text-brand-strong" aria-hidden="true" />
                     <span className="min-w-0">
-                      <span className="block font-display text-lg font-semibold leading-snug text-navy group-hover:text-brand">{c.naziv}</span>
+                      <span className="block font-display text-lg font-semibold leading-snug text-navy group-hover:text-brand-strong">{c.naziv}</span>
                       <span className="mt-1 block text-base text-muted">
                         {c.jedinstven ? c.opis : `${n} ${mnozina(n, "stavka", "stavke", "stavki")}`}
                       </span>
@@ -123,7 +123,7 @@ export default async function AdminPocetna() {
                 <li key={p.id} className="flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-center sm:gap-4">
                   <span className="min-w-0 flex-1">
                     {postoji ? (
-                      <Link href={`/admin/${p.kolekcija}/${p.zapis_id}`} className="font-semibold text-navy hover:text-brand hover:underline">
+                      <Link href={`/admin/${p.kolekcija}/${p.zapis_id}`} className="font-semibold text-navy hover:text-brand-strong hover:underline">
                         {p.opis || "(bez naziva)"}
                       </Link>
                     ) : (

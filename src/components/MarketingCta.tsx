@@ -22,7 +22,7 @@ export default function MarketingCta() {
       {/* Pozadina klijenta preko cijele širine, logo desno */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[url(/brand/kartice-bg.jpg)] bg-cover bg-right opacity-60"
+        className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-60"
       />
       <div
         aria-hidden="true"

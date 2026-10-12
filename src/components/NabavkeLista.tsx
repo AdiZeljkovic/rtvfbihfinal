@@ -10,7 +10,7 @@ export default function NabavkeLista({ godina }: { godina: NabavkaGodina }) {
       {godina.sekcije.map((s, i) => (
         <section key={s.naslov + i} id={`sekcija-${i + 1}`} className="grid scroll-mt-28 gap-4 lg:grid-cols-[16rem_1fr] lg:gap-10">
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <p className="font-mono text-sm tabular-nums text-brand">{String(i + 1).padStart(2, "0")}</p>
+            <p className="font-mono text-sm tabular-nums text-brand-strong">{String(i + 1).padStart(2, "0")}</p>
             <h3 className="mt-1 font-display text-lg font-semibold text-navy">{s.naslov}</h3>
             <p className="mt-1 text-sm text-muted">
               {s.stavke.length} {mnozina(s.stavke.length, "dokument", "dokumenta", "dokumenata")}

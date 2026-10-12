@@ -1,7 +1,7 @@
 import "server-only";
-import { kolekcija, type Kolekcija } from "@/cms/kolekcije";
+import { PRVA_GODINA_NABAVKI, kolekcija, type Kolekcija } from "@/cms/kolekcije";
 import { baza, lista, type Zapis } from "./db";
-import { datumBs } from "@/lib/datum";
+import { datumBs, tekucaGodina } from "@/lib/datum";
 
 /** Podaci za listu u adminu (samo ono što lista prikazuje) */
 export function redoviKolekcije(def: Kolekcija) {
@@ -25,8 +25,17 @@ export function red(def: Kolekcija, z: Zapis) {
   };
 }
 
-/** Opcije koje zavise od sadržaja (npr. postojeći sektori za „Pripada pod“) */
+/** Godine za javne nabavke: od iduće do 2015, plus godine koje već postoje u sadržaju */
+export function godineNabavki() {
+  const g = tekucaGodina();
+  const sve = new Set(Array.from({ length: g + 1 - PRVA_GODINA_NABAVKI + 1 }, (_, i) => g + 1 - i));
+  for (const z of lista("nabavke")) if (Number(z.podaci.godina)) sve.add(Number(z.podaci.godina));
+  return [...sve].sort((a, b) => b - a).map(String);
+}
+
+/** Opcije koje zavise od sadržaja ili datuma (sektori za „Pripada pod“, godine nabavki) */
 export function opcijeObrasca(kljuc: string, id?: number): Record<string, string[]> {
+  if (kljuc === "nabavke") return { godina: godineNabavki() };
   if (kljuc === "jedinice") {
     return {
       nadredjena: lista("jedinice")
@@ -43,7 +52,10 @@ export function opcijeFiltera(def: Kolekcija, redovi: { filter: string }[]) {
   const polje = def.polja.find((f) => f.ime === def.filter);
   const prisutne = new Set(redovi.map((r) => r.filter).filter(Boolean));
   const redoslijed = polje?.vrsta === "izbor" ? polje.opcije : [];
-  return [...redoslijed.filter((o) => prisutne.has(o)), ...[...prisutne].filter((o) => !redoslijed.includes(o))];
+  const ostale = [...prisutne].filter((o) => !redoslijed.includes(o));
+  // brojevi (godine) od najnovijeg, ostalo abecedno
+  ostale.sort((a, b) => (Number(a) && Number(b) ? Number(b) - Number(a) : a.localeCompare(b, "bs")));
+  return [...redoslijed.filter((o) => prisutne.has(o)), ...ostale];
 }
 
 export function korpa() {

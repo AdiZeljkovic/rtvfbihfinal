@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CircleCheck, Trash2, Undo2 } from "lucide-react";
-import { obrisiTrajno, vratiIzKorpe } from "@/app/admin/akcije";
+import { CircleAlert, CircleCheck, Trash2, Undo2 } from "lucide-react";
+import { obrisiTrajno, vratiIzKorpe, type Rezultat } from "@/app/admin/akcije";
 import Potvrda from "./Potvrda";
 
 type Stavka = { id: number; vrsta: string; naslov: string; kada: string; ko: string };
@@ -12,20 +12,33 @@ export default function KorpaLista({ stavke }: { stavke: Stavka[] }) {
   const router = useRouter();
   const [radi, start] = useTransition();
   const [zaBrisanje, setZaBrisanje] = useState<Stavka | null>(null);
-  const [poruka, setPoruka] = useState("");
+  const [poruka, setPoruka] = useState<{ tekst: string; greska?: boolean }>({ tekst: "" });
 
-  const radnja = (fn: () => Promise<void>, tekst: string) =>
+  const radnja = (fn: () => Promise<Rezultat>, tekst: string) =>
     start(async () => {
-      await fn();
-      setPoruka(tekst);
+      let r: Rezultat;
+      try {
+        r = await fn();
+      } catch {
+        r = { poruka: "Nema veze sa serverom. Provjerite internet i pokušajte ponovo." };
+      }
+      setPoruka(r.poruka ? { tekst: r.poruka, greska: true } : { tekst });
       router.refresh();
     });
 
   return (
     <>
-      <p aria-live="polite" className={poruka ? "mb-5 flex items-center gap-3 rounded-2xl bg-emerald-50 p-4 text-lg font-semibold text-emerald-900" : "sr-only"}>
-        {poruka && <CircleCheck className="h-6 w-6 shrink-0" aria-hidden="true" />}
-        {poruka}
+      <p
+        aria-live="polite"
+        className={
+          !poruka.tekst
+            ? "sr-only"
+            : `mb-5 flex items-center gap-3 rounded-2xl p-4 text-lg font-semibold ${poruka.greska ? "bg-red-50 text-red-900" : "bg-emerald-50 text-emerald-900"}`
+        }
+      >
+        {poruka.tekst &&
+          (poruka.greska ? <CircleAlert className="h-6 w-6 shrink-0" aria-hidden="true" /> : <CircleCheck className="h-6 w-6 shrink-0" aria-hidden="true" />)}
+        {poruka.tekst}
       </p>
       {stavke.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-line bg-white p-12 text-center">
