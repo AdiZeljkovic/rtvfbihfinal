@@ -58,7 +58,7 @@ export const mainNav: NavItem[] = [
     href: "/televizija",
     children: [
       { label: "Federalna televizija", href: "/televizija", description: "Programske cjeline i programska shema" },
-      { label: "Emisije i serije", href: "/televizija/emisije", description: "Emisije, strani program i arhiva" },
+      { label: "Emisije i serije", href: "/televizija/emisije", description: "Emisije, serije i arhiva" },
       { label: "DVB-T2 prijem", href: "/frekvencije/dvb-t2", description: "Zemaljska digitalna televizija" },
     ],
   },
@@ -84,7 +84,7 @@ export const footerNav = {
     { label: "Radio Federacije BiH", href: "/radio" },
     { label: "Emisije i serije", href: "/televizija/emisije" },
     { label: "Portal federalna.ba", href: site.external.federalna, external: true },
-    { label: "Teletext", href: site.external.teletext, external: true },
+    { label: "Teletekst", href: site.external.teletext, external: true },
     { label: "Radio uživo", href: site.external.radioLive, external: true },
   ],
   institucija: [

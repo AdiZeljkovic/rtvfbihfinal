@@ -3,9 +3,9 @@ import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import { IconCard, PillButton, UnderlineLink } from "@/components/Tiles";
-import { BoardIcon, DocsIcon, MicIcon, ReceiptIcon, ServicesIcon, TenderIcon, WebIcon } from "@/components/StatIcons";
+import { BoardIcon, DocsIcon, MicIcon, ReceiptIcon, ServicesIcon, TenderIcon } from "@/components/StatIcons";
 import { site } from "@/content/site";
-import { osnovno, telHref } from "@/server/sadrzaj";
+import { osnovno, rutaArhivirana, telHref } from "@/server/sadrzaj";
 
 export const metadata: Metadata = {
   title: "Kontakt",
@@ -15,7 +15,6 @@ export const metadata: Metadata = {
 type Kontakt = { icon: (p: { className?: string }) => React.ReactNode; naziv: string; opis?: string; tel?: string; email?: string; email2?: string; href?: string };
 
 const ostaliKontakti: Kontakt[] = [
-  { icon: WebIcon, naziv: "Redakcija federalna.ba", email: site.emails.redakcija, email2: site.emails.desk },
   { icon: ServicesIcon, naziv: "Marketing", tel: "+387 (0)33 461 512", email: "adnan.bilal@rtvfbih.ba", href: "/marketing" },
   { icon: ReceiptIcon, naziv: "RTV taksa", tel: "+387 (0)33 464 069", email: "denis.hajdarevic@rtvfbih.ba", href: "/rtv-taksa" },
   { icon: DocsIcon, naziv: "Pravni poslovi", tel: "+387 (0)33 455 131", email: "ps@rtvfbih.ba" },
@@ -27,7 +26,8 @@ export default function KontaktPage() {
   const kontakti: Kontakt[] = [
     { icon: BoardIcon, naziv: "Generalni direktor", opis: o.generalniDirektor, tel: o.telefonDirektor, email: o.emailDirekcija },
     { icon: MicIcon, naziv: "Odnosi s javnošću", tel: "+387 (0)33 461 539", email: o.emailPress },
-    ...ostaliKontakti,
+    // kontakt ostaje i kad je njegova stranica arhivirana, samo bez linka
+    ...ostaliKontakti.map((k) => (k.href && rutaArhivirana(k.href) ? { ...k, href: undefined } : k)),
   ];
   const mapQuery = encodeURIComponent(`${o.adresa}, ${o.grad}`);
   return (
@@ -111,7 +111,7 @@ export default function KontaktPage() {
           </UnderlineLink>
         }
       >
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {kontakti.map((k) => (
             <IconCard key={k.naziv} icon={k.icon} title={k.naziv} text={k.opis} href={k.href}>
               <ul className="mt-4 space-y-1.5 text-sm">

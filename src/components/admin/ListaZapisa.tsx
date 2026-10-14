@@ -3,8 +3,8 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, CircleAlert, CircleCheck, ExternalLink, Pencil, Search, Trash2, Undo2, X } from "lucide-react";
-import { pomjeriZapis, uKorpu, vratiIzKorpe, type Rezultat } from "@/app/admin/akcije";
+import { Archive, ArrowDown, ArrowUp, CircleAlert, CircleCheck, ExternalLink, Pencil, Search, Trash2, Undo2, X } from "lucide-react";
+import { pomjeriZapis, uArhivu, uKorpu, vratiNaStranicu, type Rezultat } from "@/app/admin/akcije";
 import Potvrda from "./Potvrda";
 import { ULAZ } from "./Polja";
 
@@ -184,6 +184,20 @@ export default function ListaZapisa({
                 </a>
                 <button
                   type="button"
+                  disabled={radi}
+                  onClick={() =>
+                    radnja(() => uArhivu(r.id), {
+                      tekst: `„${r.naslov}“ je arhivirano i više se ne vidi na stranici.`,
+                      vrati: r.id,
+                    })
+                  }
+                  className="inline-flex min-h-12 items-center gap-2 rounded-xl px-3 font-semibold text-navy hover:bg-sky-soft disabled:opacity-30"
+                >
+                  <Archive className="h-5 w-5" aria-hidden="true" /> Arhiviraj
+                  <span className="sr-only">: {r.naslov}</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setZaBrisanje(r)}
                   className="inline-flex min-h-12 items-center gap-2 rounded-xl px-3 font-semibold text-red-700 hover:bg-red-50"
                 >
@@ -252,7 +266,7 @@ export default function ListaZapisa({
                 type="button"
                 onClick={() => {
                   const id = obavijest.vrati!;
-                  radnja(() => vratiIzKorpe(id), { tekst: "Vraćeno na stranicu." });
+                  radnja(() => vratiNaStranicu(id), { tekst: "Vraćeno na stranicu." });
                 }}
                 className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-white px-4 font-semibold text-navy hover:bg-sky-soft"
               >

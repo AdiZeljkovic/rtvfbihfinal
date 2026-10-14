@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+podaci
+public/doc
+scripts/uvoz-stare-stranice/podaci
+*.tsbuildinfo
+.env*

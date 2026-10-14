@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink, House, LogOut, Trash2, Users } from "lucide-react";
+import { Archive, ExternalLink, House, LogOut, Trash2, Users } from "lucide-react";
 import { LogoMark } from "@/components/Logo";
 import Pristupacnost from "@/components/admin/Pristupacnost";
 import { obaveznaPrijava } from "@/server/auth";
@@ -31,6 +31,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-1 px-2 py-1.5 sm:px-4">
             <Link href="/admin" className={veza}>
               <House className="h-5 w-5" aria-hidden="true" /> Početna
+            </Link>
+            <Link href="/admin/arhiva" className={veza}>
+              <Archive className="h-5 w-5" aria-hidden="true" /> Arhiva
             </Link>
             <Link href="/admin/korpa" className={veza}>
               <Trash2 className="h-5 w-5" aria-hidden="true" /> Korpa

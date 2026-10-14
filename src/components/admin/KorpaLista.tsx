@@ -2,13 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CircleAlert, CircleCheck, Trash2, Undo2 } from "lucide-react";
-import { obrisiTrajno, vratiIzKorpe, type Rezultat } from "@/app/admin/akcije";
+import { Archive, CircleAlert, CircleCheck, Trash2, Undo2 } from "lucide-react";
+import { obrisiTrajno, vratiNaStranicu, type Rezultat } from "@/app/admin/akcije";
 import Potvrda from "./Potvrda";
 
 type Stavka = { id: number; vrsta: string; naslov: string; kada: string; ko: string };
 
-export default function KorpaLista({ stavke }: { stavke: Stavka[] }) {
+/** Lista korpe ili arhive (`arhiva`): vraćanje na stranicu, a iz korpe i trajno brisanje */
+export default function KorpaLista({ stavke, arhiva = false }: { stavke: Stavka[]; arhiva?: boolean }) {
+  const Ikona = arhiva ? Archive : Trash2;
   const router = useRouter();
   const [radi, start] = useTransition();
   const [zaBrisanje, setZaBrisanje] = useState<Stavka | null>(null);
@@ -42,9 +44,13 @@ export default function KorpaLista({ stavke }: { stavke: Stavka[] }) {
       </p>
       {stavke.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-line bg-white p-12 text-center">
-          <Trash2 className="mx-auto h-12 w-12 text-sky" aria-hidden="true" />
-          <p className="mt-4 font-display text-2xl font-semibold text-navy">Korpa je prazna.</p>
-          <p className="mt-1 text-lg text-muted">Ovdje se pojavi sve što obrišete, pa to možete vratiti.</p>
+          <Ikona className="mx-auto h-12 w-12 text-sky" aria-hidden="true" />
+          <p className="mt-4 font-display text-2xl font-semibold text-navy">{arhiva ? "Arhiva je prazna." : "Korpa je prazna."}</p>
+          <p className="mt-1 text-lg text-muted">
+            {arhiva
+              ? "Ovdje se pojavi sve što arhivirate, pa to možete vratiti na stranicu."
+              : "Ovdje se pojavi sve što obrišete, pa to možete vratiti."}
+          </p>
         </div>
       ) : (
         <ul className="space-y-3">
@@ -53,7 +59,7 @@ export default function KorpaLista({ stavke }: { stavke: Stavka[] }) {
               <div className="min-w-0 flex-1">
                 <p className="break-words font-display text-lg font-semibold text-navy">{s.naslov}</p>
                 <p className="text-base text-muted">
-                  {s.vrsta} · obrisano {s.kada}
+                  {s.vrsta} · {arhiva ? "arhivirano" : "obrisano"} {s.kada}
                   {s.ko ? ` (${s.ko})` : ""}
                 </p>
               </div>
@@ -61,12 +67,13 @@ export default function KorpaLista({ stavke }: { stavke: Stavka[] }) {
                 <button
                   type="button"
                   disabled={radi}
-                  onClick={() => radnja(() => vratiIzKorpe(s.id), `„${s.naslov}“ je vraćeno na stranicu.`)}
+                  onClick={() => radnja(() => vratiNaStranicu(s.id), `„${s.naslov}“ je vraćeno na stranicu.`)}
                   className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-navy px-4 font-semibold text-white hover:bg-brand-deep"
                 >
                   <Undo2 className="h-5 w-5" aria-hidden="true" /> Vrati na stranicu
                   <span className="sr-only">: {s.naslov}</span>
                 </button>
+                {!arhiva && (
                 <button
                   type="button"
                   disabled={radi}
@@ -76,6 +83,7 @@ export default function KorpaLista({ stavke }: { stavke: Stavka[] }) {
                   <Trash2 className="h-5 w-5" aria-hidden="true" /> Obriši zauvijek
                   <span className="sr-only">: {s.naslov}</span>
                 </button>
+                )}
               </div>
             </li>
           ))}

@@ -6,14 +6,15 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, ChevronDown, ExternalLink, Mail, Menu, Phone, X } from "lucide-react";
 import Logo from "./Logo";
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from "./SocialIcons";
-import { mainNav, site } from "@/content/site";
+import { site, type NavItem } from "@/content/site";
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-export default function Header() {
+/** `nav` dolazi iz layouta (bez arhiviranih stranica) */
+export default function Header({ nav }: { nav: NavItem[] }) {
   const pathname = usePathname();
   // Meni pamti putanju na kojoj je otvoren – promjenom rute automatski se zatvara
   const [menu, setMenu] = useState<{ open: boolean; sub: string | null; path: string }>({
@@ -77,15 +78,16 @@ export default function Header() {
         } ${scrolled && !open ? "shadow-[0_6px_24px_-12px_rgba(11,37,64,0.25)]" : ""}`}
       >
         <div className="container-x flex h-[4.5rem] items-center justify-between gap-5">
-          <Link href="/" className="shrink-0">
-            <Logo light={!solid} />
+          {/* flex: logo se centrira po visini (inline bi sjeo na baznu liniju i odskočio prema vrhu) */}
+          <Link href="/" className="flex shrink-0 items-center">
+            <Logo light={!solid} jubilej />
             {/* naziv linka = vidljivi tekst logotipa + odredište (glasovno upravljanje traži vidljive riječi) */}
             <span className="sr-only">, početna stranica</span>
           </Link>
 
           <nav aria-label="Glavna navigacija" className="hidden xl:block">
             <ul className="flex items-center gap-0.5">
-              {mainNav.map((item) => {
+              {nav.map((item) => {
                 const active = isActive(pathname, item.href);
                 if (!item.children) {
                   return (
@@ -171,7 +173,7 @@ export default function Header() {
 
           <nav aria-label="Mobilna navigacija" className="container-x relative flex min-h-full flex-col pb-10 pt-4">
             <ol className="border-b border-white/10">
-              {mainNav.map((item, i) => {
+              {nav.map((item, i) => {
                 const active = isActive(pathname, item.href);
                 const broj = String(i + 1).padStart(2, "0");
                 const red = `flex w-full items-center gap-4 py-4 text-left font-display text-2xl font-semibold transition-colors ${
@@ -245,7 +247,7 @@ export default function Header() {
             </ol>
 
             {/* Pozivi na akciju */}
-            <div className="meni-stavka mt-8 grid gap-3" style={{ animationDelay: `${60 + mainNav.length * 45}ms` }}>
+            <div className="meni-stavka mt-8 grid gap-3" style={{ animationDelay: `${60 + nav.length * 45}ms` }}>
               <a
                 href={site.external.federalna}
                 target="_blank"
@@ -279,7 +281,7 @@ export default function Header() {
             {/* Kontakt i linkovi */}
             <div
               className="meni-stavka mt-auto pt-10"
-              style={{ animationDelay: `${60 + (mainNav.length + 1) * 45}ms` }}
+              style={{ animationDelay: `${60 + (nav.length + 1) * 45}ms` }}
             >
               <div className="grid gap-2 text-sm text-white/80">
                 <a href={`tel:${site.phoneHref}`} className="flex items-center gap-3 hover:text-white">
@@ -292,7 +294,7 @@ export default function Header() {
               <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/10 pt-6">
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-white/60">
                   <a href={site.external.teletext} target="_blank" rel="noopener" className="hover:text-white">
-                    Teletext
+                    Teletekst
                   </a>
                   <a href={site.external.bhrt} target="_blank" rel="noopener" className="hover:text-white">
                     BHRT

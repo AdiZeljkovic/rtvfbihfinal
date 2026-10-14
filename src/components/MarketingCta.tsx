@@ -10,7 +10,7 @@ const kanali = () => [
   { icon: TvIcon, naziv: "Televizija", opis: "Spotovi i sponzorstva", href: cjenovnik("CPP cjenovnik") },
   { icon: RadioSetIcon, naziv: "Radio", opis: "15 FM frekvencija", href: cjenovnik("Radio Federacije BiH 2026") },
   { icon: WebIcon, naziv: "Portal", opis: "Banner oglašavanje", href: cjenovnik("web portal") },
-  { icon: TeletextIcon, naziv: "Teletext", opis: "Oglasne stranice", href: cjenovnik("Teletekstu") },
+  { icon: TeletextIcon, naziv: "Teletekst", opis: "Oglasne stranice", href: cjenovnik("Teletekstu") },
 ];
 
 export default function MarketingCta() {
@@ -39,7 +39,7 @@ export default function MarketingCta() {
               <span className="bg-gradient-to-r from-sky to-white bg-clip-text text-transparent">javnom servisu</span>
             </h2>
             <p className="mt-4 max-w-md leading-relaxed text-white/75">
-              Televizija, radio, portal i teletext u jednom paketu. Cjenovnici usluga oglašavanja i
+              Televizija, radio, portal i teletekst u jednom paketu. Cjenovnici usluga oglašavanja i
               sponzorstva za 2026. godinu, opšti uslovi i kontakti Odjela prodaje.
             </p>
 

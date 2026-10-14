@@ -17,8 +17,8 @@ const slug = (s: string) =>
     .replace(/(^-|-$)/g, "")
     .slice(0, 70) || "stavka";
 
-/** Svi zapisi kolekcije, i objavljeni i u korpi */
-const svi = (kolekcija: string) => [...lista(kolekcija, "objavljeno"), ...lista(kolekcija, "korpa")];
+/** Svi zapisi kolekcije: objavljeni, u korpi i u arhivi */
+const svi = (kolekcija: string) => [...lista(kolekcija, "objavljeno"), ...lista(kolekcija, "korpa"), ...lista(kolekcija, "arhiva")];
 
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : v == null ? "" : String(v).trim());
 const postojiDokument = (ime: string) => fs.existsSync(path.join(DOC_DIR, sigurnoIme(ime)));
@@ -107,7 +107,7 @@ export function provjeri(def: Kolekcija, ulaz: Record<string, unknown>, id: numb
     }
   }
   if (def.kljuc === "emisije") {
-    // provjera i u korpi: vraćena emisija ne smije dobiti istu adresu kao nova
+    // provjera i u korpi i arhivi: vraćena emisija ne smije dobiti istu adresu kao nova
     const zauzeti = new Set(svi("emisije").filter((z) => z.id !== id).map((z) => String(z.podaci.slug)));
     let s = str(p.slug) || slug(str(p.naziv));
     if (!stari?.slug || zauzeti.has(s)) {

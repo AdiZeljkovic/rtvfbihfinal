@@ -1,0 +1,26 @@
+# Lokalna verzija stranice: docker compose up -d  →  http://localhost:3000
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: rtvfbih-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # izvorni kod (i podaci/ s bazom i dokumentima) direktno s diska
+      - .:/app
+      # node_modules i .next ostaju u kontejneru (Linux), ne miješaju se s Windowsom
+      - node_modules:/app/node_modules
+      - next:/app/.next
+    # Docker Desktop na Windowsu ne javlja izmjene fajlova kontejneru, pa se provjeravaju
+    # periodično. Turbopack to ne podržava pouzdano, zato se u razvoju koristi webpack
+    # (produkcijski build je nepromijenjen).
+    command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--webpack"]
+    environment:
+      WATCHPACK_POLLING: "true"
+    restart: unless-stopped
+
+volumes:
+  node_modules:
+  next:

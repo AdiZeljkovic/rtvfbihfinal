@@ -31,7 +31,7 @@ export default function TelevizijaPage() {
           <>
             <PillButton href="#emisije">Programska shema</PillButton>
             <UnderlineLink href={site.external.teletext} external>
-              TV program na Teletextu
+              TV program na Teletekstu
             </UnderlineLink>
           </>
         }
@@ -60,7 +60,7 @@ export default function TelevizijaPage() {
         tone="mist"
         eyebrow="Programska shema"
         title="Emisije i termini"
-        lead="Aktuelne emisije Federalne televizije, poredane po vremenu emitovanja. Dnevni TV program dostupan je na Teletextu i portalu federalna.ba."
+        lead="Aktuelne emisije Federalne televizije, poredane po vremenu emitovanja. Dnevni TV program dostupan je na Teletekstu i portalu federalna.ba."
         className="scroll-mt-16"
         actions={<PillButton href="/televizija/emisije">Sve emisije i serije</PillButton>}
       >

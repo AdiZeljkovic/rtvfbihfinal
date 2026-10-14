@@ -36,6 +36,8 @@ export default async function UrediPage({ params }: PageProps<"/admin/[kolekcija
           <>
             {z.status === "korpa" ? (
               <strong className="text-red-700">Ova stavka je u korpi i ne vidi se na stranici. </strong>
+            ) : z.status === "arhiva" ? (
+              <strong className="text-navy">Ova stavka je arhivirana i ne vidi se na stranici (vraća se u meniju Arhiva). </strong>
             ) : null}
             Zadnja izmjena: {vrijemeBs(z.izmijenjeno)}
             {z.izmijenio ? ` (${z.izmijenio})` : ""}

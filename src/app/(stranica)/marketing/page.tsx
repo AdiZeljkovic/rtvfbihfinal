@@ -10,7 +10,7 @@ import { cjenovnik as nadjiCjenovnik, dokumenti, marketingOdjeli } from "@/serve
 export const metadata: Metadata = {
   title: "Marketing i oglašavanje",
   description:
-    "Cjenovnici usluga oglašavanja i sponzorstva na Federalnoj televiziji, Radiju Federacije BiH, portalu i Teletextu te kontakti Odjela prodaje.",
+    "Cjenovnici usluga oglašavanja i sponzorstva na Federalnoj televiziji, Radiju Federacije BiH, portalu i Teletekstu te kontakti Odjela prodaje.",
 };
 
 const cjenovnik = (dio: string) =>
@@ -20,7 +20,7 @@ const kanali = [
   { icon: TvIcon, naziv: "Federalna televizija", opis: "TV oglašavanje, sponzorstva i posebni programski paketi na vodećem televizijskom mediju u BiH.", href: cjenovnik("CPP cjenovnik") },
   { icon: RadioSetIcon, naziv: "Radio Federacije BiH", opis: "Radijski spotovi i sponzorstva emisija na 15 FM frekvencija širom Federacije.", href: cjenovnik("Radio Federacije BiH 2026") },
   { icon: WebIcon, naziv: "Web portal", opis: "Banner oglašavanje i sponzorisani sadržaj na portalu javnog servisa.", href: cjenovnik("web portal") },
-  { icon: TeletextIcon, naziv: "Teletext", opis: "Oglasne stranice i rubrike na jednom od najstarijih teletekst servisa u regiji.", href: cjenovnik("Teletekstu") },
+  { icon: TeletextIcon, naziv: "Teletekst", opis: "Oglasne stranice i rubrike na jednom od najstarijih teletekst servisa u regiji.", href: cjenovnik("Teletekstu") },
 ];
 
 export default function MarketingPage() {

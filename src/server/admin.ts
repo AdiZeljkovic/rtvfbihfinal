@@ -58,10 +58,11 @@ export function opcijeFiltera(def: Kolekcija, redovi: { filter: string }[]) {
   return [...redoslijed.filter((o) => prisutne.has(o)), ...ostale];
 }
 
-export function korpa() {
+/** Stavke u korpi ili arhivi, posljednje premještene prve */
+export function stavkeSaStatusom(status: Exclude<Zapis["status"], "objavljeno">) {
   const rows = baza()
-    .prepare("SELECT * FROM zapisi WHERE status = 'korpa' ORDER BY izmijenjeno DESC")
-    .all() as { id: number; kolekcija: string; podaci: string; izmijenjeno: string; izmijenio: string | null }[];
+    .prepare("SELECT * FROM zapisi WHERE status = ? ORDER BY izmijenjeno DESC")
+    .all(status) as { id: number; kolekcija: string; podaci: string; izmijenjeno: string; izmijenio: string | null }[];
   return rows.map((r) => {
     const def = kolekcija(r.kolekcija);
     const p = JSON.parse(r.podaci) as Record<string, unknown>;

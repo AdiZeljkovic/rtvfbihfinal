@@ -5,7 +5,7 @@ import FileTypeIcon from "./FileTypeIcon";
 import { BoardIcon, DocsIcon, ReceiptIcon, TenderIcon } from "./StatIcons";
 import { godineNabavki } from "@/content/javne-nabavke";
 import { docUrl } from "@/lib/doc";
-import { clanoviUO, dokumenti, najnovijaNabavka, pitanja } from "@/server/sadrzaj";
+import { clanoviUO, dokumenti, najnovijaNabavka, pitanja, rutaArhivirana } from "@/server/sadrzaj";
 
 const AKTI = ["Zakoni i statut", "Uređivačka načela", "Pravilnici", "Programski planovi", "Izvještaji o radu", "Revizorski izvještaji"];
 
@@ -43,7 +43,7 @@ const oblasti = () => [
     opis: "Odgovori na najčešća pitanja građana o plaćanju RTV takse.",
     href: "/rtv-taksa",
   },
-];
+].filter((o) => !rutaArhivirana(o.href));
 
 /** Prvi dokument u svakoj listi je najnoviji (nove objave idu na vrh) */
 function najnovije() {
@@ -116,7 +116,7 @@ export default function Transparentnost() {
               <Link
                 key={o.href}
                 href={o.href}
-                className="group relative flex flex-col overflow-hidden rounded-3xl border border-line bg-white p-7 shadow-[var(--shadow-card)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-[var(--shadow-card-hover)]"
+                className="group relative flex flex-col overflow-hidden rounded-3xl sm:odd:last:col-span-2 border border-line bg-white p-7 shadow-[var(--shadow-card)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-[var(--shadow-card-hover)]"
               >
                 {/* Blagi plavi sjaj u uglu na hover */}
                 <span

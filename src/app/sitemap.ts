@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/content/site";
-import { emisije, tekstovi } from "@/server/sadrzaj";
+import { arhiviraneRute, emisije, tekstovi } from "@/server/sadrzaj";
 import { godineNabavki } from "@/content/javne-nabavke";
 
 const osnovne = [
@@ -22,8 +22,9 @@ const osnovne = [
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
+  const arhivirane = arhiviraneRute();
   const rute = [
-    ...osnovne,
+    ...osnovne.filter((r) => !arhivirane.has(r)),
     ...tekstovi().map((t) => t.ruta),
     ...godineNabavki().slice(1).map((g) => `/javne-nabavke/${g}`),
     ...emisije().map((e) => `/televizija/emisije/${e.slug}`),

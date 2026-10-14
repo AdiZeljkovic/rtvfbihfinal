@@ -1,5 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { mainNav } from "@/content/site";
+import { bezArhiviranih } from "@/server/sadrzaj";
 
 /**
  * Stranice su statične i osvježavaju se odmah nakon izmjene u adminu.
@@ -12,7 +14,7 @@ export const revalidate = 3600;
 export default function StranicaLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header />
+      <Header nav={bezArhiviranih(mainNav)} />
       <main id="sadrzaj" className="flex-1">
         {children}
       </main>

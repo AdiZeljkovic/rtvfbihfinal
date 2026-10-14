@@ -7,7 +7,8 @@ import { pocetniZapisi } from "./pocetni-sadrzaj";
 /**
  * Baza CMS-a (SQLite ugrađen u Node.js – ne treba ništa instalirati).
  * Sav sadržaj je u tabeli `zapisi`: jedan red = jedna stavka (nabavka, dokument, emisija…),
- * a polja su u JSON koloni `podaci`. Obrisano ide u korpu (status = 'korpa').
+ * a polja su u JSON koloni `podaci`. Obrisano ide u korpu (status = 'korpa'), a arhivirano
+ * (status = 'arhiva') se ne vidi na stranici, ali ostaje sačuvano i može se vratiti.
  */
 
 export type Zapis = {
@@ -15,7 +16,7 @@ export type Zapis = {
   kolekcija: string;
   podaci: Record<string, unknown>;
   redoslijed: number;
-  status: "objavljeno" | "korpa";
+  status: "objavljeno" | "korpa" | "arhiva";
   kreirano: string;
   izmijenjeno: string;
   izmijenio: string | null;
@@ -199,7 +200,9 @@ export function postaviStatus(id: number, status: Zapis["status"], korisnik: str
     if (!z) throw new Error("Zapis nije pronađen.");
     if (z.status === status) return z;
     db.prepare("UPDATE zapisi SET status = ?, izmijenjeno = datetime('now'), izmijenio = ? WHERE id = ?").run(status, korisnik, id);
-    zabiljezi(id, z.kolekcija, status === "korpa" ? "u korpu" : "vraćeno", naslovZapisa(z.kolekcija, z.podaci), null, korisnik);
+    const akcija =
+      status === "korpa" ? "u korpu" : status === "arhiva" ? "arhivirano" : z.status === "arhiva" ? "vraćeno iz arhive" : "vraćeno";
+    zabiljezi(id, z.kolekcija, akcija, naslovZapisa(z.kolekcija, z.podaci), null, korisnik);
     return z;
   });
   zapisiNaDisk();
@@ -242,7 +245,19 @@ export function pomjeri(id: number, smjer: -1 | 1) {
   zapisiNaDisk();
 }
 
-export type Promjena = { id: number; zapis_id: number | null; kolekcija: string; akcija: string; opis: string; korisnik: string; vrijeme: string };
+/**
+ * Dokument koji je prilog samo arhiviranih stavki (nijedna objavljena ga ne koristi).
+ * Takav se ne služi posjetiocima ni na direktnu adresu /doc/….
+ */
+export function dokumentSamoUArhivi(ime: string) {
+  // ime se u JSON-u traži tačno kako je upisano ("…"), a % i _ nisu džokeri
+  const uzorak = `%${JSON.stringify(ime).replace(/[\\%_]/g, "\\$&")}%`;
+  const ima = (status: Zapis["status"]) =>
+    Boolean(baza().prepare("SELECT 1 FROM zapisi WHERE status = ? AND podaci LIKE ? ESCAPE '\\' LIMIT 1").get(status, uzorak));
+  return ima("arhiva") && !ima("objavljeno");
+}
+
+export type Promjena ={ id: number; zapis_id: number | null; kolekcija: string; akcija: string; opis: string; korisnik: string; vrijeme: string };
 
 export function nedavnePromjene(n = 8): Promjena[] {
   return baza()

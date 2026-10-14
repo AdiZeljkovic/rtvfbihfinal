@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: `%s | ${site.shortName}`,
   },
   description:
-    "Radio-televizija Federacije Bosne i Hercegovine: Federalna televizija, Radio Federacije BiH, federalna.ba i Teletext. Informacije o javnom servisu, programu, frekvencijama, dokumentima i javnim nabavkama.",
+    "Radio-televizija Federacije Bosne i Hercegovine: Federalna televizija, Radio Federacije BiH, federalna.ba i Teletekst. Informacije o javnom servisu, programu, frekvencijama, dokumentima i javnim nabavkama.",
   openGraph: {
     type: "website",
     locale: "bs_BA",

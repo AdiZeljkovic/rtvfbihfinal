@@ -2,11 +2,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { LogoMark } from "@/components/Logo";
 import { PillButton, UnderlineLink } from "@/components/Tiles";
+import { mainNav } from "@/content/site";
+import { bezArhiviranih } from "@/server/sadrzaj";
 
 export default function NotFound() {
   return (
     <>
-    <Header />
+    <Header nav={bezArhiviranih(mainNav)} />
     <main id="sadrzaj" className="flex-1">
     <section className="relative -mt-[4.5rem] flex min-h-[80svh] items-center overflow-hidden bg-navy text-white">
       <div aria-hidden="true" className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right opacity-70" />

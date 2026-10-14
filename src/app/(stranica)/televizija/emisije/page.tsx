@@ -10,7 +10,7 @@ import { emisije, opisEmisije, type EmisijaCms } from "@/server/sadrzaj";
 export const metadata: Metadata = {
   title: "Emisije i serije",
   description:
-    "Emisije Federalne televizije, aktuelna sezona, strani program i arhiva emisija – opisi, termini i najave.",
+    "Emisije i serije Federalne televizije, aktuelna sezona i arhiva emisija – opisi, termini i najave.",
 };
 
 const GRUPE: { naziv: EmisijaCms["grupa"]; id: string; opis: string }[] = [
@@ -69,7 +69,7 @@ export default function EmisijePage() {
         eyebrow="Televizija"
         title="Emisije i"
         highlight="serije"
-        lead="Emisije iz produkcije Federalne televizije, najave aktuelne sezone, strani program i arhiva emisija."
+        lead="Emisije iz produkcije Federalne televizije, najave aktuelne sezone i arhiva emisija."
         crumbs={[{ label: "Televizija", href: "/televizija" }, { label: "Emisije i serije" }]}
         stats={grupe.map((g) => ({ value: g.stavke.length, label: g.naziv.toLowerCase() }))}
       />

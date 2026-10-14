@@ -39,10 +39,10 @@ const servisi = [
   },
   {
     icon: TeletextIcon,
-    naziv: "Teletext",
+    naziv: "Teletekst",
     opis: "Jedan od najstarijih teletekst servisa u regiji, od Olimpijskih igara 1984. Vijesti, sport i servisne informacije.",
     href: site.external.teletext,
-    cta: "Otvori Teletext",
+    cta: "Otvori teletekst",
     external: true,
   },
 ];
@@ -87,11 +87,11 @@ export default function HomePage() {
                 Bosne i Hercegovine
               </span>
             </h1>
-            <p className="fade-up fade-up-2 mt-6 max-w-xl text-lg leading-relaxed text-white/80">
-              Federalna televizija, Radio Federacije BiH, portal federalna.ba i Teletext.
+            <p className="fade-up fade-up-2 mt-6 max-w-xl text-lg uppercase leading-relaxed tracking-wide text-white/80">
+              Federalna televizija, Federalni radio, federalna.ba i Teletekst.
               Od 2001. godine u službi građana – profesionalno, nezavisno i odgovorno.
             </p>
-            <div className="fade-up fade-up-3 mt-9 flex flex-wrap items-center gap-x-4 gap-y-3">
+            <div className="fade-up fade-up-3 mt-9 flex flex-wrap items-center gap-x-4 gap-y-3 uppercase tracking-wide">
               <Link
                 href="/televizija"
                 className="group inline-flex items-center gap-3 rounded-full bg-white py-1.5 pl-5 pr-1.5 font-display text-[0.95rem] font-semibold text-navy shadow-[0_10px_30px_-12px_rgba(0,0,0,0.5)] transition-colors hover:bg-sky-soft"
@@ -149,7 +149,7 @@ export default function HomePage() {
         id="servisi"
         eyebrow="Naši servisi"
         title="Jedan javni servis, četiri načina da nas pratite"
-        lead="Televizija, radio, web i teletext – sadržaj za sve generacije, dostupan zemaljski, kablovski i online."
+        lead="Televizija, radio, web i teletekst – sadržaj za sve generacije, dostupan zemaljski, kablovski i online."
       >
         <div className="grid gap-5 md:grid-cols-2">
           {servisi.map((s) => {
@@ -165,7 +165,7 @@ export default function HomePage() {
                 <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/55 to-transparent" />
                 <div className="relative flex flex-1 flex-col sm:max-w-sm">
                   <Icon className="h-10 w-10 text-sky transition-colors duration-300 group-hover:text-white" />
-                  <h3 className="mt-5 font-display text-xl font-semibold text-white">{s.naziv}</h3>
+                  <h3 className="mt-5 font-display text-xl font-semibold uppercase tracking-wide text-white">{s.naziv}</h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-white/80">{s.opis}</p>
                   <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-white transition-transform group-hover:translate-x-1">
                     {s.cta}
@@ -199,7 +199,7 @@ export default function HomePage() {
               Sve emisije <ArrowRight className="h-4 w-4" />
             </Link>
             <a href={site.external.teletext} target="_blank" rel="noopener" className="btn btn-ghost bg-white">
-              TV program na Teletextu <ExternalLink className="h-4 w-4" />
+              TV program na Teletekstu <ExternalLink className="h-4 w-4" />
             </a>
           </>
         }

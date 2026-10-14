@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { jedinstven as jedinstvenIzBaze, podaci as podaciIzBaze } from "./db";
-import { VRSTE_NABAVKI } from "@/cms/kolekcije";
+import { ARHIVSKE_STRANICE, VRSTE_NABAVKI } from "@/cms/kolekcije";
 import { sazetak, type Blok, type NabavkaGodina } from "@/content/arhiva";
 import { docUrl } from "@/lib/doc";
 import { site } from "@/content/site";
@@ -24,6 +24,21 @@ export const pasusi = (s?: string) =>
     .split(/\n\s*\n/)
     .map((x) => x.trim())
     .filter(Boolean);
+
+// ── arhivirane stranice ─────────────────────────────────────────────────
+/** Rute cijelih stranica koje je urednik arhivirao (ne prikazuju se, ni linkovi na njih) */
+export const arhiviraneRute = cache(function arhiviraneRute(): Set<string> {
+  const p = jedinstven<Record<string, unknown>>("stranice") ?? {};
+  return new Set(ARHIVSKE_STRANICE.filter((s) => p[s.ime] === true).map((s) => s.ruta));
+});
+export const rutaArhivirana = (ruta: string) => arhiviraneRute().has(ruta);
+/** Linkovi bez onih koji vode na arhivirane stranice (i u podmenijima) */
+export function bezArhiviranih<T extends { href: string; children?: { href: string }[] }>(linkovi: T[]): T[] {
+  const a = arhiviraneRute();
+  return linkovi
+    .filter((l) => !a.has(l.href))
+    .map((l) => (l.children ? { ...l, children: l.children.filter((c) => !a.has(c.href)) } : l));
+}
 
 // ── javne nabavke ───────────────────────────────────────────────────────
 type NabavkaZ = { naziv: string; dokument: string; vrsta: string; godina: string; postupak?: string };

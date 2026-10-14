@@ -3,7 +3,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from "./SocialIcons";
 import Logo from "./Logo";
 import { footerNav, site } from "@/content/site";
-import { osnovno, telHref } from "@/server/sadrzaj";
+import { bezArhiviranih, osnovno, telHref } from "@/server/sadrzaj";
 
 type FooterLink = { label: string; href: string; external?: boolean };
 
@@ -45,7 +45,7 @@ export default function Footer() {
           <Logo light />
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/70">
             Javni radio-televizijski servis Federacije Bosne i Hercegovine. Federalna
-            televizija, Radio Federacije BiH, portal federalna.ba i Teletext.
+            televizija, Radio Federacije BiH, portal federalna.ba i Teletekst.
           </p>
           <address className="mt-6 space-y-2.5 text-sm not-italic text-white/80">
             <p className="flex items-start gap-2.5">
@@ -100,11 +100,11 @@ export default function Footer() {
           </div>
         </div>
 
-        <LinkList title="Servisi" items={footerNav.servisi} />
-        <LinkList title="Institucija" items={footerNav.institucija} />
+        <LinkList title="Servisi" items={bezArhiviranih(footerNav.servisi)} />
+        <LinkList title="Institucija" items={bezArhiviranih(footerNav.institucija)} />
         <div className="space-y-10">
-          <LinkList title="Za građane" items={footerNav.gradjani} />
-          <LinkList title="Javni RTV sistem BiH" items={footerNav.sistem} />
+          <LinkList title="Za građane" items={bezArhiviranih(footerNav.gradjani)} />
+          <LinkList title="Javni RTV sistem BiH" items={bezArhiviranih(footerNav.sistem)} />
         </div>
       </div>
 

@@ -30,7 +30,7 @@ const stats: Stat[] = [
     value: 4,
     from: 0,
     label: "Servisa",
-    caption: "Televizija · Radio · Web · Teletext",
+    caption: "Televizija · Radio · Web · Teletekst",
     href: "#servisi",
     icon: ServicesIcon,
   },
@@ -124,7 +124,7 @@ export default function HeroStats({ className = "" }: { className?: string }) {
                     {s.suffix}
                   </span>
                 </p>
-                <p className="mt-2 text-sm font-semibold text-white">{s.label}</p>
+                <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-white">{s.label}</p>
                 <p className="mt-1 text-xs leading-snug text-white/60">{s.caption}</p>
               </Link>
             </li>

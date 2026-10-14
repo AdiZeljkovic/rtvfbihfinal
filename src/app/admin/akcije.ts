@@ -80,7 +80,7 @@ function sacuvajSadrzaj(korisnik: string, kljuc: string, id: number | null, ulaz
   // preimenovan sektor: njegovi odjeli ostaju pod njim (veza je po nazivu)
   const staroIme = String(stari?.naziv ?? "");
   if (kljuc === "jedinice" && staroIme && staroIme !== podaci.naziv) {
-    for (const dijete of [...lista("jedinice"), ...lista("jedinice", "korpa")]) {
+    for (const dijete of [...lista("jedinice"), ...lista("jedinice", "korpa"), ...lista("jedinice", "arhiva")]) {
       if (dijete.podaci.nadredjena === staroIme) {
         sacuvaj("jedinice", dijete.id, { ...dijete.podaci, nadredjena: podaci.naziv }, korisnik);
       }
@@ -97,7 +97,16 @@ export async function uKorpu(id: number): Promise<Rezultat> {
   });
 }
 
-export async function vratiIzKorpe(id: number): Promise<Rezultat> {
+/** Arhiva: stavka se ne vidi na stranici, ali ostaje sačuvana i može se vratiti */
+export async function uArhivu(id: number): Promise<Rezultat> {
+  return radnja((ime) => {
+    postaviStatus(id, "arhiva", ime);
+    osvjezi();
+  });
+}
+
+/** Vraća stavku iz korpe ili arhive na stranicu */
+export async function vratiNaStranicu(id: number): Promise<Rezultat> {
   return radnja((ime) => {
     postaviStatus(id, "objavljeno", ime);
     osvjezi();

@@ -1,0 +1,13 @@
+# Lokalni razvoj (npm run dev) u kontejneru – vidi docker-compose.yml i README.
+# Node 24 je potreban zbog ugrađenog node:sqlite.
+FROM node:24-bookworm-slim
+
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# zavisnosti se instaliraju u image (Linux verzije, npr. sharp), a ne s Windowsa
+COPY package.json package-lock.json ./
+RUN npm ci
+
+EXPOSE 3000
+CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]

@@ -18,6 +18,28 @@ npm start        # pokretanje produkcijskog builda
 npm run lint
 ```
 
+### Lokalno preko Dockera (Docker Desktop)
+
+Na računaru ne treba Node – sve radi u kontejneru `rtvfbih-dev`:
+
+```bash
+docker compose up -d --build    # prvi put (ili nakon izmjene Dockerfile.dev) → http://localhost:3000
+docker compose up -d            # kasnije
+docker compose logs -f web      # log servera
+docker compose stop             # zaustavi (ništa ne ostaje da radi u pozadini)
+docker compose exec web npm install <paket>   # novi paket (package.json se ažurira i na disku)
+docker compose exec web npm run lint
+docker compose exec web npm run urednik       # novi urednik / nova lozinka
+```
+
+- Kod i `podaci/` (baza, dokumenti) su direktno s diska, a izmjene se na stranici vide za
+  nekoliko sekundi.
+- `node_modules` i `.next` su u Docker volumenima (Linux verzije paketa). Ako nešto zapne:
+  `docker compose down -v` pa `docker compose up -d --build`. Podaci u `podaci/` ostaju.
+- Docker Desktop na Windowsu ne javlja kontejneru izmjene fajlova, pa se one provjeravaju
+  periodično (`WATCHPACK_POLLING`). Turbopack to ne podržava pouzdano, zato razvoj u
+  Dockeru koristi webpack (`next dev --webpack`). Produkcijski build je isti.
+
 ## CMS – uređivanje sadržaja
 
 Admin je na **`/admin`**. Prijava traje 90 dana na istom računaru; novi urednici se
@@ -48,6 +70,10 @@ Admin je napravljen da bude što jednostavniji i pristupačan:
 - izbori (vrsta, godina, kategorija) su velike kartice umjesto padajućih lista;
 - nakon čuvanja: ekran „Objavljeno!“ s dugmadima *Pogledaj na stranici* i *Dodaj još*;
 - obrisano ide u **korpu** (odmah ima i dugme *Poništi*) i može se vratiti;
+- **Arhiviraj** sklanja stavku sa stranice bez brisanja (meni *Arhiva* → *Vrati na stranicu*);
+  dokument koji je prilog samo arhiviranih stavki ne otvara se ni na direktnu adresu `/doc/…`
+  (osim prijavljenom uredniku). Cijele stranice (npr. RTV taksa) arhiviraju se u
+  *Arhivirane stranice* – stranica tada vraća 404, a linkovi na nju nestaju;
 - upozorenje ako se stranica zatvori s nesačuvanim promjenama.
 
 Izmjene su na javnoj stranici vidljive odmah (`revalidatePath` nakon svakog čuvanja).

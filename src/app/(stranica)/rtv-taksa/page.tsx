@@ -5,7 +5,8 @@ import Section from "@/components/Section";
 import { ReceiptIcon } from "@/components/StatIcons";
 import { PillButton } from "@/components/Tiles";
 import { rtvTaksaUvod } from "@/content/rtv-taksa";
-import { pitanja } from "@/server/sadrzaj";
+import { notFound } from "next/navigation";
+import { pitanja, rutaArhivirana } from "@/server/sadrzaj";
 
 export const metadata: Metadata = {
   title: "RTV taksa – pitanja i odgovori",
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default function RtvTaksaPage() {
+  if (rutaArhivirana("/rtv-taksa")) notFound();
   const faq = pitanja();
   const glavniTel = rtvTaksaUvod.kontakt.tel[0];
 

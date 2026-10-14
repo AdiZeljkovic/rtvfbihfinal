@@ -5,7 +5,7 @@ import DocList from "@/components/DocList";
 import { IconCard } from "@/components/Tiles";
 import { mnozina } from "@/lib/plural";
 import { DocsIcon, ReceiptIcon, TenderIcon } from "@/components/StatIcons";
-import { dokumenti } from "@/server/sadrzaj";
+import { dokumenti, rutaArhivirana } from "@/server/sadrzaj";
 
 export const metadata: Metadata = {
   title: "Opći akti i izvještaji",
@@ -31,6 +31,7 @@ export default function DokumentiPage() {
     { id: "revizije", label: "Revizorski izvještaji", broj: revizorskiIzvjestaji.length },
   ];
   const ukupno = sekcije.reduce((n, s) => n + s.broj, 0);
+  const taksa = !rutaArhivirana("/rtv-taksa");
 
   return (
     <>
@@ -93,7 +94,7 @@ export default function DokumentiPage() {
       </Section>
 
       <Section eyebrow="Također" title="Ostale objave">
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className={`grid gap-5 ${taksa ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
           <IconCard
             icon={TenderIcon}
             title="Javne nabavke"
@@ -108,13 +109,15 @@ export default function DokumentiPage() {
             href="/obavijesti"
             cta="Otvori"
           />
-          <IconCard
-            icon={ReceiptIcon}
-            title="RTV taksa"
-            text="Odgovori na najčešća pitanja građana o plaćanju RTV takse."
-            href="/rtv-taksa"
-            cta="Otvori"
-          />
+          {taksa && (
+            <IconCard
+              icon={ReceiptIcon}
+              title="RTV taksa"
+              text="Odgovori na najčešća pitanja građana o plaćanju RTV takse."
+              href="/rtv-taksa"
+              cta="Otvori"
+            />
+          )}
         </div>
       </Section>
     </>

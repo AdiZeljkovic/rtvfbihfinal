@@ -25,6 +25,8 @@ const AKCIJE: Record<string, string> = {
   izmjena: "izmijenjeno",
   "u korpu": "obrisano (u korpi)",
   vraćeno: "vraćeno iz korpe",
+  arhivirano: "arhivirano",
+  "vraćeno iz arhive": "vraćeno iz arhive",
 };
 
 function pozdrav() {

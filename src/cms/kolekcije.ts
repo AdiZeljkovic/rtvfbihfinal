@@ -75,6 +75,12 @@ export const KATEGORIJE_DOKUMENATA = [
 export const GRUPE_EMISIJA = ["Aktuelna sezona", "Emisije Federalne televizije", "Strani program", "Arhiva emisija"];
 export const VRSTE_EMISIJA = ["Informativni", "Zabavni", "Dokumentarni", "Djeca i mladi", "Kultura", "Muzika", "Magazin", "Religija", "Sport"];
 
+/**
+ * Cijele stranice koje se mogu arhivirati (podešavanje „Arhivirane stranice“):
+ * arhivirana stranica vraća 404, a linkovi na nju nestaju iz menija i ostalih stranica.
+ */
+export const ARHIVSKE_STRANICE = [{ ime: "rtvTaksa", ruta: "/rtv-taksa", naziv: "RTV taksa – pitanja i odgovori" }];
+
 export const KOLEKCIJE: Kolekcija[] = [
   {
     kljuc: "nabavke",
@@ -336,6 +342,23 @@ export const KOLEKCIJE: Kolekcija[] = [
       { ime: "tekst", vrsta: "dugiTekst", naziv: "Tekst saopštenja", redova: 8, pomoc: "Prazan red pravi novi pasus." },
       { ime: "potpis", vrsta: "tekst", naziv: "Potpis" },
     ],
+  },
+  {
+    kljuc: "stranice",
+    naziv: "Arhivirane stranice",
+    jednina: "arhivirane stranice",
+    opis: "Cijele stranice koje se privremeno ne prikazuju. Isključite prekidač da se stranica vrati.",
+    ikona: "postavke",
+    grupa: "podesavanja",
+    jedinstven: true,
+    naslovPolje: "naziv",
+    naStranici: () => "/",
+    polja: ARHIVSKE_STRANICE.map((s) => ({
+      ime: s.ime,
+      vrsta: "prekidac" as const,
+      naziv: `Arhiviraj stranicu „${s.naziv}“`,
+      pomoc: `Uključeno: stranica ${s.ruta} i svi linkovi na nju se ne vide. Sadržaj ostaje sačuvan.`,
+    })),
   },
 ];
 
