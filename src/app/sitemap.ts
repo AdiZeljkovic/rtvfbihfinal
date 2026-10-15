@@ -3,6 +3,10 @@ import { site } from "@/content/site";
 import { arhiviraneRute, emisije, tekstovi } from "@/server/sadrzaj";
 import { godineNabavki } from "@/content/javne-nabavke";
 
+/* Sitemap se slaže pri svakom zahtjevu iz baze – inače ostane onakav kakav je bio u buildu
+   (bez baze), pa nabraja i arhivirane stranice */
+export const dynamic = "force-dynamic";
+
 const osnovne = [
   "",
   "/o-nama",
