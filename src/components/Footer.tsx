@@ -117,6 +117,12 @@ export default function Footer() {
             Preuzimanje sadržaja sa stranice samo uz pismenu dozvolu ili navođenje izvora
             (www.rtvfbih.ba).
           </p>
+          <p>
+            Website by{" "}
+            <a href="https://luminor.solutions" target="_blank" rel="nofollow noopener" className="hover:text-white">
+              Luminor.Solutions
+            </a>
+          </p>
         </div>
       </div>
     </footer>
