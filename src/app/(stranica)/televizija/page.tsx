@@ -27,6 +27,8 @@ export default function TelevizijaPage() {
         highlight="televizija"
         lead="Prvi Dnevnik emitovan je 27. oktobra 2001. godine. Od tada Federalna televizija donosi informativni, dokumentarni, zabavni, sportski i program za djecu i mlade – gledaocima u cijeloj Bosni i Hercegovini."
         crumbs={[{ label: "Televizija" }]}
+        video="jubilej"
+        dalje="#cjeline"
         actions={
           <>
             <PillButton href="#emisije">Programska shema</PillButton>
@@ -44,6 +46,7 @@ export default function TelevizijaPage() {
       />
 
       <Section
+        id="cjeline"
         eyebrow="Produkcija RTVFBiH"
         title="Programske cjeline"
         lead="Četiri redakcije Odjela za TV program pripremaju program za sve generacije."

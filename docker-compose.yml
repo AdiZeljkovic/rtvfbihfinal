@@ -1,4 +1,5 @@
-# Lokalna verzija stranice: docker compose up -d  →  http://localhost:3000
+# Lokalna verzija stranice: docker compose up -d  →  http://localhost:3020
+# (3020, a ne 3000: na 3000 i 3010 rade drugi projekti koji se sami pokreću s Dockerom)
 services:
   web:
     build:
@@ -6,7 +7,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: rtvfbih-dev
     ports:
-      - "3000:3000"
+      - "3020:3000"
     volumes:
       # izvorni kod (i podaci/ s bazom i dokumentima) direktno s diska
       - .:/app

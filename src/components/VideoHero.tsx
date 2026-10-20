@@ -3,12 +3,22 @@
 import { useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 
+/** Brend animacije u public/video/ (svaka ima .webm, .mp4 i -poster.webp) */
+export const VIDEA = {
+  /** Brend animacija FTV (naslovna) */
+  intro: { ime: "ftv-intro", opis: "Animacija logotipa Radio-televizije Federacije BiH" },
+  /** Jubilarna animacija „F25 godina“ (stranica Televizija) */
+  jubilej: { ime: "ftv-25-godina", opis: "Animacija jubilarnog logotipa 25 godina Federalne televizije" },
+} as const;
+
 type Props = {
   className?: string;
   /** Klase za sam <video> element (npr. object-position, scale) */
   videoClassName?: string;
   /** Zaobljeni okvir s sjenom ili puni bleed */
   framed?: boolean;
+  /** Koja animacija (zadano: brend animacija s naslovne) */
+  video?: keyof typeof VIDEA;
 };
 
 /**
@@ -17,10 +27,12 @@ type Props = {
  * - poštuje prefers-reduced-motion (tada prikazuje statični poster)
  * - poster = prvi kadar, pa nema "skoka" pri učitavanju
  */
-export default function VideoHero({ className = "", videoClassName = "", framed = true }: Props) {
+export default function VideoHero({ className = "", videoClassName = "", framed = true, video = "intro" }: Props) {
+  const { ime, opis } = VIDEA[video];
+  const poster = `/video/${ime}-poster.webp`;
   // poster je prvo što se vidi (LCP): traži se odmah. U klijentskoj komponenti, pa ga
   // ne povuče prefetch naslovne s drugih stranica (kao što bi hint iz server komponente)
-  preload("/video/ftv-intro-poster.webp", { as: "image", fetchPriority: "high" });
+  preload(poster, { as: "image", fetchPriority: "high" });
   const ref = useRef<HTMLVideoElement>(null);
   const [reduced, setReduced] = useState(false);
 
@@ -58,11 +70,11 @@ export default function VideoHero({ className = "", videoClassName = "", framed 
         loop
         playsInline
         preload="metadata"
-        poster="/video/ftv-intro-poster.webp"
-        aria-label="Animacija logotipa Radio-televizije Federacije BiH"
+        poster={poster}
+        aria-label={opis}
       >
-        <source src="/video/ftv-intro.webm" type="video/webm" />
-        <source src="/video/ftv-intro.mp4" type="video/mp4" />
+        <source src={`/video/${ime}.webm`} type="video/webm" />
+        <source src={`/video/${ime}.mp4`} type="video/mp4" />
       </video>
     </div>
   );

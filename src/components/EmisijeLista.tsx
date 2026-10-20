@@ -53,7 +53,7 @@ export default function EmisijeLista({ emisije }: { emisije: EmisijaUShemi[] }) 
       <ul className="mt-6 grid gap-3 lg:grid-cols-2">
         {prikaz.map(({ e, vrijeme, dan, dodatak }) => (
           <li
-            key={e.naziv}
+            key={e.slug}
             className="group relative grid grid-cols-[5.25rem_1fr] items-start gap-4 overflow-hidden rounded-2xl border border-line bg-white px-5 py-5 shadow-[var(--shadow-card)] transition-colors hover:border-brand/40 sm:grid-cols-[6rem_1fr] sm:gap-5 sm:px-6"
           >
             <span

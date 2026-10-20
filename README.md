@@ -23,7 +23,7 @@ npm run lint
 Na računaru ne treba Node – sve radi u kontejneru `rtvfbih-dev`:
 
 ```bash
-docker compose up -d --build    # prvi put (ili nakon izmjene Dockerfile.dev) → http://localhost:3000
+docker compose up -d --build    # prvi put (ili nakon izmjene Dockerfile.dev) → http://localhost:3020
 docker compose up -d            # kasnije
 docker compose logs -f web      # log servera
 docker compose stop             # zaustavi (ništa ne ostaje da radi u pozadini)
