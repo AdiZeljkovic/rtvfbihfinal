@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
-import { TvIcon } from "@/components/StatIcons";
+import { ClapperIcon, KiteIcon, MicIcon, NoteIcon, TvIcon } from "@/components/StatIcons";
 import { emisije, opisEmisije, type EmisijaCms } from "@/server/sadrzaj";
 
 export const metadata: Metadata = {
@@ -20,39 +19,42 @@ const GRUPE: { naziv: EmisijaCms["grupa"]; id: string; opis: string }[] = [
   { naziv: "Arhiva emisija", id: "arhiva", opis: "Emisije i serijali koji su bili na programu Federalne televizije." },
 ];
 
+/** Ikona prema vrsti programa (iste kao programske cjeline na stranici Televizija) */
+const IKONE: Partial<Record<string, typeof TvIcon>> = {
+  Informativni: MicIcon,
+  Kultura: NoteIcon,
+  Muzika: NoteIcon,
+  Dokumentarni: ClapperIcon,
+  "Djeca i mladi": KiteIcon,
+};
+
+/** Tamna kartica u stilu kartica servisa na naslovnici (umjesto slike emisije) */
 function Kartica({ e }: { e: EmisijaCms }) {
-  const slika = e.slika || e.logo;
+  const Ikona = IKONE[e.vrsta] ?? TvIcon;
   return (
     <Link
       href={`/televizija/emisije/${e.slug}`}
-      className="group flex flex-col overflow-hidden rounded-3xl border border-line bg-white shadow-[var(--shadow-card)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-[var(--shadow-card-hover)]"
+      className="group relative flex min-h-[15rem] flex-col overflow-hidden rounded-3xl bg-navy p-6 shadow-[var(--shadow-card)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] sm:p-7"
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-navy">
-        {slika ? (
-          <Image
-            src={slika}
-            alt=""
-            fill
-            sizes="(min-width: 1280px) 18rem, (min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"
-            className={`transition-transform duration-700 group-hover:scale-105 ${e.slika ? "object-cover" : "object-contain p-8"}`}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right">
-            <TvIcon className="h-12 w-12 text-sky" />
-          </div>
-        )}
-        {e.serija && (
-          <span className="absolute left-3 top-3 rounded-full bg-navy/80 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-white backdrop-blur">
-            Serija
-          </span>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-display text-lg font-semibold leading-snug text-navy group-hover:text-brand-deep">{e.naziv}</h3>
-        {e.termin && <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-brand-strong">{e.termin}</p>}
-        <p className="mt-1.5 line-clamp-3 flex-1 text-sm leading-relaxed text-muted">{opisEmisije(e, 150)}</p>
-        <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-strong">
-          Opširnije <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-[url(/brand/kartice-bg.webp)] bg-cover bg-right transition-transform duration-700 group-hover:scale-105"
+      />
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/60 to-navy/10" />
+      <div className="relative flex flex-1 flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <Ikona className="h-10 w-10 text-sky transition-colors duration-300 group-hover:text-white" />
+          {e.serija && (
+            <span className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-white backdrop-blur">
+              Serija
+            </span>
+          )}
+        </div>
+        <h3 className="mt-5 font-display text-lg font-semibold uppercase leading-snug tracking-wide text-white">{e.naziv}</h3>
+        {e.termin && <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-sky">{e.termin}</p>}
+        <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-white/80">{opisEmisije(e, 150)}</p>
+        <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-white transition-transform group-hover:translate-x-1">
+          Opširnije <ArrowRight className="h-4 w-4" />
         </span>
       </div>
     </Link>
