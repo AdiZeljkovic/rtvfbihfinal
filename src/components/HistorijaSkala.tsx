@@ -8,13 +8,14 @@ import { LogoMark } from "./Logo";
  * Historija kao skala starog radio-prijemnika: godine su „frekvencije“ na
  * skali, igla stoji na izabranom događaju, a memorijske tipke biraju događaj.
  *
- * Svih sedam događaja je uvijek u HTML-u (paneli se samo sakrivaju), pa je
+ * Svi događaji su uvijek u HTML-u (paneli se samo sakrivaju), pa je
  * tekst vidljiv pretraživačima i čitačima ekrana. Sama se vrti samo dok je
  * vidljiva, staje čim je posjetilac dirne, a uz „smanji pokrete“ ne vrti se.
  */
 
 const OD = 1970;
-const DO = 2026;
+/* godinu iza zadnjeg događaja, da njegova tačka stane na skalu (a ne na ivicu) */
+const DO = 2027;
 const KORAK_MS = 6000;
 const procenat = (g: number) => ((g - OD) / (DO - OD)) * 100;
 const GODINE = Array.from({ length: DO - OD + 1 }, (_, i) => OD + i);
@@ -379,7 +380,8 @@ export default function HistorijaSkala() {
             role="tablist"
             aria-label="Historija po godinama"
             onKeyDown={naTipku}
-            className="relative mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7"
+            /* osam tipki u redu kad je radio širok; na lg je radio u užoj koloni pored teksta – dva reda */
+            className="relative mt-5 grid grid-cols-4 gap-2 sm:grid-cols-8 lg:grid-cols-4 xl:grid-cols-8"
           >
             {timeline.map((d, i) => {
               const on = i === aktivan;
@@ -397,12 +399,13 @@ export default function HistorijaSkala() {
                   tabIndex={on ? 0 : -1}
                   onClick={() => izaberi(i)}
                   data-on={on}
-                  className="radio-tipka relative overflow-hidden rounded-md px-2.5 pb-2.5 pt-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  className="radio-tipka relative overflow-hidden rounded-md px-2 pb-2.5 pt-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   <span className="radio-led absolute right-2 top-2 h-1.5 w-1.5 rounded-full" />
                   <span className="block font-display text-base font-bold leading-none tabular-nums">{d.year}</span>
+                  {/* zbijena slova, da „1 kanal“ i „Portal“ stanu cijeli i s osam tipki u redu */}
                   <span
-                    className={`mt-1.5 block truncate text-[0.62rem] font-semibold uppercase tracking-wider ${
+                    className={`mt-1.5 block truncate text-[0.6rem] font-semibold uppercase ${
                       on ? "text-brand-deep" : "text-navy/50"
                     }`}
                   >

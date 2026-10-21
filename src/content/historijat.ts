@@ -53,6 +53,7 @@ export const timeline = [
   { year: "2003", kratko: "1 kanal", datum: "april 2003.", opseg: "FTV1 + FTV2", polozaj: 2003.27, title: "Jedan TV kanal", text: "Program FTV1 i FTV2 objedinjen u jedan kanal." },
   { year: "2006", kratko: "Web", datum: "2006.", opseg: "www", polozaj: 2006.5, title: "rtvfbih.ba", text: "Prva web stranica javnog servisa." },
   { year: "2011", kratko: "Portal", datum: "oktobar 2011.", opseg: "federalna.ba", polozaj: 2011.8, title: "federalna.ba", text: "Pokrenut informativni portal federalna.ba." },
+  { year: "2026", kratko: "App", datum: "2026.", opseg: "Android · iOS", polozaj: 2026.5, title: "Mobilna aplikacija", text: "Javni servis dobija mobilnu aplikaciju za Android i iOS." },
 ];
 
 /** Filmovi iz produkcije/koprodukcije Televizije Sarajevo (za stranicu O nama) */
