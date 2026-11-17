@@ -21,6 +21,56 @@ const slug = (s: string) =>
 const svi = (kolekcija: string) => [...lista(kolekcija, "objavljeno"), ...lista(kolekcija, "korpa"), ...lista(kolekcija, "arhiva")];
 
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : v == null ? "" : String(v).trim());
+
+/**
+ * Adresa koju je urednik upisao → ispravan link:
+ * „info@rtvfbih.ba“ → mailto:, „www.fbih.gov.ba“ → https://, „dokumenti/statut“ → /dokumenti/statut
+ */
+export function ispraviAdresu(v: string): string {
+  const s = v.trim();
+  if (!s || /^(https?:|mailto:|tel:)/i.test(s) || s.startsWith("/") || s.startsWith("#")) return s;
+  if (/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(s)) return `mailto:${s}`;
+  if (/^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$)/i.test(s)) return `https://${s}`;
+  return `/${s}`;
+}
+
+type Obj = Record<string, unknown>;
+/** Dijelovi teksta bez praznih (prazan pasus, slika bez slike, tabela bez sadržaja) i s ispravnim linkovima */
+function ocistiBlokove(v: unknown): Obj[] {
+  if (!Array.isArray(v)) return [];
+  const out: Obj[] = [];
+  for (const b of v as Obj[]) {
+    if (!b || typeof b !== "object" || !("t" in b)) continue;
+    switch (b.t) {
+      case "pasus":
+      case "naslov":
+        if (str(b.tekst)) out.push(b);
+        break;
+      case "slika":
+        if (str(b.src)) out.push(b);
+        break;
+      case "tabela": {
+        const redovi = (Array.isArray(b.redovi) ? b.redovi : []).filter((r) => Array.isArray(r) && r.some((c) => str(c)));
+        if (redovi.length) out.push({ ...b, redovi });
+        break;
+      }
+      case "linkovi": {
+        const stavke = (Array.isArray(b.stavke) ? (b.stavke as Obj[]) : [])
+          .map((s) => {
+            if (s.doc || !s.ruta) return s;
+            const a = ispraviAdresu(str(s.ruta));
+            return a.startsWith("/") || a.startsWith("#") ? { ...s, ruta: a } : { tekst: s.tekst, href: a };
+          })
+          .filter((s) => s.doc || str(s.ruta) || str(s.href) || str(s.tekst));
+        if (stavke.length || str(b.prefiks)) out.push({ ...b, stavke });
+        break;
+      }
+      default:
+        out.push(b);
+    }
+  }
+  return out;
+}
 const postojiDokument = (ime: string) => fs.existsSync(path.join(DOC_DIR, sigurnoIme(ime)));
 
 /** Čisti i provjerava podatke iz obrasca prema opisu kolekcije */
@@ -67,7 +117,7 @@ export function provjeri(def: Kolekcija, ulaz: Record<string, unknown>, id: numb
       case "dokumenti": {
         const arr = Array.isArray(v) ? v : [];
         p[polje.ime] = arr
-          .map((x) => ({ naziv: str((x as Record<string, unknown>).naziv), dokument: str((x as Record<string, unknown>).dokument), adresa: str((x as Record<string, unknown>).adresa) }))
+          .map((x) => ({ naziv: str((x as Record<string, unknown>).naziv), dokument: str((x as Record<string, unknown>).dokument), adresa: ispraviAdresu(str((x as Record<string, unknown>).adresa)) }))
           .filter((x) => x.dokument || x.adresa)
           .map((x) => ({ ...x, naziv: x.naziv || x.dokument || x.adresa }));
         break;
@@ -76,7 +126,7 @@ export function provjeri(def: Kolekcija, ulaz: Record<string, unknown>, id: numb
         p[polje.ime] = str(v);
         break;
       case "blokovi":
-        p[polje.ime] = Array.isArray(v) ? v.filter((b) => b && typeof b === "object" && "t" in (b as object)) : [];
+        p[polje.ime] = ocistiBlokove(v);
         break;
       case "lista": {
         const arr = Array.isArray(v) ? v : [];
@@ -89,6 +139,7 @@ export function provjeri(def: Kolekcija, ulaz: Record<string, unknown>, id: numb
   }
 
   // ── posebna pravila po kolekciji ──
+  if (def.kljuc === "dokumenti") p.adresa = ispraviAdresu(str(p.adresa));
   if (def.kljuc === "dokumenti" && !p.dokument && !p.adresa) {
     greske.dokument = "Dodajte dokument ili upišite adresu stranice.";
   }

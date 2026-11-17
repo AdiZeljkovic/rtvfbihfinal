@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Archive, CircleAlert, CircleCheck, Trash2, Undo2 } from "lucide-react";
+import { Archive, CircleAlert, CircleCheck, ExternalLink, Trash2, Undo2 } from "lucide-react";
 import { obrisiTrajno, vratiNaStranicu, type Rezultat } from "@/app/admin/akcije";
 import Potvrda from "./Potvrda";
 
@@ -14,7 +14,7 @@ export default function KorpaLista({ stavke, arhiva = false }: { stavke: Stavka[
   const router = useRouter();
   const [radi, start] = useTransition();
   const [zaBrisanje, setZaBrisanje] = useState<Stavka | null>(null);
-  const [poruka, setPoruka] = useState<{ tekst: string; greska?: boolean }>({ tekst: "" });
+  const [poruka, setPoruka] = useState<{ tekst: string; greska?: boolean; istekla?: boolean }>({ tekst: "" });
 
   const radnja = (fn: () => Promise<Rezultat>, tekst: string) =>
     start(async () => {
@@ -24,7 +24,7 @@ export default function KorpaLista({ stavke, arhiva = false }: { stavke: Stavka[
       } catch {
         r = { poruka: "Nema veze sa serverom. Provjerite internet i pokušajte ponovo." };
       }
-      setPoruka(r.poruka ? { tekst: r.poruka, greska: true } : { tekst });
+      setPoruka(r.poruka ? { tekst: r.poruka, greska: true, istekla: r.istekla } : { tekst });
       router.refresh();
     });
 
@@ -42,6 +42,15 @@ export default function KorpaLista({ stavke, arhiva = false }: { stavke: Stavka[
           (poruka.greska ? <CircleAlert className="h-6 w-6 shrink-0" aria-hidden="true" /> : <CircleCheck className="h-6 w-6 shrink-0" aria-hidden="true" />)}
         {poruka.tekst}
       </p>
+      {poruka.istekla && (
+        <a
+          href="/admin/prijava"
+          target="_blank"
+          className="-mt-2 mb-5 inline-flex min-h-14 items-center gap-2 rounded-2xl bg-red-800 px-6 font-display text-lg font-semibold text-white hover:bg-red-900"
+        >
+          <ExternalLink className="h-5 w-5" aria-hidden="true" /> Prijavi se u novom prozoru
+        </a>
+      )}
       {stavke.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-line bg-white p-12 text-center">
           <Ikona className="mx-auto h-12 w-12 text-sky" aria-hidden="true" />

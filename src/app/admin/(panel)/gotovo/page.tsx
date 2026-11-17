@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Check, ExternalLink, House, Plus } from "lucide-react";
 import { kolekcija } from "@/cms/kolekcije";
 import Fokus from "@/components/admin/Fokus";
-import { jedan } from "@/server/db";
+import { jedan, lista } from "@/server/db";
 import { obaveznaPrijava } from "@/server/auth";
 
 export const metadata: Metadata = { title: "Sačuvano" };
@@ -20,6 +20,11 @@ export default async function GotovoPage({ searchParams }: PageProps<"/admin/got
   if (!def || !z) notFound();
   const novo = sp.novo === "1";
   const naslov = String(z.podaci[def.naslovPolje] ?? "");
+  const naStranici = z.status === "objavljeno";
+  // novi duži tekst ima svoju stranicu, ali na listi Dokumenti se vidi tek kad se doda kao dokument s tom adresom
+  const ruta = String(z.podaci.ruta ?? "");
+  const tekstBezLinka =
+    def.kljuc === "tekstovi" && naStranici && ruta && !lista("dokumenti").some((d) => d.podaci.adresa === ruta);
 
   return (
     <div className="mx-auto max-w-3xl py-6 text-center sm:py-12">
@@ -36,13 +41,34 @@ export default async function GotovoPage({ searchParams }: PageProps<"/admin/got
             <br />
           </>
         )}
-        Promjena je već vidljiva na stranici.
+        {naStranici
+          ? "Promjena je već vidljiva na stranici."
+          : z.status === "arhiva"
+            ? "Stavka je u arhivi i ne vidi se na stranici. Vratite je iz Arhive kad je želite ponovo prikazati."
+            : "Stavka je u korpi i ne vidi se na stranici. Vratite je iz Korpe kad je želite ponovo prikazati."}
       </p>
 
+      {tekstBezLinka && (
+        <div className="mt-8 rounded-3xl border-2 border-brand/40 bg-sky-soft p-6 text-left">
+          <p className="text-lg leading-relaxed text-navy">
+            Tekst ima svoju stranicu, ali se još ne vidi u listi na stranici <strong>Dokumenti</strong>. Da bi ga posjetioci našli,
+            dodajte ga u listu (naziv i adresa su već upisani, samo odaberite gdje ga prikazati).
+          </p>
+          <Link
+            href={`/admin/dokumenti/novo?naziv=${encodeURIComponent(naslov)}&adresa=${encodeURIComponent(ruta)}`}
+            className={`${dugme} mt-4 bg-brand-strong text-white hover:bg-brand-deep`}
+          >
+            <Plus className="h-6 w-6" aria-hidden="true" /> Dodaj u listu Dokumenti
+          </Link>
+        </div>
+      )}
+
       <div className="mt-10 grid gap-3 sm:grid-cols-2">
-        <a href={def.naStranici(z.podaci)} target="_blank" rel="noopener" className={`${dugme} bg-navy text-white hover:bg-brand-deep`}>
-          <ExternalLink className="h-6 w-6" aria-hidden="true" /> Pogledaj na stranici
-        </a>
+        {naStranici && (
+          <a href={def.naStranici(z.podaci)} target="_blank" rel="noopener" className={`${dugme} bg-navy text-white hover:bg-brand-deep`}>
+            <ExternalLink className="h-6 w-6" aria-hidden="true" /> Pogledaj na stranici
+          </a>
+        )}
         {def.dodavanje ? (
           <Link href={`/admin/${def.kljuc}/novo`} className={`${dugme} bg-brand-strong text-white hover:bg-brand-deep`}>
             <Plus className="h-6 w-6" aria-hidden="true" /> Dodaj još {def.jednina}

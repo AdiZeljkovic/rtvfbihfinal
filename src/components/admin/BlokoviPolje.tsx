@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, FileText, Heading, Image as SlikaIkona, Pilcrow, Plus, Table, Trash2 } from "lucide-react";
 import type { ArhivaLink, Blok } from "@/content/arhiva";
 import type { Polje } from "@/cms/kolekcije";
@@ -128,10 +128,25 @@ export default function BlokoviPolje({
   // ako se broj dijelova promijeni izvana, dopuni ključeve
   const k = kljucevi.length === blokovi.length ? kljucevi : blokovi.map((_, i) => kljucevi[i] ?? -1 - i);
 
+  // ključevi u trenutku poziva: slanje slike/dokumenta traje, a urednik u međuvremenu može brisati ili pomjerati dijelove
+  const trenutniKljucevi = useRef(k);
+  useEffect(() => {
+    trenutniKljucevi.current = k;
+  });
+  /** Izmjena nad nizom dijelova (novi tekst počinje bez niza) */
+  const uredi = (fn: (s: Blok[]) => Blok[]) => postavi((s) => fn(Array.isArray(s) ? s : []));
+
   const promijeni =
     (i: number): Promjena =>
     (b) =>
-      postavi((s) => s.map((x, j) => (j === i ? (typeof b === "function" ? b(x) : b) : x)));
+      uredi((s) => s.map((x, j) => (j === i ? (typeof b === "function" ? b(x) : b) : x)));
+  /** Izmjena dijela po ključu – ostaje tačna i ako se redoslijed promijenio dok se fajl slao */
+  const promijeniPoKljucu =
+    (kljuc: number): Promjena =>
+    (b) => {
+      const i = trenutniKljucevi.current.indexOf(kljuc);
+      if (i >= 0) promijeni(i)(b); // dio je možda u međuvremenu uklonjen
+    };
   const zamijeni = <T,>(niz: T[], i: number, j: number) => {
     const n = [...niz];
     [n[i], n[j]] = [n[j], n[i]];
@@ -139,17 +154,17 @@ export default function BlokoviPolje({
   };
   const pomjeri = (i: number, s: number) => {
     setKljucevi(zamijeni(k, i, i + s));
-    postavi((sv) => zamijeni(sv, i, i + s));
+    uredi((sv) => zamijeni(sv, i, i + s));
   };
   const ukloni = (i: number) => {
     setKljucevi(k.filter((_, j) => j !== i));
-    postavi((s) => s.filter((_, j) => j !== i));
+    uredi((s) => s.filter((_, j) => j !== i));
   };
   const dodaj = (b: Blok) => {
     const novi = noviKljuc();
     setKljucevi([...k, novi]);
     setZadnjiDodan(novi);
-    postavi((s) => [...s, b]);
+    uredi((s) => [...s, b]);
   };
 
   /** Pasus u kojem je zalijepljeno više pasusa (prazan red) dijeli se na više blokova */
@@ -157,12 +172,13 @@ export default function BlokoviPolje({
     const b = blokovi[i];
     if (b.t !== "pasus" || !/\n\s*\n/.test(b.tekst)) return;
     const dijelovi = b.tekst.split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean);
+    if (dijelovi.length === 0) return; // samo prazni redovi: dio ostaje (prazan se ionako ne objavljuje)
     setKljucevi([...k.slice(0, i), k[i], ...dijelovi.slice(1).map(noviKljuc), ...k.slice(i + 1)]);
-    postavi((s) => [...s.slice(0, i), ...dijelovi.map((tekst) => ({ t: "pasus" as const, tekst })), ...s.slice(i + 1)]);
+    uredi((s) => [...s.slice(0, i), ...dijelovi.map((tekst) => ({ t: "pasus" as const, tekst })), ...s.slice(i + 1)]);
   };
 
   return (
-    <Okvir id={id} naziv={polje.naziv} pomoc={"pomoc" in polje && polje.pomoc ? polje.pomoc : "Tekst se slaže od dijelova. Dodajte ih dugmadima ispod i poredajte strelicama."} greska={greska}>
+    <Okvir id={id} naziv={polje.naziv} pomoc={"pomoc" in polje && polje.pomoc ? polje.pomoc : "Tekst se slaže od dijelova. Dodajte ih dugmadima ispod i poredajte strelicama."} greska={greska} grupa>
       {blokovi.length === 0 && (
         <p className="rounded-3xl border-2 border-dashed border-line bg-white p-6 text-center text-lg text-muted">Još nema teksta. Dodajte prvi dio dugmetom ispod.</p>
       )}
@@ -209,7 +225,7 @@ export default function BlokoviPolje({
                   className={`${ULAZ} font-display text-xl font-semibold`}
                 />
               )}
-              {b.t === "linkovi" && <LinkoviUredi blok={b} promijeni={promijeni(i)} />}
+              {b.t === "linkovi" && <LinkoviUredi blok={b} promijeni={promijeniPoKljucu(k[i])} />}
               {b.t === "tabela" && <TabelaUredi blok={b} promijeni={promijeni(i)} />}
               {b.t === "slika" &&
                 (b.src ? (
@@ -221,7 +237,7 @@ export default function BlokoviPolje({
                     </button>
                   </div>
                 ) : (
-                  <ZonaZaFajl vrsta="slika" kompaktno oznaka="Odaberi sliku" onPoslano={(p) => promijeni(i)({ t: "slika", src: p.adresa })} />
+                  <ZonaZaFajl vrsta="slika" kompaktno oznaka="Odaberi sliku" onPoslano={(p) => promijeniPoKljucu(k[i])((x) => (x.t === "slika" ? { t: "slika", src: p.adresa } : x))} />
                 ))}
             </li>
           );

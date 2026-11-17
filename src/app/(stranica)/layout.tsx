@@ -14,10 +14,11 @@ const CF_ANALITIKA_TOKEN = "7c7b334e01ee4232a7be9f1facf00cd8";
 
 /**
  * Stranice su statične i osvježavaju se odmah nakon izmjene u adminu.
- * Dodatno se obnavljaju svaki sat, da tekst koji zavisi od datuma
- * (istekli rokovi konkursa, godina u podnožju) ne ostane zastario.
+ * Dodatno se obnavljaju svakih 10 minuta, da tekst koji zavisi od datuma
+ * (istekli rokovi konkursa, godina u podnožju) ne ostane zastario, a izmjena
+ * koja se iz bilo kojeg razloga ne bi odmah vidjela pojavi se najkasnije tada.
  */
-export const revalidate = 3600;
+export const revalidate = 600;
 
 /** Javni dio stranice: zaglavlje, sadržaj i podnožje (admin ima svoj izgled) */
 export default function StranicaLayout({ children }: { children: React.ReactNode }) {

@@ -40,6 +40,9 @@ export function Greska({ stanje }: { stanje: StanjeObrasca }) {
 export default function PrijavaObrazac({ prvi, trebaKod = false }: { prvi: boolean; trebaKod?: boolean }) {
   const [stanje, akcija, salje] = useActionState(prvi ? prviKorisnikAkcija : prijavaAkcija, undefined);
   const Ikona = salje ? LoaderCircle : prvi ? UserPlus : LogIn;
+  // ime ostaje upisano i poslije pogrešne lozinke (obrazac se poslije slanja sam prazni)
+  const [korisnik, setKorisnik] = useState("");
+  const [ime, setIme] = useState("");
 
   return (
     <form action={akcija} className="space-y-6">
@@ -54,13 +57,22 @@ export default function PrijavaObrazac({ prvi, trebaKod = false }: { prvi: boole
       {prvi && (
         <label className="block">
           <span className="font-display text-lg font-semibold text-navy">Vaše ime i prezime</span>
-          <input name="ime" autoComplete="name" className={`${ULAZ} mt-2`} />
+          <input name="ime" autoComplete="name" value={ime} onChange={(e) => setIme(e.target.value)} className={`${ULAZ} mt-2`} />
         </label>
       )}
       <label className="block">
         <span className="font-display text-lg font-semibold text-navy">Korisničko ime</span>
         {prvi && <span className="block text-base text-muted">Kratko ime za prijavu, npr. „urednik“.</span>}
-        <input name="korisnik" required autoComplete="username" autoCapitalize="none" autoFocus className={`${ULAZ} mt-2`} />
+        <input
+          name="korisnik"
+          required
+          autoComplete="username"
+          autoCapitalize="none"
+          autoFocus
+          value={korisnik}
+          onChange={(e) => setKorisnik(e.target.value)}
+          className={`${ULAZ} mt-2`}
+        />
       </label>
       <LozinkaUlaz ime="lozinka" oznaka="Lozinka" autoComplete={prvi ? "new-password" : "current-password"} pomoc={prvi ? "Najmanje 8 znakova." : undefined} />
       {prvi && <LozinkaUlaz ime="lozinka2" oznaka="Ponovite lozinku" autoComplete="new-password" />}

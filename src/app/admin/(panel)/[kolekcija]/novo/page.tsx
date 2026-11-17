@@ -17,11 +17,17 @@ export async function generateMetadata({ params }: PageProps<"/admin/[kolekcija]
   return { title: def ? `Dodaj ${def.jednina}` : undefined };
 }
 
-export default async function NovoPage({ params }: PageProps<"/admin/[kolekcija]/novo">) {
+export default async function NovoPage({ params, searchParams }: PageProps<"/admin/[kolekcija]/novo">) {
   await obaveznaPrijava();
   const def = kolekcija((await params).kolekcija);
   if (!def) notFound();
   if (def.jedinstven || !def.dodavanje) redirect(`/admin/${def.kljuc}`);
+  // „Dodaj u listu Dokumenti“ poslije novog dužeg teksta: naziv i adresa su već upisani
+  const sp = await searchParams;
+  const pocetno =
+    def.kljuc === "dokumenti" && typeof sp.adresa === "string"
+      ? { naziv: typeof sp.naziv === "string" ? sp.naziv : "", adresa: sp.adresa }
+      : undefined;
 
   return (
     <>
@@ -30,7 +36,7 @@ export default async function NovoPage({ params }: PageProps<"/admin/[kolekcija]
         opis={POMOC[def.kljuc] ?? "Popunite polja i sačuvajte. Polja označena s „obavezno“ moraju biti popunjena."}
         nazad={{ href: `/admin/${def.kljuc}`, tekst: def.naziv }}
       />
-      <Obrazac kljuc={def.kljuc} id={null} opcije={opcijeObrasca(def.kljuc)} nazad={`/admin/${def.kljuc}`} />
+      <Obrazac kljuc={def.kljuc} id={null} pocetno={pocetno} opcije={opcijeObrasca(def.kljuc)} nazad={`/admin/${def.kljuc}`} />
     </>
   );
 }

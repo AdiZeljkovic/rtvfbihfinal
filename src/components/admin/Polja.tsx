@@ -51,7 +51,7 @@ export function Okvir({
     </>
   );
   return grupa ? (
-    <fieldset id={`polje-${id}`} className="scroll-mt-32">
+    <fieldset id={`polje-${id}`} className="scroll-mt-32" aria-describedby={[pomoc && `${id}-pomoc`, greska && `${id}-greska`].filter(Boolean).join(" ") || undefined}>
       {sadrzaj}
     </fieldset>
   ) : (
@@ -153,6 +153,8 @@ export function IzborPolje({ polje, vrijednost, postavi, greska, opcije }: Svojs
   const id = useId();
   if (polje.vrsta !== "izbor") return null;
   const sve = [...new Set([...polje.opcije, ...(opcije ?? [])])];
+  // upisana vrijednost koje više nema u ponudi (npr. nadređeni sektor je arhiviran) ipak se prikaže, ne „nestane“
+  if (vrijednost && !sve.includes(vrijednost)) sve.push(vrijednost);
   const a = opisano(id, polje.pomoc, greska);
 
   if (polje.slobodno) {
@@ -264,7 +266,7 @@ export function DokumentPolje({ polje, vrijednost, postavi, greska, postaviDrugo
     if (polje.nazivIz) postaviDrugo?.(polje.nazivIz, nazivIzFajla(izvorno), true);
   };
   return (
-    <Okvir id={id} naziv={polje.naziv} pomoc={polje.pomoc} greska={greska} obavezno={polje.obavezno}>
+    <Okvir id={id} naziv={polje.naziv} pomoc={polje.pomoc} greska={greska} obavezno={polje.obavezno} grupa>
       <div data-greska={greska ? "da" : undefined} className="rounded-3xl">
         {vrijednost ? (
           <KarticaDokumenta ime={vrijednost} onZamijeni={(p, iz) => poslano(p.ime, iz)} onUkloni={() => postavi("")} />
@@ -284,7 +286,7 @@ export function DokumentiPolje({ polje, vrijednost, postavi, greska }: Svojstva<
   const lista = vrijednost ?? [];
   const izmijeni = (i: number, p: Partial<Prilog>) => postavi(lista.map((x, j) => (j === i ? { ...x, ...p } : x)));
   return (
-    <Okvir id={id} naziv={polje.naziv} pomoc={"pomoc" in polje ? polje.pomoc : undefined} greska={greska}>
+    <Okvir id={id} naziv={polje.naziv} pomoc={"pomoc" in polje ? polje.pomoc : undefined} greska={greska} grupa>
       <ul className="space-y-4">
         {lista.map((d, i) => (
           <li key={i} className="admin-kartica rounded-3xl border border-line bg-sky-mist p-4 sm:p-5">
@@ -322,7 +324,7 @@ export function DokumentiPolje({ polje, vrijednost, postavi, greska }: Svojstva<
 export function SlikaPolje({ polje, vrijednost, postavi, greska }: Svojstva<string>) {
   const id = useId();
   return (
-    <Okvir id={id} naziv={polje.naziv} pomoc={"pomoc" in polje ? polje.pomoc : undefined} greska={greska}>
+    <Okvir id={id} naziv={polje.naziv} pomoc={"pomoc" in polje ? polje.pomoc : undefined} greska={greska} grupa>
       {vrijednost ? (
         <div className="admin-kartica flex flex-wrap items-center gap-5 rounded-3xl border border-line bg-white p-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -349,7 +351,7 @@ export function ListaPolje({ polje, vrijednost, postavi, greska }: Svojstva<Reco
     postavi(n);
   };
   return (
-    <Okvir id={id} naziv={polje.naziv} pomoc={polje.pomoc} greska={greska}>
+    <Okvir id={id} naziv={polje.naziv} pomoc={polje.pomoc} greska={greska} grupa>
       <ol className="space-y-4">
         {lista.map((s, i) => (
           <li key={i} className="admin-kartica rounded-3xl border border-line bg-sky-mist p-4 sm:p-5">

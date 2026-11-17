@@ -1,11 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { CircleAlert, ExternalLink, ImagePlus, RotateCcw, Trash2, Upload as UploadIkona } from "lucide-react";
 import FileTypeIcon from "@/components/FileTypeIcon";
 
 export type Poslano = { ime: string; adresa: string; velicina: number };
 type Vrsta = "dokument" | "slika";
+
+/** Obrazac broji slanja u toku (+1 / −1), da se ne sačuva prije nego što fajl stigne */
+export const SlanjeUToku = createContext<(promjena: number) => void>(() => {});
 
 /** Šalje fajl na server i javlja napredak (0–100) */
 export function posalji(fajl: File, vrsta: Vrsta, napredak: (p: number) => void): Promise<Poslano> {
@@ -65,22 +68,38 @@ export function ZonaZaFajl({
   const ulaz = useRef<HTMLInputElement>(null);
   const [nadZonom, setNadZonom] = useState(false);
   const [slanje, setSlanje] = useState<{ ime: string; p: number } | null>(null);
-  const [greska, setGreska] = useState("");
+  const [greske, setGreske] = useState<string[]>([]);
+  const javiSlanje = useContext(SlanjeUToku);
+  const radi = useRef(false);
+  // ako polje nestane usred slanja, obrazac ne smije ostati zaključan
+  useEffect(
+    () => () => {
+      if (radi.current) javiSlanje(-1);
+    },
+    [javiSlanje]
+  );
 
   async function obradi(fajlovi: FileList | null) {
-    if (!fajlovi?.length) return;
-    setGreska("");
-    for (const f of Array.from(fajlovi).slice(0, vise ? 20 : 1)) {
-      setSlanje({ ime: f.name, p: 0 });
-      try {
-        const r = await posalji(f, vrsta, (p) => setSlanje({ ime: f.name, p }));
-        onPoslano(r, f.name);
-      } catch (e) {
-        setGreska(`${f.name}: ${(e as Error).message}`);
+    if (!fajlovi?.length || radi.current) return;
+    radi.current = true;
+    javiSlanje(1);
+    setGreske([]);
+    try {
+      for (const f of Array.from(fajlovi).slice(0, vise ? 20 : 1)) {
+        setSlanje({ ime: f.name, p: 0 });
+        try {
+          const r = await posalji(f, vrsta, (p) => setSlanje({ ime: f.name, p }));
+          onPoslano(r, f.name);
+        } catch (e) {
+          setGreske((g) => [...g, `${f.name}: ${(e as Error).message}`]);
+        }
       }
+    } finally {
+      radi.current = false;
+      javiSlanje(-1);
+      setSlanje(null);
+      if (ulaz.current) ulaz.current.value = "";
     }
-    setSlanje(null);
-    if (ulaz.current) ulaz.current.value = "";
   }
 
   const prihvata = vrsta === "slika" ? ".jpg,.jpeg,.png,.webp" : ".pdf,.doc,.docx,.xls,.xlsx";
@@ -152,10 +171,15 @@ export function ZonaZaFajl({
           </>
         )}
       </div>
-      {greska && (
-        <p role="alert" className="mt-3 flex items-start gap-2 rounded-2xl bg-red-50 p-4 text-base font-medium text-red-800">
-          <CircleAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /> {greska}
-        </p>
+      {greske.length > 0 && (
+        <div role="alert" className="mt-3 flex items-start gap-2 rounded-2xl bg-red-50 p-4 text-base font-medium text-red-800">
+          <CircleAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+          <ul className="space-y-1">
+            {greske.map((g, i) => (
+              <li key={i}>{g}</li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

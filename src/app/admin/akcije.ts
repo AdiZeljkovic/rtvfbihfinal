@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { osvjeziPonovoZaTren } from "@/server/osvjezavanje";
 import { kolekcija } from "@/cms/kolekcije";
 import { jedan, lista, obrisiTrajno as obrisiZauvijek, pomjeri, postaviStatus, sacuvaj } from "@/server/db";
 import { provjeri, type Greske } from "@/server/provjera";
@@ -22,7 +24,12 @@ import {
  * osvježava cijelu javnu stranicu, pa se promjena odmah vidi.
  */
 
-const osvjezi = () => revalidatePath("/", "layout");
+const osvjezi = () => {
+  revalidatePath("/", "layout");
+  // Stranica koju je posjetilac otvorio baš u trenutku čuvanja gradi se sa starim podacima i bila bi zapamćena
+  // kao nova (do sljedećeg osvježavanja). Zato se nakon par sekundi osvježi još jednom (vidi server/osvjezavanje).
+  after(() => osvjeziPonovoZaTren());
+};
 
 export type Rezultat = { greske?: Greske; poruka?: string; id?: number; istekla?: boolean };
 

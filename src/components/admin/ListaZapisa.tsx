@@ -35,7 +35,9 @@ export default function ListaZapisa({
 }) {
   const router = useRouter();
   const [trazi, setTrazi] = useState("");
-  const [filter, setFilter] = useState(pocetniFilter);
+  const [izabraniFilter, setFilter] = useState(pocetniFilter);
+  // ako izabrane vrijednosti više nema (npr. arhivirana zadnja stavka te godine), lista se ne smije „zaglaviti“ prazna
+  const filter = izabraniFilter && (!filterOpcije || filterOpcije.includes(izabraniFilter)) ? izabraniFilter : "";
   const [prikazano, setPrikazano] = useState(KORAK);
   const [zaBrisanje, setZaBrisanje] = useState<Red | null>(null);
   const [obavijest, setObavijest] = useState<{ tekst: string; vrati?: number; greska?: boolean; istekla?: boolean } | null>(null);

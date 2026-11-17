@@ -39,17 +39,32 @@ export function PromjenaLozinke() {
 
 export function NoviKorisnik() {
   const [stanje, akcija, salje] = useActionState(dodajKorisnikaAkcija, undefined);
+  return <NoviKorisnikObrazac key={stanje?.uspjeh} stanje={stanje} akcija={akcija} salje={salje} />;
+}
+
+/** Ime i korisničko ime ostaju upisani kad dodavanje ne uspije; poslije uspjeha obrazac je prazan (novi key) */
+function NoviKorisnikObrazac({ stanje, akcija, salje }: { stanje: StanjeObrasca; akcija: (fd: FormData) => void; salje: boolean }) {
+  const [ime, setIme] = useState("");
+  const [korisnik, setKorisnik] = useState("");
   return (
-    <form action={akcija} className="space-y-5" key={stanje?.uspjeh}>
+    <form action={akcija} className="space-y-5">
       <Greska stanje={stanje} />
       <Uspjeh stanje={stanje} />
       <label className="block">
         <span className="font-display text-lg font-semibold text-navy">Ime i prezime</span>
-        <input name="ime" className={`${ULAZ} mt-2`} />
+        <input name="ime" value={ime} onChange={(e) => setIme(e.target.value)} className={`${ULAZ} mt-2`} />
       </label>
       <label className="block">
         <span className="font-display text-lg font-semibold text-navy">Korisničko ime</span>
-        <input name="korisnik" required autoCapitalize="none" autoComplete="off" className={`${ULAZ} mt-2`} />
+        <input
+          name="korisnik"
+          required
+          autoCapitalize="none"
+          autoComplete="off"
+          value={korisnik}
+          onChange={(e) => setKorisnik(e.target.value)}
+          className={`${ULAZ} mt-2`}
+        />
       </label>
       <LozinkaUlaz ime="lozinka" oznaka="Lozinka" autoComplete="new-password" pomoc="Najmanje 8 znakova." />
       <button type="submit" disabled={salje} className={DUGME}>

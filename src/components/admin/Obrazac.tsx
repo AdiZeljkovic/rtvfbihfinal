@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CircleAlert, ExternalLink, LoaderCircle, Save } from "lucide-react";
@@ -9,6 +9,7 @@ import type { Blok } from "@/content/arhiva";
 import { sacuvajZapis } from "@/app/admin/akcije";
 import BlokoviPolje from "./BlokoviPolje";
 import Potvrda from "./Potvrda";
+import { SlanjeUToku } from "./Upload";
 import {
   DatumPolje,
   DokumentPolje,
@@ -27,6 +28,8 @@ type Podaci = Record<string, unknown>;
 function pocetne(polja: Polje[]): Podaci {
   const p: Podaci = {};
   for (const f of polja) {
+    // polja sa više dijelova počinju kao prazna lista (dodavanje prvog dijela radi nad nizom)
+    if (f.vrsta === "blokovi" || f.vrsta === "lista" || f.vrsta === "dokumenti") p[f.ime] = [];
     if (f.vrsta === "datum" && f.danas) p[f.ime] = danas();
     if (f.vrsta === "izbor" && f.ime === "godina") p[f.ime] = String(new Date().getFullYear());
   }
@@ -50,13 +53,16 @@ export default function Obrazac({
 }) {
   const def = kolekcija(kljuc)!;
   const router = useRouter();
-  const [podaci, setPodaci] = useState<Podaci>(() => pocetno ?? pocetne(def.polja));
+  // nova stavka: zadane vrijednosti, pa ono što je već upisano (npr. iz linka „Dodaj u listu Dokumenti“)
+  const [podaci, setPodaci] = useState<Podaci>(() => (id ? (pocetno ?? {}) : { ...pocetne(def.polja), ...pocetno }));
   const [greske, setGreske] = useState<Record<string, string>>({});
   const [poruka, setPoruka] = useState("");
   const [istekla, setIstekla] = useState(false);
   const [prljavo, setPrljavo] = useState(false);
   const [pitajOdustani, setPitajOdustani] = useState(false);
   const [cuvanje, startCuvanje] = useTransition();
+  const [slanja, setSlanja] = useState(0);
+  const javiSlanje = useCallback((d: number) => setSlanja((n) => Math.max(0, n + d)), []);
   const sazetak = useRef<HTMLDivElement>(null);
 
   // upozorenje ako se stranica zatvori prije čuvanja
@@ -64,7 +70,23 @@ export default function Obrazac({
     if (!prljavo) return;
     const h = (e: BeforeUnloadEvent) => e.preventDefault();
     window.addEventListener("beforeunload", h);
-    return () => window.removeEventListener("beforeunload", h);
+    // linkovi unutar admina (meni, „nazad“) ne zatvaraju stranicu, pa ih treba posebno pitati
+    const klik = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+      const u = new URL(a.href, location.href);
+      if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search)) return;
+      if (!window.confirm("Imate nesačuvane promjene. Ako odete sa ove stranice, bit će izgubljene.\n\nIpak otići?")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener("click", klik, true);
+    return () => {
+      window.removeEventListener("beforeunload", h);
+      document.removeEventListener("click", klik, true);
+    };
   }, [prljavo]);
 
   const postavi = (ime: string) => (v: unknown) => {
@@ -81,6 +103,7 @@ export default function Obrazac({
     setPodaci((s) => (samoAkoPrazno && String(s[ime] ?? "").trim() ? s : { ...s, [ime]: v }));
 
   function sacuvaj() {
+    if (slanja > 0 || cuvanje) return;
     setPoruka("");
     setIstekla(false);
     startCuvanje(async () => {
@@ -105,11 +128,19 @@ export default function Obrazac({
   const listaGresaka = def.polja.filter((f) => greske[f.ime]);
 
   return (
+    <SlanjeUToku.Provider value={javiSlanje}>
     <form
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
         sacuvaj();
+      }}
+      onKeyDown={(e) => {
+        // Enter u kratkom polju ne objavljuje (urednik ga pritisne iz navike, prije nego što popuni ostalo)
+        const t = e.target as HTMLElement;
+        if (e.key === "Enter" && t.tagName === "INPUT" && !["checkbox", "radio", "submit", "button", "file"].includes((t as HTMLInputElement).type)) {
+          e.preventDefault();
+        }
       }}
     >
       {(poruka || listaGresaka.length > 0) && (
@@ -205,11 +236,19 @@ export default function Obrazac({
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"
-            disabled={cuvanje}
+            disabled={cuvanje || slanja > 0}
             className="inline-flex min-h-16 flex-1 items-center justify-center gap-3 rounded-2xl bg-brand-strong px-6 sm:flex-none sm:px-8 font-display text-xl font-bold text-white shadow-[0_10px_30px_-12px_rgba(43,141,222,0.8)] hover:bg-brand-deep disabled:opacity-70"
           >
-            {cuvanje ? <LoaderCircle className="h-6 w-6 animate-spin" aria-hidden="true" /> : <Save className="h-6 w-6" aria-hidden="true" />}
-            {cuvanje ? "Čuvam…" : def.jedinstven ? "Sačuvaj promjene" : id ? "Sačuvaj promjene" : "Sačuvaj i objavi"}
+            {cuvanje || slanja > 0 ? <LoaderCircle className="h-6 w-6 animate-spin" aria-hidden="true" /> : <Save className="h-6 w-6" aria-hidden="true" />}
+            {cuvanje
+              ? "Čuvam…"
+              : slanja > 0
+                ? "Sačekajte, fajl se šalje…"
+                : def.jedinstven
+                  ? "Sačuvaj promjene"
+                  : id
+                    ? "Sačuvaj promjene"
+                    : "Sačuvaj i objavi"}
           </button>
           <button
             type="button"
@@ -222,6 +261,7 @@ export default function Obrazac({
             <Link
               href={naStranici}
               target="_blank"
+              prefetch={false}
               className="inline-flex min-h-12 items-center justify-center gap-2 px-4 font-semibold text-brand-strong underline-offset-4 hover:underline sm:ml-auto"
             >
               <ExternalLink className="h-5 w-5" aria-hidden="true" /> Pogledaj na stranici
@@ -247,5 +287,6 @@ export default function Obrazac({
         onZatvori={() => setPitajOdustani(false)}
       />
     </form>
+    </SlanjeUToku.Provider>
   );
 }
