@@ -4,6 +4,7 @@ import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import FmLista from "@/components/FmLista";
 import ContactCard from "@/components/ContactCard";
+import { Email, Telefoni } from "@/components/KontaktLinkovi";
 import DocList from "@/components/DocList";
 import { UnderlineLink } from "@/components/Tiles";
 import { dokumenti, fmFrekvencije } from "@/server/sadrzaj";
@@ -89,11 +90,15 @@ export default function RadioPage() {
                   <div className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
                     {r.tel && (
                       <span className="inline-flex items-center gap-1.5 text-ink">
-                        <Phone className="h-3.5 w-3.5 text-brand-strong" /> {r.tel}
+                        <Phone className="h-3.5 w-3.5 text-brand-strong" />
+                        <Telefoni tel={r.tel} className="hover:text-brand-strong" />
                       </span>
                     )}
-                    <a href={`mailto:${r.email}`} className="inline-flex items-center gap-1.5 text-brand-strong hover:underline">
-                      <Mail className="h-3.5 w-3.5" /> {r.email}
+                    <a href={`mailto:${r.email}`} className="inline-flex min-w-0 items-center gap-1.5 text-brand-strong [overflow-wrap:anywhere] hover:underline">
+                      <Mail className="h-3.5 w-3.5 shrink-0" />
+                      <span className="min-w-0">
+                        <Email email={r.email} />
+                      </span>
                     </a>
                   </div>
                 </li>

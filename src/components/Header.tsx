@@ -28,7 +28,47 @@ export default function Header({ nav }: { nav: NavItem[] }) {
     setMenu((m) => ({ open: fn(m.open && m.path === pathname), sub: null, path: pathname }));
   const setOpenSub = (fn: (v: string | null) => string | null) =>
     setMenu((m) => ({ ...m, sub: fn(m.path === pathname ? m.sub : null), path: pathname }));
+  // link na stranicu na kojoj već jesmo ne mijenja rutu, pa meni zatvaramo i klikom
+  const zatvoriMeni = () => setMenu((m) => ({ ...m, open: false, sub: null }));
   const [scrolled, setScrolled] = useState(false);
+
+  /* Desktop padajući meni: otvoren je samo jedan, po stanju (ne CSS :hover/:focus-within).
+     Ranije je fokus ostajao na kliknutoj stavci, pa je meni ostajao otvoren i na novoj
+     stranici, a uz hover na drugi bila su otvorena dva. Promjenom rute se sam zatvara. */
+  const [dd, setDd] = useState<{ href: string | null; path: string }>({ href: null, path: "" });
+  const ddOpen = dd.path === pathname ? dd.href : null;
+  const ddTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ddPointer = useRef<string>("mouse");
+  const ddBezFokusa = useRef(false);
+  const otvoriDd = (href: string) => {
+    if (ddTimer.current) clearTimeout(ddTimer.current);
+    setDd({ href, path: pathname });
+  };
+  const zatvoriDd = (odmah = false) => {
+    if (ddTimer.current) clearTimeout(ddTimer.current);
+    if (odmah) setDd((d) => ({ ...d, href: null }));
+    else ddTimer.current = setTimeout(() => setDd((d) => ({ ...d, href: null })), 160);
+  };
+  useEffect(() => () => {
+    if (ddTimer.current) clearTimeout(ddTimer.current);
+  }, []);
+  // tastatura: fokus (Tab) otvara meni; miš/dodir ne (miš ima hover, dodir klik)
+  useEffect(() => {
+    const tipka = (e: KeyboardEvent) => {
+      if (e.key === "Tab" || e.key.startsWith("Arrow")) ddPointer.current = "keyboard";
+    };
+    window.addEventListener("keydown", tipka, true);
+    return () => window.removeEventListener("keydown", tipka, true);
+  }, []);
+  // dodir/klik izvan menija ga zatvara
+  useEffect(() => {
+    if (!ddOpen) return;
+    const van = (e: PointerEvent) => {
+      if (!(e.target as Element | null)?.closest?.('nav[aria-label="Glavna navigacija"]')) zatvoriDd(true);
+    };
+    document.addEventListener("pointerdown", van);
+    return () => document.removeEventListener("pointerdown", van);
+  }, [ddOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -98,21 +138,70 @@ export default function Header({ nav }: { nav: NavItem[] }) {
                     </li>
                   );
                 }
+                const otvoren = ddOpen === item.href;
                 return (
-                  <li key={item.href} className="group relative">
+                  <li
+                    key={item.href}
+                    className="relative"
+                    // hover samo za miš; dodir otvara meni klikom na naslov (vidi onClick)
+                    onPointerEnter={(e) => {
+                      if (e.pointerType !== "touch") otvoriDd(item.href);
+                    }}
+                    onPointerLeave={(e) => {
+                      if (e.pointerType !== "touch") zatvoriDd();
+                    }}
+                    onPointerDownCapture={(e) => {
+                      ddPointer.current = e.pointerType;
+                    }}
+                    onFocus={() => {
+                      if (ddBezFokusa.current) ddBezFokusa.current = false;
+                      else if (ddPointer.current === "keyboard") otvoriDd(item.href);
+                    }}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) zatvoriDd(true);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape" && otvoren) {
+                        zatvoriDd(true);
+                        // fokus se vraća na naslov menija, a meni ostaje zatvoren
+                        const naslov = e.currentTarget.querySelector("a");
+                        if (naslov && document.activeElement !== naslov) {
+                          ddBezFokusa.current = true;
+                          naslov.focus();
+                        }
+                      }
+                    }}
+                  >
                     <Link
                       href={item.href}
                       className={`inline-flex items-center gap-1 ${navBase} ${active ? navActive : navIdle}`}
                       aria-haspopup="true"
+                      aria-expanded={otvoren}
+                      onClick={(e) => {
+                        // na ekranu na dodir (tablet u položenom) prvi dodir otvara meni, drugi vodi na stranicu
+                        if (e.detail !== 0 && ddPointer.current === "touch" && !otvoren) {
+                          e.preventDefault();
+                          otvoriDd(item.href);
+                        } else zatvoriDd(true);
+                      }}
                     >
                       {item.label}
-                      <ChevronDown className="h-4 w-4 opacity-60 transition-transform group-hover:rotate-180" />
+                      <ChevronDown className={`h-4 w-4 opacity-60 transition-transform ${otvoren ? "rotate-180" : ""}`} />
                     </Link>
-                    <div className="invisible absolute left-0 top-full z-50 pt-2 opacity-0 transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                    <div
+                      className={`absolute left-0 top-full z-50 pt-2 transition-[opacity,visibility] duration-150 ${
+                        otvoren ? "visible opacity-100" : "invisible opacity-0"
+                      }`}
+                    >
                       <ul className="w-72 rounded-2xl border border-line bg-white p-2 shadow-[0_18px_40px_-16px_rgba(11,37,64,0.35)]">
                         {item.children.map((c) => (
                           <li key={c.href}>
-                            <Link href={c.href} className="block rounded-xl px-3 py-2.5 hover:bg-sky-mist">
+                            <Link
+                              href={c.href}
+                              onClick={() => zatvoriDd(true)}
+                              aria-current={pathname === c.href ? "page" : undefined}
+                              className={`block rounded-xl px-3 py-2.5 hover:bg-sky-mist ${pathname === c.href ? "bg-sky-mist" : ""}`}
+                            >
                               <span className="block font-display text-sm font-semibold text-navy">{c.label}</span>
                               {c.description && (
                                 <span className="mt-0.5 block text-xs text-muted">{c.description}</span>
@@ -186,7 +275,12 @@ export default function Header({ nav }: { nav: NavItem[] }) {
                     style={{ animationDelay: `${60 + i * 45}ms` }}
                   >
                     {!item.children ? (
-                      <Link href={item.href} className={`group ${red}`} aria-current={active ? "page" : undefined}>
+                      <Link
+                        href={item.href}
+                        className={`group ${red}`}
+                        aria-current={active ? "page" : undefined}
+                        onClick={zatvoriMeni}
+                      >
                         <span className="w-6 font-mono text-xs tabular-nums text-sky/70">{broj}</span>
                         <span className="flex-1">{item.label}</span>
                         <ArrowRight className="h-5 w-5 -translate-x-1 text-white/30 transition-all group-hover:translate-x-0 group-hover:text-white" />
@@ -223,6 +317,8 @@ export default function Header({ nav }: { nav: NavItem[] }) {
                                   <li key={c.href}>
                                     <Link
                                       href={c.href}
+                                      onClick={zatvoriMeni}
+                                      aria-current={pathname === c.href ? "page" : undefined}
                                       className="glass group flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:bg-white/15"
                                     >
                                       <span className="min-w-0 flex-1">

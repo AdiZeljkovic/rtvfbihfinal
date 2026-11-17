@@ -1,4 +1,5 @@
 import { Mail, Phone, Printer } from "lucide-react";
+import { Email, Telefoni } from "./KontaktLinkovi";
 
 type Props = {
   ime: string;
@@ -48,13 +49,17 @@ export default function ContactCard({ ime, uloga, tel, fax, email, className = "
           {tel && (
             <li className={`flex items-start gap-2.5 ${dark ? "text-white/85" : "text-ink"}`}>
               <Phone className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand-strong"}`} />
-              <span>{tel}</span>
+              <span>
+                <Telefoni tel={tel} className={dark ? "hover:text-white" : "hover:text-brand-strong"} />
+              </span>
             </li>
           )}
           {fax && (
             <li className={`flex items-start gap-2.5 ${dark ? "text-white/70" : "text-muted"}`}>
               <Printer className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand-strong"}`} />
-              <span>fax: {fax}</span>
+              <span>
+                fax: <span className="whitespace-nowrap">{fax}</span>
+              </span>
             </li>
           )}
           {email && (
@@ -62,9 +67,9 @@ export default function ContactCard({ ime, uloga, tel, fax, email, className = "
               <Mail className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-sky" : "text-brand-strong"}`} />
               <a
                 href={`mailto:${email}`}
-                className={`break-all hover:underline ${dark ? "text-white" : "text-brand-strong"}`}
+                className={`min-w-0 [overflow-wrap:anywhere] hover:underline ${dark ? "text-white" : "text-brand-strong"}`}
               >
-                {email}
+                <Email email={email} />
               </a>
             </li>
           )}

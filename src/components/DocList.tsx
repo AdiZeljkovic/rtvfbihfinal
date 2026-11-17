@@ -28,7 +28,7 @@ export default function DocList({ items }: { items: DocItem[]; compact?: boolean
         /* interna stranica nove stranice: isti tab, bez ikone preuzimanja */
         const interna = !jeDokument && d.href.startsWith("/");
         const cls =
-          "group relative flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-sky-mist sm:px-6";
+          "group relative flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-sky-mist sm:gap-4 sm:px-6";
         const sadrzaj = (
           <>
             <span

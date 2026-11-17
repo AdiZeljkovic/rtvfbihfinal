@@ -54,7 +54,7 @@ export default function EmisijeLista({ emisije }: { emisije: EmisijaUShemi[] }) 
         {prikaz.map(({ e, vrijeme, dan, dodatak }) => (
           <li
             key={e.slug}
-            className="group relative grid grid-cols-[5.25rem_1fr] items-start gap-4 overflow-hidden rounded-2xl border border-line bg-white px-5 py-5 shadow-[var(--shadow-card)] transition-colors hover:border-brand/40 sm:grid-cols-[6rem_1fr] sm:gap-5 sm:px-6"
+            className="group relative grid grid-cols-[5.75rem_1fr] items-start gap-3 overflow-hidden rounded-2xl border border-line bg-white px-4 py-5 shadow-[var(--shadow-card)] transition-colors hover:border-brand/40 sm:grid-cols-[6rem_1fr] sm:gap-5 sm:px-6"
           >
             <span
               aria-hidden="true"
@@ -62,7 +62,8 @@ export default function EmisijeLista({ emisije }: { emisije: EmisijaUShemi[] }) 
             />
             <div>
               <p className="font-display text-2xl font-bold leading-none tabular-nums text-navy">{vrijeme ?? "—"}</p>
-              <p className="mt-1.5 text-[0.68rem] font-semibold uppercase leading-snug tracking-wider text-muted">{dan}</p>
+              {/* dugi dani („Ponedjeljkom“, „Ponedjeljak–četvrtak“) ne smiju ući u opis */}
+              <p className="mt-1.5 text-[0.64rem] font-semibold uppercase leading-snug tracking-[0.04em] text-muted [overflow-wrap:anywhere] sm:text-[0.68rem]">{dan}</p>
               {dodatak && (
                 <p className="mt-1.5 inline-flex items-center gap-1 text-[0.68rem] font-semibold uppercase tracking-wider text-red-500">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> {dodatak}

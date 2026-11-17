@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
+import { Email, Telefoni } from "@/components/KontaktLinkovi";
 import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import { IconCard, PillButton, UnderlineLink } from "@/components/Tiles";
@@ -112,25 +114,36 @@ export default function KontaktPage() {
         }
       >
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Kartica nije link: telefon i e-mail se moraju moći dodirnuti (poziv / pošta),
+              a stranica službe ima svoj link ispod */}
           {kontakti.map((k) => (
-            <IconCard key={k.naziv} icon={k.icon} title={k.naziv} text={k.opis} href={k.href}>
+            <IconCard key={k.naziv} icon={k.icon} title={k.naziv} text={k.opis}>
               <ul className="mt-4 space-y-1.5 text-sm">
                 {k.tel && (
                   <li className="flex items-center gap-2 text-ink">
-                    <Phone className="h-3.5 w-3.5 shrink-0 text-brand-strong" /> {k.tel}
+                    <Phone className="h-3.5 w-3.5 shrink-0 text-brand-strong" />
+                    <span>
+                      <Telefoni tel={k.tel} className="hover:text-brand-strong" />
+                    </span>
                   </li>
                 )}
-                {k.email && (
-                  <li className="flex items-center gap-2 break-all text-brand-strong">
-                    <Mail className="h-3.5 w-3.5 shrink-0" /> {k.email}
+                {[k.email, k.email2].filter(Boolean).map((m) => (
+                  <li key={m} className="flex items-center gap-2 text-brand-strong">
+                    <Mail className="h-3.5 w-3.5 shrink-0" />
+                    <a href={`mailto:${m}`} className="min-w-0 [overflow-wrap:anywhere] hover:underline">
+                      <Email email={m!} />
+                    </a>
                   </li>
-                )}
-                {k.email2 && (
-                  <li className="flex items-center gap-2 break-all text-brand-strong">
-                    <Mail className="h-3.5 w-3.5 shrink-0" /> {k.email2}
-                  </li>
-                )}
+                ))}
               </ul>
+              {k.href && (
+                <Link
+                  href={k.href}
+                  className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-brand-strong hover:text-brand-deep"
+                >
+                  Više o službi <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
             </IconCard>
           ))}
         </div>

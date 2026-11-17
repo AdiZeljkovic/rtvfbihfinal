@@ -239,7 +239,7 @@ export default function HomePage() {
               <li key={e.naziv} className="border-b border-line last:border-b-0">
                 <Link
                   href={`/televizija/emisije/${e.slug}`}
-                  className="group relative grid grid-cols-[4.75rem_1fr_auto] items-center gap-4 px-5 py-5 transition-colors hover:bg-sky-mist sm:grid-cols-[6rem_1fr_auto] sm:gap-6 sm:px-7"
+                  className="group relative grid grid-cols-[5.5rem_1fr_auto] items-center gap-3 px-4 py-5 transition-colors hover:bg-sky-mist sm:grid-cols-[6rem_1fr_auto] sm:gap-6 sm:px-7"
                 >
                   <span
                     aria-hidden="true"
@@ -247,7 +247,8 @@ export default function HomePage() {
                   />
                   <div>
                     <p className="font-display text-2xl font-bold leading-none tabular-nums text-navy sm:text-[1.7rem]">{e.vrijeme}</p>
-                    <p className="mt-1.5 text-[0.7rem] font-semibold uppercase tracking-wider text-muted">{e.dan}</p>
+                    {/* dugi dani („Ponedjeljak–četvrtak“) se lome iza crte i ne ulaze u opis */}
+                    <p className="mt-1.5 text-[0.64rem] font-semibold uppercase leading-snug tracking-[0.04em] text-muted [overflow-wrap:anywhere] sm:text-[0.7rem]">{e.dan}</p>
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

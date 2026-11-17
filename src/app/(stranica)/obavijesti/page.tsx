@@ -36,7 +36,8 @@ export default function ObavijestiPage() {
                   {objave.map((o) => {
                     const zavrseno = prosao(o.rok);
                     return (
-                      <li key={o._id} className="rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+                      // na telefonu bez okvira oko okvira: lista priloga dobija punu širinu
+                      <li key={o._id} className="sm:rounded-3xl sm:border sm:border-line sm:bg-white sm:p-8 sm:shadow-[var(--shadow-card)]">
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold uppercase tracking-[0.14em]">
                           {o.datum && <time dateTime={o.datum} className="text-brand-strong">{datumBs(o.datum)}</time>}
                           {o.rok && (

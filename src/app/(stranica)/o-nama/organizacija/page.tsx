@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Mail, Phone } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
-import { organizacija, telHref, type JedinicaCms as Jedinica, type OsobaCms as Osoba } from "@/server/sadrzaj";
+import { Email, Telefoni } from "@/components/KontaktLinkovi";
+import { organizacija, type JedinicaCms as Jedinica, type OsobaCms as Osoba } from "@/server/sadrzaj";
 
 export const metadata: Metadata = {
   title: "Organizacija i uredništva",
@@ -35,13 +36,19 @@ function Kontakt({ tel, email }: { tel?: string; email?: string }) {
   return (
     <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
       {tel && (
-        <a href={telHref(tel)} className="inline-flex items-center gap-1.5 text-ink hover:text-brand-strong">
-          <Phone className="h-3.5 w-3.5 text-brand-strong" /> {tel}
-        </a>
+        <span className="inline-flex items-start gap-1.5 text-ink">
+          <Phone className="mt-[0.2rem] h-3.5 w-3.5 shrink-0 text-brand-strong" />
+          <span>
+            <Telefoni tel={tel} className="hover:text-brand-strong" />
+          </span>
+        </span>
       )}
       {email && (
-        <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 break-all text-brand-strong hover:underline">
-          <Mail className="h-3.5 w-3.5 shrink-0" /> {email}
+        <a href={`mailto:${email}`} className="inline-flex min-w-0 items-start gap-1.5 text-brand-strong [overflow-wrap:anywhere] hover:underline">
+          <Mail className="mt-[0.2rem] h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0">
+            <Email email={email} />
+          </span>
         </a>
       )}
     </div>
@@ -78,7 +85,7 @@ function Odjel({ j }: { j: Jedinica }) {
       {j.pod && j.pod.length > 0 && (
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
           {j.pod.map((p) => (
-            <li key={p.naziv} className="rounded-2xl bg-sky-mist p-5">
+            <li key={p.naziv} className="rounded-2xl bg-sky-mist p-4 sm:p-5">
               <p className="font-display text-[0.95rem] font-semibold text-navy">{p.naziv}</p>
               <Kontakt tel={p.telefon} email={p.email} />
               {p.osobe && (
@@ -161,7 +168,7 @@ export default function OrganizacijaPage() {
               <article
                 key={s.naziv}
                 id={slug(s.naziv)}
-                className="scroll-mt-28 rounded-3xl border border-line bg-white p-7 shadow-[var(--shadow-card)] sm:p-9"
+                className="scroll-mt-28 rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow-card)] sm:p-9"
               >
                 <header className="flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -171,7 +178,7 @@ export default function OrganizacijaPage() {
                   </div>
                 </header>
                 {s.osobe && (
-                  <ul className="mt-6 grid gap-4 rounded-2xl bg-navy p-5 text-white sm:grid-cols-2 [&_.text-muted]:text-white/60 [&_.text-navy]:text-white [&_.text-ink]:text-white/85 [&_.text-brand-strong]:text-sky [&_.ring-line]:ring-white/25">
+                  <ul className="mt-6 grid gap-4 rounded-2xl bg-navy p-4 text-white sm:p-5 sm:grid-cols-2 [&_.text-muted]:text-white/60 [&_.text-navy]:text-white [&_.text-ink]:text-white/85 [&_.text-brand-strong]:text-sky [&_.ring-line]:ring-white/25">
                     {s.osobe.map((o) => (
                       <OsobaRed key={o.ime} o={o} />
                     ))}
