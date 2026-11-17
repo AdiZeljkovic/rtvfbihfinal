@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import DocList from "@/components/DocList";
-import ContactCard from "@/components/ContactCard";
 import { IconCard } from "@/components/Tiles";
 import { BoardIcon, DocsIcon, TenderIcon } from "@/components/StatIcons";
 import { obavijesti, pasusi } from "@/server/sadrzaj";
@@ -27,7 +26,7 @@ export default function ObavijestiPage() {
       />
 
       <Section>
-        <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr]">
+        <div className="max-w-4xl">
           <div>
             <p className="eyebrow">Aktuelno</p>
             <h2 className="mt-2 text-2xl font-bold text-navy sm:text-3xl">Javni konkursi i obavijesti</h2>
@@ -79,17 +78,6 @@ export default function ObavijestiPage() {
               )}
             </div>
           </div>
-          <aside className="space-y-4">
-            <ContactCard
-              dark
-              ime="Marinko Jozić"
-              uloga="Rukovodilac Odjela za ljudske resurse"
-              email="ljudski.potencijali@rtvfbih.ba"
-            />
-            <p className="px-2 text-sm leading-relaxed text-muted">
-              Za pitanja o konkursima, prijavama i potrebnoj dokumentaciji obratite se Odjelu za ljudske resurse.
-            </p>
-          </aside>
         </div>
       </Section>
 
