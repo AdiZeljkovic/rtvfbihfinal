@@ -6,22 +6,19 @@ type LogoProps = {
   withWordmark?: boolean;
   /** Svijetla varijanta za tamne pozadine */
   light?: boolean;
-  /** Jubilarni znak „F25 godina“ umjesto znaka „F“ (zaglavlje stranice) */
+  /** Jubilarni grb „25“ umjesto znaka „F“ (zaglavlje stranice) */
   jubilej?: boolean;
 };
 
 /**
- * Jubilarni logo „F25 godina“ (public/brand/f25-logo*.png). Original ima bijeli natpis
- * „godina“ za tamnu pozadinu; za svijetlu je natpis tamnoplav. Obje slike su u stranici,
- * pa se pri skrolanju samo pretapaju (bez učitavanja i treptanja).
+ * Jubilarni grb „25“ (public/brand/grb-25.png, prozirna pozadina). Isti grb stoji i na
+ * tamnom i na svijetlom zaglavlju.
  */
-function JubilejZnak({ light }: { light: boolean }) {
-  const slika = "absolute inset-0 h-full w-full transition-opacity duration-300";
+function JubilejZnak() {
   return (
-    // omjer slike 354:320; u zaglavlju (4,5rem) ostaje zraka iznad i ispod
-    <span className="relative block h-12.5 w-[3.45rem] shrink-0 sm:h-14 sm:w-15.5">
-      <Image src="/brand/f25-logo.png" alt="" width={354} height={320} priority className={`${slika} ${light ? "opacity-100" : "opacity-0"}`} />
-      <Image src="/brand/f25-logo-svijetli.png" alt="" width={354} height={320} priority className={`${slika} ${light ? "opacity-0" : "opacity-100"}`} />
+    // omjer slike 251:294; u zaglavlju (4,5rem) ostaje zraka iznad i ispod
+    <span className="block h-13 w-[2.78rem] shrink-0 sm:h-15 sm:w-[3.2rem]">
+      <Image src="/brand/grb-25.png" alt="" width={251} height={294} priority className="h-full w-full object-contain" />
     </span>
   );
 }
@@ -62,7 +59,7 @@ export default function Logo({ className = "", withWordmark = true, light = fals
   return (
     <span className={`inline-flex items-center ${jubilej ? "gap-3.5" : "gap-3"} ${className}`}>
       {jubilej ? (
-        <JubilejZnak light={light} />
+        <JubilejZnak />
       ) : (
         <LogoMark className="h-9 w-9 transition-colors sm:h-10 sm:w-10" tone={light ? "white" : "brand"} />
       )}
@@ -70,9 +67,6 @@ export default function Logo({ className = "", withWordmark = true, light = fals
         <span
           className={`flex flex-col font-display text-[0.82rem] font-bold sm:text-[0.95rem] leading-[1.15] tracking-tight ${
             light ? "text-white" : "text-navy"
-          } ${
-            // znak „F25“ je u gornjih ~70% slike (ispod je „godina“): tekst se poravnava s njim
-            jubilej ? "-translate-y-2" : ""
           }`}
         >
           <span>Radio-televizija</span>
