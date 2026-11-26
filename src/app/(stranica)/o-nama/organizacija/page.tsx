@@ -85,7 +85,7 @@ function Odjel({ j }: { j: Jedinica }) {
       {j.pod && j.pod.length > 0 && (
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
           {j.pod.map((p) => (
-            <li key={p.naziv} className="rounded-2xl bg-sky-mist p-4 sm:p-5">
+            <li key={p.id} className="rounded-2xl bg-sky-mist p-4 sm:p-5">
               <p className="font-display text-[0.95rem] font-semibold text-navy">{p.naziv}</p>
               <Kontakt tel={p.telefon} email={p.email} />
               {p.osobe && (
@@ -110,7 +110,7 @@ function Podjedinice({ pod }: { pod?: Jedinica[] }) {
   return (
     <ul className="mt-4 space-y-4 border-l-2 border-line pl-4">
       {pod.map((p) => (
-        <li key={p.naziv}>
+        <li key={p.id}>
           <p className="font-semibold text-navy">{p.naziv}</p>
           <Kontakt tel={p.telefon} email={p.email} />
           {p.osobe?.length > 0 && (
@@ -150,7 +150,7 @@ export default function OrganizacijaPage() {
             <p className="eyebrow mb-4">Sektori</p>
             <ol className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:gap-1 lg:overflow-visible lg:pb-0">
               {org.map((s, i) => (
-                <li key={s.naziv} className="shrink-0">
+                <li key={s.id} className="shrink-0">
                   <a
                     href={`#${slug(s.naziv)}`}
                     className="flex items-baseline gap-3 rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy transition-colors hover:border-brand hover:text-brand-strong lg:rounded-xl lg:border-transparent lg:px-3 lg:hover:bg-sky-mist"
@@ -166,7 +166,7 @@ export default function OrganizacijaPage() {
           <div className="min-w-0 space-y-6">
             {org.map((s, i) => (
               <article
-                key={s.naziv}
+                key={s.id}
                 id={slug(s.naziv)}
                 className="scroll-mt-28 rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow-card)] sm:p-9"
               >
@@ -185,7 +185,7 @@ export default function OrganizacijaPage() {
                   </ul>
                 )}
                 {s.pod?.map((p) => (
-                  <Odjel key={p.naziv} j={p} />
+                  <Odjel key={p.id} j={p} />
                 ))}
               </article>
             ))}

@@ -70,10 +70,16 @@ Admin je napravljen da bude što jednostavniji i pristupačan:
 - izbori (vrsta, godina, kategorija) su velike kartice umjesto padajućih lista;
 - nakon čuvanja: ekran „Objavljeno!“ s dugmadima *Pogledaj na stranici* i *Dodaj još*;
 - obrisano ide u **korpu** (odmah ima i dugme *Poništi*) i može se vratiti;
-- **Arhiviraj** sklanja stavku sa stranice bez brisanja (meni *Arhiva* → *Vrati na stranicu*);
-  dokument koji je prilog samo arhiviranih stavki ne otvara se ni na direktnu adresu `/doc/…`
-  (osim prijavljenom uredniku). Cijele stranice (npr. RTV taksa) arhiviraju se u
-  *Arhivirane stranice* – stranica tada vraća 404, a linkovi na nju nestaju;
+- **Arhiviraj** sklanja stavku sa stranice bez brisanja (meni *Arhiva* → *Vrati na stranicu*).
+  Cijele stranice (npr. RTV taksa) arhiviraju se u *Arhivirane stranice* – stranica tada
+  vraća 404, a linkovi na nju nestaju;
+- posjetilac na `/doc/…` otvara samo dokument koji koristi neka **objavljena** stavka. Prilog
+  stavke u arhivi ili korpi, trajno obrisane stavke, zamijenjena stara verzija i fajl poslan
+  pa nesačuvan vraćaju 404 (prijavljeni urednik ih i dalje vidi);
+- ako je stavku u međuvremenu sačuvao drugi urednik, čuvanje se zaustavlja s upozorenjem
+  (*Otvori najnoviju verziju* / *Ipak sačuvaj moje izmjene*);
+- *Organizacija i kontakti*: „Pripada pod“ se pamti po broju jedinice (nazivi se ponavljaju);
+  jedinica može biti i kartica na stranici *Kontakt* i izvor kontakata za *Radio* i *RTV taksu*;
 - upozorenje ako se stranica zatvori s nesačuvanim promjenama.
 
 Izmjene su na javnoj stranici vidljive odmah (`revalidatePath` nakon svakog čuvanja).

@@ -11,7 +11,7 @@ import Section from "@/components/Section";
 import Transparentnost from "@/components/Transparentnost";
 import MarketingCta from "@/components/MarketingCta";
 import { site } from "@/content/site";
-import { opisEmisije, programskaShema, rastaviTermin } from "@/server/sadrzaj";
+import { emisije, opisEmisije, rastaviTermin } from "@/server/sadrzaj";
 import HistorijaSkala from "@/components/HistorijaSkala";
 
 const servisi = [
@@ -50,14 +50,13 @@ const servisi = [
 export default function HomePage() {
   /* stranica je statična: broj se računa pri buildu, pa svaki deploy donese tačan */
   const godinaUEteru = new Date().getFullYear() - 1971;
-  const istaknute = programskaShema()
-    .filter((e) => e.naslovna)
-    .map((e) => ({ ...e, ...rastaviTermin(e.termin), opis: opisEmisije(e) }));
+  // „Glavna emisija“ je uvijek i na naslovnoj; emisija bez termina se prikazuje bez vremena
+  const istaknute = emisije()
+    .filter((e) => (e.naslovna || e.glavna) && e.grupa !== "Arhiva emisija")
+    .map((e) => ({ ...e, ...rastaviTermin(e.termin ?? ""), opis: opisEmisije(e) }));
   const glavna = istaknute.find((e) => e.glavna);
-  // Ostale emisije poredane po vremenu emitovanja
-  const ostale = istaknute
-    .filter((e) => e !== glavna)
-    .sort((a, b) => (a.vrijeme ?? "").localeCompare(b.vrijeme ?? ""));
+  // Ostale emisije poredane po vremenu emitovanja (bez termina na kraju)
+  const ostale = istaknute.filter((e) => e !== glavna).sort((a, b) => a.kljuc.localeCompare(b.kljuc));
 
   return (
     <>
@@ -221,10 +220,12 @@ export default function HomePage() {
               </div>
 
               <div className="relative mt-10">
-                <p className="font-display text-6xl font-bold leading-none tracking-tight tabular-nums sm:text-7xl">
-                  <span className="bg-gradient-to-br from-white to-sky bg-clip-text text-transparent">{glavna.vrijeme}</span>
-                </p>
-                <p className="mt-2 text-sm font-semibold uppercase tracking-[0.14em] text-sky">{glavna.dan}</p>
+                {glavna.vrijeme && (
+                  <p className="font-display text-6xl font-bold leading-none tracking-tight tabular-nums sm:text-7xl">
+                    <span className="bg-gradient-to-br from-white to-sky bg-clip-text text-transparent">{glavna.vrijeme}</span>
+                  </p>
+                )}
+                {glavna.dan && <p className="mt-2 text-sm font-semibold uppercase tracking-[0.14em] text-sky">{glavna.dan}</p>}
                 <h3 className="mt-5 font-display text-3xl font-bold">{glavna.naziv}</h3>
                 <p className="mt-2 max-w-sm text-white/75">{glavna.opis}</p>
                 <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold transition-transform group-hover:translate-x-1">
@@ -236,7 +237,7 @@ export default function HomePage() {
 
           <ol className="overflow-hidden rounded-3xl border border-line bg-white shadow-[var(--shadow-card)]">
             {ostale.map((e) => (
-              <li key={e.naziv} className="border-b border-line last:border-b-0">
+              <li key={e.slug} className="border-b border-line last:border-b-0">
                 <Link
                   href={`/televizija/emisije/${e.slug}`}
                   className="group relative grid grid-cols-[5.5rem_1fr_auto] items-center gap-3 px-4 py-5 transition-colors hover:bg-sky-mist sm:grid-cols-[6rem_1fr_auto] sm:gap-6 sm:px-7"

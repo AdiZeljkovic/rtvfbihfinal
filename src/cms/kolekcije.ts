@@ -4,6 +4,9 @@
  * (Dijeli se između servera i preglednika – ovdje nema pristupa bazi.)
  */
 
+/** Opcija izbora: sam tekst, ili sačuvana vrijednost i natpis (npr. „#1514“ i „Redakcija … (Odjel za radijski program)“) */
+export type IzborOpcija = string | { v: string; natpis: string };
+
 export type Polje =
   | { ime: string; vrsta: "tekst"; naziv: string; pomoc?: string; obavezno?: boolean; primjer?: string }
   | { ime: string; vrsta: "dugiTekst"; naziv: string; pomoc?: string; obavezno?: boolean; redova?: number }
@@ -159,12 +162,12 @@ export const KOLEKCIJE: Kolekcija[] = [
       { ime: "naziv", vrsta: "tekst", naziv: "Naziv emisije", obavezno: true, primjer: "Dnevnik 2" },
       { ime: "grupa", vrsta: "izbor", naziv: "Gdje pripada", obavezno: true, opcije: GRUPE_EMISIJA, kartice: true },
       { ime: "vrsta", vrsta: "izbor", naziv: "Vrsta programa", opcije: VRSTE_EMISIJA, kartice: true },
-      { ime: "termin", vrsta: "tekst", naziv: "Termin emitovanja", primjer: "Petkom u 18:20", pomoc: "Kako ga gledaoci vide, npr. „Svakog dana u 19:30“." },
+      { ime: "termin", vrsta: "tekst", naziv: "Termin emitovanja", primjer: "Petkom u 18:20", pomoc: "Kako ga gledaoci vide, npr. „Svakog dana u 19:30“ (može i 19.30). Emisija s terminom je u programskoj shemi, osim u grupi „Arhiva emisija“." },
       { ime: "opis", vrsta: "dugiTekst", naziv: "Kratak opis", redova: 3, pomoc: "Jedna ili dvije rečenice za kartice i programsku shemu." },
       { ime: "slika", vrsta: "slika", naziv: "Slika (najava)" },
       { ime: "logo", vrsta: "slika", naziv: "Logo emisije (nije obavezno)" },
-      { ime: "naslovna", vrsta: "prekidac", naziv: "Prikaži na naslovnoj stranici" },
-      { ime: "glavna", vrsta: "prekidac", naziv: "Glavna emisija (velika kartica na naslovnoj)" },
+      { ime: "naslovna", vrsta: "prekidac", naziv: "Prikaži na naslovnoj stranici", pomoc: "U listi „Emisije koje gledate“, poredano po vremenu iz termina." },
+      { ime: "glavna", vrsta: "prekidac", naziv: "Glavna emisija (velika kartica na naslovnoj)", pomoc: "Velika kartica na naslovnoj. Ako je uključeno kod više emisija, prikazuje se prva." },
       { ime: "serija", vrsta: "prekidac", naziv: "Ovo je serija" },
       { ime: "tekst", vrsta: "blokovi", naziv: "Opširni opis (stranica emisije)" },
     ],
@@ -246,6 +249,20 @@ export const KOLEKCIJE: Kolekcija[] = [
           { ime: "telefon", naziv: "Telefon" },
           { ime: "email", naziv: "E-mail" },
         ],
+      },
+      {
+        ime: "kontaktNaziv",
+        vrsta: "tekst",
+        naziv: "Kartica na stranici Kontakt (nije obavezno)",
+        pomoc: "Ako upišete kratak naziv, npr. „Marketing“, ova jedinica se pojavi među direktnim kontaktima na stranici Kontakt, s ovim telefonom i e-mailom. Prazno = nije na stranici Kontakt.",
+      },
+      {
+        ime: "prikazNa",
+        vrsta: "izbor",
+        naziv: "Prikazuje se i na stranici",
+        pomoc: "Radio: prva osoba i odjeli ispod ove jedinice prikazuju se kao urednik i redakcije na stranici Radio. RTV taksa: telefoni i prva osoba prikazuju se u okviru za pitanja na stranici RTV taksa (više telefona odvojite zarezom). Označite samo jednu jedinicu za svaku stranicu.",
+        opcije: ["Radio", "RTV taksa"],
+        prazno: "— samo na stranici Organizacija —",
       },
     ],
   },

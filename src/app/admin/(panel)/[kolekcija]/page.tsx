@@ -28,7 +28,7 @@ export default async function KolekcijaPage({ params }: PageProps<"/admin/[kolek
     return (
       <>
         <Naslov naslov={def.naziv} opis={def.opis} nazad={nazad} />
-        <Obrazac kljuc={def.kljuc} id={z?.id ?? null} pocetno={z?.podaci ?? {}} naStranici={def.naStranici(z?.podaci ?? {})} nazad="/admin" />
+        <Obrazac kljuc={def.kljuc} id={z?.id ?? null} pocetno={z?.podaci ?? {}} naStranici={def.naStranici(z?.podaci ?? {})} nazad="/admin" verzija={z?.izmijenjeno ?? null} />
       </>
     );
   }

@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { ArrowDown, ArrowUp, CalendarCheck, CircleAlert, Link as LinkIkona, Plus, Trash2 } from "lucide-react";
-import type { Polje } from "@/cms/kolekcije";
+import type { IzborOpcija, Polje } from "@/cms/kolekcije";
 import { KarticaDokumenta, ZonaZaFajl, nazivIzFajla } from "./Upload";
 
 export const ULAZ =
@@ -68,6 +68,8 @@ export const opisano = (id: string, pomoc?: string, greska?: string) => ({
   "data-greska": greska ? "da" : undefined,
 });
 
+export type { IzborOpcija };
+
 type Svojstva<V> = {
   polje: Polje;
   vrijednost: V;
@@ -75,7 +77,7 @@ type Svojstva<V> = {
   postavi: (v: V | ((stari: V) => V)) => void;
   greska?: string;
   /** Dodatne opcije koje stižu sa servera (npr. postojeći sektori) */
-  opcije?: string[];
+  opcije?: IzborOpcija[];
   /** Postavlja drugo polje (npr. naziv iz imena fajla) */
   postaviDrugo?: (ime: string, v: unknown, samoAkoPrazno?: boolean) => void;
 };
@@ -152,9 +154,14 @@ export function DatumPolje({ polje, vrijednost, postavi, greska }: Svojstva<stri
 export function IzborPolje({ polje, vrijednost, postavi, greska, opcije }: Svojstva<string>) {
   const id = useId();
   if (polje.vrsta !== "izbor") return null;
-  const sve = [...new Set([...polje.opcije, ...(opcije ?? [])])];
+  const natpisi = new Map<string, string>();
+  for (const o of [...polje.opcije, ...(opcije ?? [])]) {
+    const [v, natpis] = typeof o === "string" ? [o, o] : [o.v, o.natpis];
+    if (!natpisi.has(v)) natpisi.set(v, natpis);
+  }
   // upisana vrijednost koje više nema u ponudi (npr. nadređeni sektor je arhiviran) ipak se prikaže, ne „nestane“
-  if (vrijednost && !sve.includes(vrijednost)) sve.push(vrijednost);
+  if (vrijednost && !natpisi.has(vrijednost)) natpisi.set(vrijednost, vrijednost.startsWith("#") ? "(jedinica koja više nije na stranici)" : vrijednost);
+  const sve = [...natpisi.keys()];
   const a = opisano(id, polje.pomoc, greska);
 
   if (polje.slobodno) {
@@ -176,7 +183,9 @@ export function IzborPolje({ polje, vrijednost, postavi, greska, opcije }: Svojs
         <select id={id} value={vrijednost ?? ""} onChange={(e) => postavi(e.target.value)} className={ULAZ} {...a}>
           <option value="">{polje.prazno ?? (polje.obavezno ? "— odaberite —" : "— ništa —")}</option>
           {sve.map((o) => (
-            <option key={o}>{o}</option>
+            <option key={o} value={o}>
+              {natpisi.get(o)}
+            </option>
           ))}
         </select>
       </Okvir>
@@ -216,7 +225,7 @@ export function IzborPolje({ polje, vrijednost, postavi, greska, opcije }: Svojs
                   {(vrijednost ?? "") === o && <span className="h-3 w-3 rounded-full bg-white" />}
                 </span>
               )}
-              {o || <span className="font-normal italic">ništa</span>}
+              {o ? (natpisi.get(o) ?? o) : <span className="font-normal italic">ništa</span>}
             </span>
           </label>
         ))}

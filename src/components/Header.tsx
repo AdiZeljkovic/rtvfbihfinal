@@ -7,14 +7,18 @@ import { ArrowRight, ArrowUpRight, ChevronDown, ExternalLink, Mail, Menu, Phone,
 import Logo from "./Logo";
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from "./SocialIcons";
 import { site, type NavItem } from "@/content/site";
+import { telHref } from "@/lib/telefon";
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-/** `nav` dolazi iz layouta (bez arhiviranih stranica) */
-export default function Header({ nav }: { nav: NavItem[] }) {
+/** Telefon, e-mail i mreže iz „Osnovnih podataka“ u adminu (mobilni meni) */
+export type HeaderKontakt = { telefon: string; email: string; youtube: string; facebook: string; instagram: string };
+
+/** `nav` dolazi iz layouta (bez arhiviranih stranica), `kontakt` iz Osnovnih podataka */
+export default function Header({ nav, kontakt }: { nav: NavItem[]; kontakt: HeaderKontakt }) {
   const pathname = usePathname();
   // Meni pamti putanju na kojoj je otvoren – promjenom rute automatski se zatvara
   const [menu, setMenu] = useState<{ open: boolean; sub: string | null; path: string }>({
@@ -380,12 +384,16 @@ export default function Header({ nav }: { nav: NavItem[] }) {
               style={{ animationDelay: `${60 + (nav.length + 1) * 45}ms` }}
             >
               <div className="grid gap-2 text-sm text-white/80">
-                <a href={`tel:${site.phoneHref}`} className="flex items-center gap-3 hover:text-white">
-                  <Phone className="h-4 w-4 text-sky" /> {site.phone}
-                </a>
-                <a href={`mailto:${site.emails.direkcija}`} className="flex items-center gap-3 hover:text-white">
-                  <Mail className="h-4 w-4 text-sky" /> {site.emails.direkcija}
-                </a>
+                {kontakt.telefon && (
+                  <a href={telHref(kontakt.telefon)} className="flex items-center gap-3 hover:text-white">
+                    <Phone className="h-4 w-4 text-sky" /> {kontakt.telefon}
+                  </a>
+                )}
+                {kontakt.email && (
+                  <a href={`mailto:${kontakt.email}`} className="flex items-center gap-3 hover:text-white">
+                    <Mail className="h-4 w-4 text-sky" /> {kontakt.email}
+                  </a>
+                )}
               </div>
               <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/10 pt-6">
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-white/60">
@@ -401,10 +409,12 @@ export default function Header({ nav }: { nav: NavItem[] }) {
                 </div>
                 <div className="flex gap-2">
                   {[
-                    { href: site.social.youtube, label: "YouTube", Icon: YoutubeIcon },
-                    { href: site.social.facebook, label: "Facebook", Icon: FacebookIcon },
-                    { href: site.social.instagram, label: "Instagram", Icon: InstagramIcon },
-                  ].map(({ href, label, Icon }) => (
+                    { href: kontakt.youtube, label: "YouTube", Icon: YoutubeIcon },
+                    { href: kontakt.facebook, label: "Facebook", Icon: FacebookIcon },
+                    { href: kontakt.instagram, label: "Instagram", Icon: InstagramIcon },
+                  ]
+                    .filter((m) => m.href)
+                    .map(({ href, label, Icon }) => (
                     <a
                       key={label}
                       href={href}

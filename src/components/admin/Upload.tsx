@@ -7,6 +7,10 @@ import FileTypeIcon from "@/components/FileTypeIcon";
 export type Poslano = { ime: string; adresa: string; velicina: number };
 type Vrsta = "dokument" | "slika";
 
+/** Najviše fajlova u jednom odabiru (šalju se jedan po jedan) i najveći fajl – isto kao na serveru */
+const MAKS_ODJEDNOM = 100;
+const MAKS_MB = 60;
+
 /** Obrazac broji slanja u toku (+1 / −1), da se ne sačuva prije nego što fajl stigne */
 export const SlanjeUToku = createContext<(promjena: number) => void>(() => {});
 
@@ -84,8 +88,23 @@ export function ZonaZaFajl({
     radi.current = true;
     javiSlanje(1);
     setGreske([]);
+    const sve = Array.from(fajlovi);
+    const odabrani = sve.slice(0, vise ? MAKS_ODJEDNOM : 1);
+    // ništa se ne preskače tiho: urednik vidi koje fajlove treba dodati ponovo
+    if (sve.length > odabrani.length) {
+      setGreske([
+        `Odjednom se može dodati najviše ${odabrani.length} ${vise ? "fajlova" : "fajl"}. Nisu dodani: ${sve
+          .slice(odabrani.length)
+          .map((f) => f.name)
+          .join(", ")}. Dodajte ih ponovo.`,
+      ]);
+    }
     try {
-      for (const f of Array.from(fajlovi).slice(0, vise ? 20 : 1)) {
+      for (const f of odabrani) {
+        if (f.size > MAKS_MB * 1024 * 1024) {
+          setGreske((g) => [...g, `${f.name}: fajl je prevelik (${Math.round(f.size / 1048576)} MB). Najviše ${MAKS_MB} MB.`]);
+          continue;
+        }
         setSlanje({ ime: f.name, p: 0 });
         try {
           const r = await posalji(f, vrsta, (p) => setSlanje({ ime: f.name, p }));

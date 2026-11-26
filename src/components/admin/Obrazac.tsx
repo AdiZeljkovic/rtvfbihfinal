@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { CircleAlert, ExternalLink, LoaderCircle, Save } from "lucide-react";
 import { kolekcija, type Polje } from "@/cms/kolekcije";
 import type { Blok } from "@/content/arhiva";
@@ -20,6 +20,7 @@ import {
   SlikaPolje,
   TekstPolje,
   danas,
+  type IzborOpcija,
 } from "./Polja";
 
 type Podaci = Record<string, unknown>;
@@ -43,21 +44,26 @@ export default function Obrazac({
   opcije = {},
   naStranici,
   nazad,
+  verzija = null,
 }: {
   kljuc: string;
   id: number | null;
   pocetno?: Podaci;
-  opcije?: Record<string, string[]>;
+  opcije?: Record<string, IzborOpcija[]>;
   naStranici?: string;
   nazad: string;
+  /** Vrijeme zadnje izmjene učitane stavke (zaštita od prepisivanja tuđih izmjena) */
+  verzija?: string | null;
 }) {
   const def = kolekcija(kljuc)!;
   const router = useRouter();
+  const putanja = usePathname();
   // nova stavka: zadane vrijednosti, pa ono što je već upisano (npr. iz linka „Dodaj u listu Dokumenti“)
   const [podaci, setPodaci] = useState<Podaci>(() => (id ? (pocetno ?? {}) : { ...pocetne(def.polja), ...pocetno }));
   const [greske, setGreske] = useState<Record<string, string>>({});
   const [poruka, setPoruka] = useState("");
   const [istekla, setIstekla] = useState(false);
+  const [sukob, setSukob] = useState(false);
   const [prljavo, setPrljavo] = useState(false);
   const [pitajOdustani, setPitajOdustani] = useState(false);
   const [cuvanje, startCuvanje] = useTransition();
@@ -102,17 +108,20 @@ export default function Obrazac({
   const postaviDrugo = (ime: string, v: unknown, samoAkoPrazno = false) =>
     setPodaci((s) => (samoAkoPrazno && String(s[ime] ?? "").trim() ? s : { ...s, [ime]: v }));
 
-  function sacuvaj() {
+  /** `prekoTudjih` = urednik je vidio upozorenje da je neko drugi u međuvremenu sačuvao, i ipak čuva svoje */
+  function sacuvaj(prekoTudjih = false) {
     if (slanja > 0 || cuvanje) return;
     setPoruka("");
     setIstekla(false);
+    setSukob(false);
     startCuvanje(async () => {
       try {
-        const r = await sacuvajZapis(kljuc, id, podaci);
+        const r = await sacuvajZapis(kljuc, id, podaci, prekoTudjih ? null : verzija);
         if (r.greske || r.poruka) {
           setGreske(r.greske ?? {});
           setPoruka(r.poruka ?? "");
           setIstekla(Boolean(r.istekla));
+          setSukob(Boolean(r.sukob));
           requestAnimationFrame(() => sazetak.current?.focus());
           return;
         }
@@ -161,6 +170,30 @@ export default function Obrazac({
             >
               <ExternalLink className="h-5 w-5" aria-hidden="true" /> Prijavi se u novom prozoru
             </a>
+          )}
+          {sukob && (
+            <>
+              <p className="mt-3 text-lg">
+                Pogledajte najnoviju verziju u novom prozoru. Ako je vaša verzija ispravna, sačuvajte je. Tuđe izmjene tada
+                nestaju sa stranice, ali ostaju zapisane u historiji.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <a
+                  href={putanja}
+                  target="_blank"
+                  className="inline-flex min-h-14 items-center gap-2 rounded-2xl border-2 border-red-800 bg-white px-6 font-display text-lg font-semibold text-red-900 hover:bg-red-100"
+                >
+                  <ExternalLink className="h-5 w-5" aria-hidden="true" /> Otvori najnoviju verziju
+                </a>
+                <button
+                  type="button"
+                  onClick={() => sacuvaj(true)}
+                  className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-red-800 px-6 font-display text-lg font-semibold text-white hover:bg-red-900"
+                >
+                  <Save className="h-5 w-5" aria-hidden="true" /> Ipak sačuvaj moje izmjene
+                </button>
+              </div>
+            </>
           )}
           {listaGresaka.length > 0 && (
             <ul className="mt-3 list-disc space-y-1 pl-12 text-lg">

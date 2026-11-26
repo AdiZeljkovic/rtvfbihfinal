@@ -6,7 +6,8 @@ import { ReceiptIcon } from "@/components/StatIcons";
 import { PillButton } from "@/components/Tiles";
 import { rtvTaksaUvod } from "@/content/rtv-taksa";
 import { notFound } from "next/navigation";
-import { pitanja, rutaArhivirana } from "@/server/sadrzaj";
+import { jedinicaZa, pitanja, rutaArhivirana } from "@/server/sadrzaj";
+import { rastaviTelefone, telHref } from "@/lib/telefon";
 
 export const metadata: Metadata = {
   title: "RTV taksa – pitanja i odgovori",
@@ -16,7 +17,10 @@ export const metadata: Metadata = {
 export default function RtvTaksaPage() {
   if (rutaArhivirana("/rtv-taksa")) notFound();
   const faq = pitanja();
-  const glavniTel = rtvTaksaUvod.kontakt.tel[0];
+  // telefoni i rukovodilac iz Organizacije (jedinica s oznakom „Prikazuje se i na stranici: RTV taksa“)
+  const odjel = jedinicaZa("RTV taksa");
+  const [glavniTel, ...ostaliTel] = odjel ? rastaviTelefone(odjel.telefon) : [];
+  const rukovodilac = odjel?.osobe[0];
 
   return (
     <>
@@ -81,30 +85,40 @@ export default function RtvTaksaPage() {
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <div className="rounded-3xl border border-line bg-white p-7 shadow-[var(--shadow-card)]">
               <ReceiptIcon className="h-11 w-11 text-brand-strong" />
-              <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-brand-strong">{rtvTaksaUvod.kontakt.odjel}</p>
+              {odjel && <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-brand-strong">{odjel.naziv}</p>}
               <p className="mt-1 font-display text-xl font-semibold text-navy">Imate pitanje o taksi?</p>
-              <p className="mt-2 text-sm text-muted">Za nejasnoće u vezi s evidencijom i plaćanjem RTV takse nazovite:</p>
-              <a
-                href={`tel:${glavniTel.replace(/[^\d+]/g, "")}`}
-                className="mt-5 flex items-center gap-3 rounded-2xl bg-navy px-5 py-4 text-white transition-colors hover:bg-brand-deep"
-              >
-                <Phone className="h-5 w-5 text-sky" />
-                <span className="font-display text-lg font-semibold tabular-nums">{glavniTel}</span>
-              </a>
-              <ul className="mt-4 space-y-1.5 text-sm text-ink">
-                {rtvTaksaUvod.kontakt.tel.slice(1).map((t) => (
-                  <li key={t} className="flex items-start gap-2">
-                    <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" /> {t}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 border-t border-line pt-4 text-sm">
-                <p className="font-semibold text-navy">Denis Hajdarević</p>
-                <p className="text-muted">rukovodilac Odjela RTV takse</p>
-                <a href="mailto:denis.hajdarevic@rtvfbih.ba" className="mt-1.5 inline-flex items-center gap-2 text-brand-strong hover:underline">
-                  <Mail className="h-3.5 w-3.5" /> denis.hajdarevic@rtvfbih.ba
-                </a>
-              </div>
+              {glavniTel && (
+                <>
+                  <p className="mt-2 text-sm text-muted">Za nejasnoće u vezi s evidencijom i plaćanjem RTV takse nazovite:</p>
+                  <a
+                    href={telHref(glavniTel)}
+                    className="mt-5 flex items-center gap-3 rounded-2xl bg-navy px-5 py-4 text-white transition-colors hover:bg-brand-deep"
+                  >
+                    <Phone className="h-5 w-5 text-sky" />
+                    <span className="font-display text-lg font-semibold tabular-nums">{glavniTel}</span>
+                  </a>
+                </>
+              )}
+              {ostaliTel.length > 0 && (
+                <ul className="mt-4 space-y-1.5 text-sm text-ink">
+                  {ostaliTel.map((t) => (
+                    <li key={t} className="flex items-start gap-2">
+                      <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" /> {t}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {rukovodilac && (
+                <div className="mt-5 border-t border-line pt-4 text-sm">
+                  <p className="font-semibold text-navy">{rukovodilac.ime}</p>
+                  {rukovodilac.uloga && <p className="text-muted">{rukovodilac.uloga}</p>}
+                  {rukovodilac.email && (
+                    <a href={`mailto:${rukovodilac.email}`} className="mt-1.5 inline-flex items-center gap-2 text-brand-strong hover:underline">
+                      <Mail className="h-3.5 w-3.5" /> {rukovodilac.email}
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           </aside>
         </div>

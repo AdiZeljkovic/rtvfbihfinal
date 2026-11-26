@@ -1,7 +1,9 @@
 import "server-only";
 import { PRVA_GODINA_NABAVKI, kolekcija, type Kolekcija } from "@/cms/kolekcije";
-import { baza, lista, type Zapis } from "./db";
+import { baza, jedan, lista, type Zapis } from "./db";
 import { datumBs, tekucaGodina } from "@/lib/datum";
+import { nadredjenaId, type JedinicaRef } from "@/lib/jedinice";
+import type { IzborOpcija } from "@/cms/kolekcije";
 
 /** Podaci za listu u adminu (samo ono što lista prikazuje) */
 export function redoviKolekcije(def: Kolekcija) {
@@ -14,6 +16,7 @@ export function red(def: Kolekcija, z: Zapis) {
     const v = p[ime];
     const polje = def.polja.find((f) => f.ime === ime);
     if (polje?.vrsta === "datum") return datumBs(String(v ?? ""));
+    if (def.kljuc === "jedinice" && ime === "nadredjena") return nazivJedinice(String(v ?? ""));
     return v == null ? "" : String(v);
   };
   return {
@@ -33,18 +36,44 @@ export function godineNabavki() {
   return [...sve].sort((a, b) => b - a).map(String);
 }
 
-/** Opcije koje zavise od sadržaja ili datuma (sektori za „Pripada pod“, godine nabavki) */
-export function opcijeObrasca(kljuc: string, id?: number): Record<string, string[]> {
+const refJedinica = (z: Zapis): JedinicaRef => ({ id: z.id, naziv: String(z.podaci.naziv ?? "") });
+
+/**
+ * Opcije koje zavise od sadržaja ili datuma (sektori za „Pripada pod“, godine nabavki).
+ * „Pripada pod“ pamti broj jedinice; naziv koji se ponavlja dobije u zagradi kome pripada.
+ */
+export function opcijeObrasca(kljuc: string, id?: number): Record<string, IzborOpcija[]> {
   if (kljuc === "nabavke") return { godina: godineNabavki() };
   if (kljuc === "jedinice") {
+    const sve = lista("jedinice");
+    const refs = sve.map(refJedinica);
+    const koliko = new Map<string, number>();
+    refs.forEach((r) => koliko.set(r.naziv, (koliko.get(r.naziv) ?? 0) + 1));
     return {
-      nadredjena: lista("jedinice")
-        .filter((z) => z.id !== id)
-        .map((z) => String(z.podaci.naziv ?? ""))
-        .filter(Boolean),
+      nadredjena: sve
+        .filter((z) => z.id !== id && String(z.podaci.naziv ?? ""))
+        .map((z) => {
+          const naziv = String(z.podaci.naziv);
+          const rod = nadredjenaId(z.podaci.nadredjena, refs);
+          const rodNaziv = refs.find((r) => r.id === rod)?.naziv;
+          return { v: `#${z.id}`, natpis: (koliko.get(naziv) ?? 0) > 1 && rodNaziv ? `${naziv} (${rodNaziv})` : naziv };
+        }),
     };
   }
   return {};
+}
+
+/** Podaci stavke za obrazac: stara veza „Pripada pod“ po nazivu postaje veza po broju jedinice */
+export function zaObrazac(kljuc: string, podaci: Record<string, unknown>): Record<string, unknown> {
+  if (kljuc !== "jedinice" || !podaci.nadredjena || String(podaci.nadredjena).startsWith("#")) return podaci;
+  const rod = nadredjenaId(podaci.nadredjena, lista("jedinice").map(refJedinica));
+  return rod ? { ...podaci, nadredjena: `#${rod}` } : podaci;
+}
+
+/** Naziv nadređene jedinice za listu u adminu (sačuvana je kao „#broj“) */
+function nazivJedinice(v: string) {
+  const m = /^#(\d+)$/.exec(v);
+  return m ? String(jedan(Number(m[1]))?.podaci.naziv ?? "") : v;
 }
 
 /** Vrijednosti filtera redom kojim se pojavljuju u opisu kolekcije (ili u sadržaju) */

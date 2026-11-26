@@ -246,15 +246,16 @@ export function pomjeri(id: number, smjer: -1 | 1) {
 }
 
 /**
- * Dokument koji je prilog samo arhiviranih stavki (nijedna objavljena ga ne koristi).
- * Takav se ne služi posjetiocima ni na direktnu adresu /doc/….
+ * Da li dokument koristi bar jedna objavljena stavka. Samo takav se služi posjetiocima na /doc/….
+ * Prilog stavke u arhivi ili korpi, trajno obrisane stavke, zamijenjena stara verzija i fajl
+ * poslan pa nesačuvan ne otvaraju se ni na direktnu adresu (urednik ih i dalje vidi).
  */
-export function dokumentSamoUArhivi(ime: string) {
+export function dokumentObjavljen(ime: string) {
   // ime se u JSON-u traži tačno kako je upisano ("…"), a % i _ nisu džokeri
   const uzorak = `%${JSON.stringify(ime).replace(/[\\%_]/g, "\\$&")}%`;
-  const ima = (status: Zapis["status"]) =>
-    Boolean(baza().prepare("SELECT 1 FROM zapisi WHERE status = ? AND podaci LIKE ? ESCAPE '\\' LIMIT 1").get(status, uzorak));
-  return ima("arhiva") && !ima("objavljeno");
+  return Boolean(
+    baza().prepare("SELECT 1 FROM zapisi WHERE status = 'objavljeno' AND podaci LIKE ? ESCAPE '\\' LIMIT 1").get(uzorak)
+  );
 }
 
 export type Promjena ={ id: number; zapis_id: number | null; kolekcija: string; akcija: string; opis: string; korisnik: string; vrijeme: string };

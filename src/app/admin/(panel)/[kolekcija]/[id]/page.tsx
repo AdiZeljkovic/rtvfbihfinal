@@ -4,7 +4,7 @@ import { kolekcija } from "@/cms/kolekcije";
 import Naslov from "@/components/admin/Naslov";
 import Obrazac from "@/components/admin/Obrazac";
 import { jedan } from "@/server/db";
-import { opcijeObrasca, vrijemeBs } from "@/server/admin";
+import { opcijeObrasca, vrijemeBs, zaObrazac } from "@/server/admin";
 import { obaveznaPrijava, trenutniKorisnik } from "@/server/auth";
 
 async function ucitaj(params: PageProps<"/admin/[kolekcija]/[id]">["params"]) {
@@ -48,10 +48,11 @@ export default async function UrediPage({ params }: PageProps<"/admin/[kolekcija
       <Obrazac
         kljuc={def.kljuc}
         id={z.id}
-        pocetno={z.podaci}
+        pocetno={zaObrazac(def.kljuc, z.podaci)}
         opcije={opcijeObrasca(def.kljuc, z.id)}
         naStranici={z.status === "objavljeno" ? def.naStranici(z.podaci) : undefined}
         nazad={`/admin/${def.kljuc}`}
+        verzija={z.izmijenjeno}
       />
     </>
   );

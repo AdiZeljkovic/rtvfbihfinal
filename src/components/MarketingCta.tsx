@@ -1,21 +1,26 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Mail, Phone } from "lucide-react";
 import { RadioSetIcon, TeletextIcon, TvIcon, WebIcon } from "./StatIcons";
-import { cjenovnik as nadjiCjenovnik, marketingOdjeli, telHref } from "@/server/sadrzaj";
+import { cjenovnikKanala, godinaCjenovnika, marketingOdjeli, telHref, type KanalOglasavanja } from "@/server/sadrzaj";
 
-/** Cjenovnik po kanalu – traži se po dijelu naziva među cjenovnicima u CMS-u */
-const cjenovnik = (dio: string) => nadjiCjenovnik(dio, "/marketing#cjenovnici");
-
-const kanali = () => [
-  { icon: TvIcon, naziv: "Televizija", opis: "Spotovi i sponzorstva", href: cjenovnik("CPP cjenovnik") },
-  { icon: RadioSetIcon, naziv: "Radio", opis: "15 FM frekvencija", href: cjenovnik("Radio Federacije BiH 2026") },
-  { icon: WebIcon, naziv: "Portal", opis: "Banner oglašavanje", href: cjenovnik("web portal") },
-  { icon: TeletextIcon, naziv: "Teletekst", opis: "Oglasne stranice", href: cjenovnik("Teletekstu") },
-];
+/** Kartice kanala vode na najnoviji cjenovnik kanala u CMS-u (godina iz naziva dokumenta) */
+const kanali = () =>
+  (
+    [
+      { kanal: "tv", icon: TvIcon, naziv: "Televizija", opis: "Spotovi i sponzorstva" },
+      { kanal: "radio", icon: RadioSetIcon, naziv: "Radio", opis: "15 FM frekvencija" },
+      { kanal: "portal", icon: WebIcon, naziv: "Portal", opis: "Banner oglašavanje" },
+      { kanal: "teletekst", icon: TeletextIcon, naziv: "Teletekst", opis: "Oglasne stranice" },
+    ] as { kanal: KanalOglasavanja; icon: typeof TvIcon; naziv: string; opis: string }[]
+  ).map((k) => {
+    const c = cjenovnikKanala(k.kanal);
+    return { ...k, href: c?.href ?? "/marketing#cjenovnici", cta: c?.godina ? `Cjenovnik ${c.godina}.` : "Cjenovnik" };
+  });
 
 export default function MarketingCta() {
   const direktor = marketingOdjeli().rukovodstvo[0];
   const telefon = (direktor?.telefon ?? "").split(",")[0].trim();
+  const godina = godinaCjenovnika();
 
   return (
     <section className="relative overflow-hidden bg-navy text-white">
@@ -40,7 +45,7 @@ export default function MarketingCta() {
             </h2>
             <p className="mt-4 max-w-md leading-relaxed text-white/75">
               Televizija, radio, portal i teletekst u jednom paketu. Cjenovnici usluga oglašavanja i
-              sponzorstva za 2026. godinu, opšti uslovi i kontakti Odjela prodaje.
+              sponzorstva{godina ? ` za ${godina}. godinu` : ""}, opšti uslovi i kontakti Odjela prodaje.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
@@ -103,7 +108,7 @@ export default function MarketingCta() {
                       </div>
                       <p className="mt-6 font-display text-lg font-semibold">{k.naziv}</p>
                       <p className="text-sm text-white/60">{k.opis}</p>
-                      <p className="mt-3 text-[0.68rem] font-semibold uppercase tracking-wider text-sky">Cjenovnik 2026.</p>
+                      <p className="mt-3 text-[0.68rem] font-semibold uppercase tracking-wider text-sky">{k.cta}</p>
                     </a>
                   </li>
                 );

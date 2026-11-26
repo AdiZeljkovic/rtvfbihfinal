@@ -7,7 +7,8 @@ import Section from "@/components/Section";
 import { IconCard, PillButton, UnderlineLink } from "@/components/Tiles";
 import { BoardIcon, DocsIcon, MicIcon, ReceiptIcon, ServicesIcon, TenderIcon } from "@/components/StatIcons";
 import { site } from "@/content/site";
-import { osnovno, rutaArhivirana, telHref } from "@/server/sadrzaj";
+import { kontaktJedinice, kontaktKartice, osnovno, rutaArhivirana, telHref } from "@/server/sadrzaj";
+import { rastaviTelefone } from "@/lib/telefon";
 
 export const metadata: Metadata = {
   title: "Kontakt",
@@ -16,20 +17,27 @@ export const metadata: Metadata = {
 
 type Kontakt = { icon: (p: { className?: string }) => React.ReactNode; naziv: string; opis?: string; tel?: string; email?: string; email2?: string; href?: string };
 
-const ostaliKontakti: Kontakt[] = [
-  { icon: ServicesIcon, naziv: "Marketing", tel: "+387 (0)33 461 512", email: "adnan.bilal@rtvfbih.ba", href: "/marketing" },
-  { icon: ReceiptIcon, naziv: "RTV taksa", tel: "+387 (0)33 464 069", email: "denis.hajdarevic@rtvfbih.ba", href: "/rtv-taksa" },
-  { icon: DocsIcon, naziv: "Pravni poslovi", tel: "+387 (0)33 455 131", email: "ps@rtvfbih.ba" },
-  { icon: TenderIcon, naziv: "Ljudski resursi", email: "ljudski.potencijali@rtvfbih.ba", href: "/obavijesti" },
+/** Ikona i stranica službe prema nazivu kartice (naziv i kontakte urednik upisuje u Organizaciji) */
+const VRSTE: { uzorak: RegExp; icon: Kontakt["icon"]; href?: string }[] = [
+  { uzorak: /marketing|oglaš/i, icon: ServicesIcon, href: "/marketing" },
+  { uzorak: /taks/i, icon: ReceiptIcon, href: "/rtv-taksa" },
+  { uzorak: /javnost|medij|press|komunikac/i, icon: MicIcon },
+  { uzorak: /prav/i, icon: DocsIcon },
+  { uzorak: /ljud|kadrov|zapošlj|konkurs/i, icon: TenderIcon, href: "/obavijesti" },
 ];
 
 export default function KontaktPage() {
   const o = osnovno();
   const kontakti: Kontakt[] = [
     { icon: BoardIcon, naziv: "Generalni direktor", opis: o.generalniDirektor, tel: o.telefonDirektor, email: o.emailDirekcija },
-    { icon: MicIcon, naziv: "Odnosi s javnošću", tel: "+387 (0)33 461 539", email: o.emailPress },
-    // kontakt ostaje i kad je njegova stranica arhivirana, samo bez linka
-    ...ostaliKontakti.map((k) => (k.href && rutaArhivirana(k.href) ? { ...k, href: undefined } : k)),
+    // ostale kartice: jedinice iz Organizacije kojima je upisana „Kartica na stranici Kontakt“
+    ...kontaktKartice().map((j): Kontakt => {
+      const k = kontaktJedinice(j);
+      const vrsta = VRSTE.find((v) => v.uzorak.test(j.kontaktNaziv)) ?? VRSTE.find((v) => v.uzorak.test(j.naziv));
+      // kontakt ostaje i kad je stranica službe arhivirana, samo bez linka
+      const href = vrsta?.href && !rutaArhivirana(vrsta.href) ? vrsta.href : undefined;
+      return { icon: vrsta?.icon ?? ServicesIcon, naziv: j.kontaktNaziv, tel: rastaviTelefone(k.telefon)[0], email: k.email, href };
+    }),
   ];
   const mapQuery = encodeURIComponent(`${o.adresa}, ${o.grad}`);
   return (
@@ -117,7 +125,7 @@ export default function KontaktPage() {
           {/* Kartica nije link: telefon i e-mail se moraju moći dodirnuti (poziv / pošta),
               a stranica službe ima svoj link ispod */}
           {kontakti.map((k) => (
-            <IconCard key={k.naziv} icon={k.icon} title={k.naziv} text={k.opis}>
+            <IconCard key={`${k.naziv}-${k.email}`} icon={k.icon} title={k.naziv} text={k.opis}>
               <ul className="mt-4 space-y-1.5 text-sm">
                 {k.tel && (
                   <li className="flex items-center gap-2 text-ink">

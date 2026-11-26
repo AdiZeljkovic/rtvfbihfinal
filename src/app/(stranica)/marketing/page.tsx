@@ -5,7 +5,7 @@ import DocList from "@/components/DocList";
 import ContactCard from "@/components/ContactCard";
 import { DarkTile, PillButton, UnderlineLink } from "@/components/Tiles";
 import { RadioSetIcon, TeletextIcon, TvIcon, WebIcon } from "@/components/StatIcons";
-import { cjenovnik as nadjiCjenovnik, dokumenti, marketingOdjeli } from "@/server/sadrzaj";
+import { cjenovnikKanala, dokumenti, godinaCjenovnika, marketingOdjeli, type KanalOglasavanja } from "@/server/sadrzaj";
 
 export const metadata: Metadata = {
   title: "Marketing i oglašavanje",
@@ -13,19 +13,22 @@ export const metadata: Metadata = {
     "Cjenovnici usluga oglašavanja i sponzorstva na Federalnoj televiziji, Radiju Federacije BiH, portalu i Teletekstu te kontakti Odjela prodaje.",
 };
 
-const cjenovnik = (dio: string) =>
-  nadjiCjenovnik(dio, "#cjenovnici");
-
-const kanali = [
-  { icon: TvIcon, naziv: "Federalna televizija", opis: "TV oglašavanje, sponzorstva i posebni programski paketi na vodećem televizijskom mediju u BiH.", href: cjenovnik("CPP cjenovnik") },
-  { icon: RadioSetIcon, naziv: "Radio Federacije BiH", opis: "Radijski spotovi i sponzorstva emisija na 15 FM frekvencija širom Federacije.", href: cjenovnik("Radio Federacije BiH 2026") },
-  { icon: WebIcon, naziv: "Web portal", opis: "Banner oglašavanje i sponzorisani sadržaj na portalu javnog servisa.", href: cjenovnik("web portal") },
-  { icon: TeletextIcon, naziv: "Teletekst", opis: "Oglasne stranice i rubrike na jednom od najstarijih teletekst servisa u regiji.", href: cjenovnik("Teletekstu") },
+const KANALI: { kanal: KanalOglasavanja; icon: typeof TvIcon; naziv: string; opis: string }[] = [
+  { kanal: "tv", icon: TvIcon, naziv: "Federalna televizija", opis: "TV oglašavanje, sponzorstva i posebni programski paketi na vodećem televizijskom mediju u BiH." },
+  { kanal: "radio", icon: RadioSetIcon, naziv: "Radio Federacije BiH", opis: "Radijski spotovi i sponzorstva emisija na 15 FM frekvencija širom Federacije." },
+  { kanal: "portal", icon: WebIcon, naziv: "Web portal", opis: "Banner oglašavanje i sponzorisani sadržaj na portalu javnog servisa." },
+  { kanal: "teletekst", icon: TeletextIcon, naziv: "Teletekst", opis: "Oglasne stranice i rubrike na jednom od najstarijih teletekst servisa u regiji." },
 ];
 
 export default function MarketingPage() {
   const { rukovodstvo, odjeli, ukupno } = marketingOdjeli();
   const cjenovnici = dokumenti("Cjenovnici");
+  // kartice vode na najnoviji cjenovnik kanala; godina se čita iz naziva dokumenta
+  const kanali = KANALI.map((k) => {
+    const c = cjenovnikKanala(k.kanal);
+    return { ...k, href: c?.href ?? "#cjenovnici", cta: c?.godina ? `Cjenovnik ${c.godina}.` : "Cjenovnik" };
+  });
+  const godina = godinaCjenovnika();
   return (
     <>
       <PageHero
@@ -36,7 +39,7 @@ export default function MarketingPage() {
         crumbs={[{ label: "Marketing" }]}
         actions={
           <>
-            <PillButton href="#cjenovnici">Cjenovnici 2026.</PillButton>
+            <PillButton href="#cjenovnici">{godina ? `Cjenovnici ${godina}.` : "Cjenovnici"}</PillButton>
             <UnderlineLink href="#kontakti">Odjel prodaje</UnderlineLink>
           </>
         }
@@ -44,19 +47,19 @@ export default function MarketingPage() {
           { value: kanali.length, label: "kanala oglašavanja" },
           { value: cjenovnici.length, label: "cjenovnika i uslova" },
           { value: ukupno, label: "osoba u prodaji" },
-          { value: "2026.", label: "važeći cjenovnici" },
+          ...(godina ? [{ value: `${godina}.`, label: "važeći cjenovnici" }] : []),
         ]}
       />
 
       <Section eyebrow="Kanali" title="Gdje se možete oglašavati">
         <div className="grid gap-5 md:grid-cols-2">
           {kanali.map((k) => (
-            <DarkTile key={k.naziv} icon={k.icon} title={k.naziv} text={k.opis} href={k.href} external cta="Cjenovnik 2026." />
+            <DarkTile key={k.naziv} icon={k.icon} title={k.naziv} text={k.opis} href={k.href} external cta={k.cta} />
           ))}
         </div>
       </Section>
 
-      <Section tone="mist" id="cjenovnici" eyebrow="2026. godina" title="Cjenovnici i opšti uslovi" className="scroll-mt-16">
+      <Section tone="mist" id="cjenovnici" eyebrow={godina ? `${godina}. godina` : "Marketing"} title="Cjenovnici i opšti uslovi" className="scroll-mt-16">
         <DocList items={cjenovnici} />
       </Section>
 

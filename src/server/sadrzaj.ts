@@ -4,6 +4,7 @@ import { jedinstven as jedinstvenIzBaze, podaci as podaciIzBaze } from "./db";
 import { ARHIVSKE_STRANICE, VRSTE_NABAVKI } from "@/cms/kolekcije";
 import { sazetak, type Blok, type NabavkaGodina } from "@/content/arhiva";
 import { docUrl } from "@/lib/doc";
+import { nadredjenaId } from "@/lib/jedinice";
 import { site } from "@/content/site";
 
 /**
@@ -113,17 +114,13 @@ export type EmisijaCms = {
 };
 export const emisije = () => podaci<Omit<EmisijaCms, "_id">>("emisije") as EmisijaCms[];
 export const emisijaPoSlugu = (slug: string) => emisije().find((e) => e.slug === slug);
-/** Emisije s upisanim terminom čine programsku shemu */
-export const programskaShema = () => emisije().filter((e) => e.termin);
+/** Emisije s upisanim terminom čine programsku shemu (emisija premještena u grupu „Arhiva emisija“ nije u shemi) */
+export const programskaShema = () => emisije().filter((e) => e.termin && e.grupa !== "Arhiva emisija");
 /** Kratki opis: upisani opis ili početak teksta o emisiji */
 export const opisEmisije = (e: EmisijaCms, max = 160) => e.opis || sazetak(e.tekst ?? [], max);
 
-/** Vrijeme (HH:MM) i dan iz slobodnog teksta termina, npr. „Petkom u 18:20“ */
-export function rastaviTermin(termin: string) {
-  const vrijeme = termin.match(/\d{1,2}:\d{2}/)?.[0];
-  const dan = termin.split(/ u |,|\s\d/)[0].trim();
-  return { vrijeme, dan, uzivo: /uživo/i.test(termin) };
-}
+/** Vrijeme i dan iz slobodnog teksta termina, npr. „Petkom u 18:20“ ili „Petkom u 18.20“ */
+export { rastaviTermin } from "@/lib/termin";
 
 // ── RTV taksa ───────────────────────────────────────────────────────────
 export const pitanja = () =>
@@ -148,28 +145,71 @@ export const saopstenjeUO = () =>
 
 // ── organizacija ────────────────────────────────────────────────────────
 export type OsobaCms = { ime: string; uloga: string; telefon: string; email: string };
-export type JedinicaCms = { naziv: string; telefon: string; email: string; osobe: OsobaCms[]; pod: JedinicaCms[] };
+export type JedinicaCms = {
+  id: number;
+  naziv: string;
+  telefon: string;
+  email: string;
+  osobe: OsobaCms[];
+  /** Natpis kartice na stranici Kontakt (prazno = nije na Kontaktu) */
+  kontaktNaziv: string;
+  /** Druga stranica na kojoj se jedinica prikazuje: „Radio“ ili „RTV taksa“ */
+  prikazNa: string;
+  pod: JedinicaCms[];
+};
+type JedinicaZ = { naziv: string; nadredjena: string; telefon: string; email: string; osobe: OsobaCms[]; kontaktNaziv?: string; prikazNa?: string };
 
-export function organizacija(): JedinicaCms[] {
-  const sve = podaci<{ naziv: string; nadredjena: string; telefon: string; email: string; osobe: OsobaCms[] }>("jedinice");
-  const nazivi = new Set(sve.map((j) => j.naziv));
-  // jedinica čija nadređena ne postoji (npr. greškom upisana) prikazuje se kao glavna, ne nestaje
-  const nad = (j: (typeof sve)[number]) => (j.nadredjena && nazivi.has(j.nadredjena) && j.nadredjena !== j.naziv ? j.nadredjena : "");
+export const organizacija = cache(function organizacija(): JedinicaCms[] {
+  const sve = podaci<JedinicaZ>("jedinice");
+  const refs = sve.map((j) => ({ id: j._id, naziv: j.naziv }));
+  // jedinica čija nadređena ne postoji (npr. arhivirana) prikazuje se kao glavna, ne nestaje
+  const nad = (j: (typeof sve)[number]) => {
+    const r = nadredjenaId(j.nadredjena, refs);
+    return r !== j._id ? r : null;
+  };
+  const cvor = (j: (typeof sve)[number], pod: JedinicaCms[]): JedinicaCms => ({
+    id: j._id,
+    naziv: j.naziv,
+    telefon: j.telefon ?? "",
+    email: j.email ?? "",
+    osobe: j.osobe ?? [],
+    kontaktNaziv: (j.kontaktNaziv ?? "").trim(),
+    prikazNa: j.prikazNa ?? "",
+    pod,
+  });
   const iskoristene = new Set<number>();
-  const gradi = (roditelj: string): JedinicaCms[] =>
+  const gradi = (roditelj: number | null): JedinicaCms[] =>
     sve
       .filter((j) => nad(j) === roditelj && !iskoristene.has(j._id))
       .map((j) => {
         iskoristene.add(j._id); // zaštita od kruga (A pod B, B pod A)
-        return { naziv: j.naziv, telefon: j.telefon, email: j.email, osobe: j.osobe ?? [], pod: gradi(j.naziv) };
+        return cvor(j, gradi(j._id));
       });
-  const stablo = gradi("");
+  const stablo = gradi(null);
   // jedinice zarobljene u krugu ipak se prikažu
   const ostale = sve.filter((j) => !iskoristene.has(j._id));
-  return ostale.length
-    ? [...stablo, ...ostale.map((j) => ({ naziv: j.naziv, telefon: j.telefon, email: j.email, osobe: j.osobe ?? [], pod: [] }))]
-    : stablo;
+  return ostale.length ? [...stablo, ...ostale.map((j) => cvor(j, []))] : stablo;
+});
+
+/** Sve jedinice (bez stabla), redom kao na stranici Organizacija */
+function sveJedinice(): JedinicaCms[] {
+  const out: JedinicaCms[] = [];
+  const idi = (l: JedinicaCms[]) => l.forEach((j) => (out.push(j), idi(j.pod)));
+  idi(organizacija());
+  return out;
 }
+
+/** Jedinica označena za prikaz na drugoj stranici (Radio, RTV taksa) */
+export const jedinicaZa = (stranica: "Radio" | "RTV taksa") => sveJedinice().find((j) => j.prikazNa === stranica);
+
+/** Kartice „Direktni kontakti“ na stranici Kontakt: jedinice kojima je upisan natpis kartice */
+export const kontaktKartice = () => sveJedinice().filter((j) => j.kontaktNaziv);
+
+/** Telefon i e-mail jedinice, a ako ih nema – prve osobe koja ih ima */
+export const kontaktJedinice = (j: JedinicaCms) => ({
+  telefon: j.telefon || j.osobe.find((o) => o.telefon)?.telefon || "",
+  email: j.email || j.osobe.find((o) => o.email)?.email || "",
+});
 
 // ── marketing ───────────────────────────────────────────────────────────
 export type KontaktCms = { _id: number; ime: string; odjel: string; uloga: string; telefon: string; fax: string; email: string };
@@ -184,9 +224,31 @@ export function marketingOdjeli() {
   }));
   return { rukovodstvo, odjeli, ukupno: sve.length };
 }
-/** Cjenovnik po dijelu naziva (za kartice kanala oglašavanja) */
-export const cjenovnik = (dio: string, zamjena: string) =>
-  dokumenti("Cjenovnici").find((c) => c.label.includes(dio))?.href ?? zamjena;
+/** Prepoznavanje kanala po nazivu dokumenta u kategoriji „Cjenovnici“ (cjenovnici za izbore se ne računaju) */
+const KANALI_OGLASAVANJA = {
+  tv: /CPP|Federalna TV|televizij/i,
+  radio: /radio/i,
+  portal: /portal|web/i,
+  teletekst: /teletekst/i,
+} as const;
+export type KanalOglasavanja = keyof typeof KANALI_OGLASAVANJA;
+/** Najveća godina upisana u naziv („… 2027.“), ili 0 */
+const godinaNaziva = (s: string) => Math.max(0, ...Array.from(s.matchAll(/\b(?:19|20)\d{2}\b/g), (m) => Number(m[0])));
+const redovniCjenovnici = () => dokumenti("Cjenovnici").filter((c) => !/izbor/i.test(c.label));
+
+/**
+ * Važeći cjenovnik kanala: među cjenovnicima tog kanala onaj s najnovijom godinom u nazivu
+ * (ista godina → prvi na listi). Kad urednik doda cjenovnik za novu godinu, kartice same vode na njega.
+ */
+export function cjenovnikKanala(kanal: KanalOglasavanja): { href: string; godina: number | null } | null {
+  let najbolji: DokStavka | undefined;
+  for (const c of redovniCjenovnici().filter((c) => KANALI_OGLASAVANJA[kanal].test(c.label))) {
+    if (!najbolji || godinaNaziva(c.label) > godinaNaziva(najbolji.label)) najbolji = c;
+  }
+  return najbolji ? { href: najbolji.href, godina: godinaNaziva(najbolji.label) || null } : null;
+}
+/** Godina važećih cjenovnika (najnovija u nazivima), za natpise „Cjenovnici 2026.“; null ako nije upisana */
+export const godinaCjenovnika = () => Math.max(0, ...redovniCjenovnici().map((c) => godinaNaziva(c.label))) || null;
 
 // ── frekvencije ─────────────────────────────────────────────────────────
 export const fmFrekvencije = () => podaci<{ lokacija: string; mhz: string; pokriva: string }>("fm");
@@ -217,11 +279,22 @@ const ZADANO: Osnovno = {
   facebook: site.social.facebook,
   instagram: site.social.instagram,
 };
-/** Osnovni podaci (adresa, telefoni, mreže); prazna polja uzimaju zadanu vrijednost */
+/** Mreže: urednik ih može i ukloniti (prazno polje = mreža se ne prikazuje) */
+const MREZE = new Set(["youtube", "facebook", "instagram"]);
+/** Osnovni podaci (adresa, telefoni, mreže); prazna polja uzimaju zadanu vrijednost, osim sačuvanih praznih mreža */
 export function osnovno(): Osnovno {
   const o = jedinstven<Partial<Osnovno>>("osnovno") ?? {};
   return Object.fromEntries(
-    Object.entries(ZADANO).map(([k, v]) => [k, (o[k as keyof Osnovno] as string) || v])
+    Object.entries(ZADANO).map(([k, v]) => {
+      const upisano = o[k as keyof Osnovno] as string | undefined;
+      return [k, MREZE.has(k) && typeof upisano === "string" ? upisano : upisano || v];
+    })
   ) as Osnovno;
 }
-export const telHref = (t: string) => `tel:${t.replace(/\(0\)/, "").replace(/[^\d+]/g, "")}`;
+export { telHref } from "@/lib/telefon";
+
+/** Kontakt za mobilni meni zaglavlja (isti podaci kao u podnožju) */
+export function kontaktZaglavlja() {
+  const o = osnovno();
+  return { telefon: o.telefon, email: o.emailDirekcija, youtube: o.youtube, facebook: o.facebook, instagram: o.instagram };
+}

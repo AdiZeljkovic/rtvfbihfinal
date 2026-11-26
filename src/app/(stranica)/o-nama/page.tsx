@@ -5,6 +5,7 @@ import HistorijaSkala from "@/components/HistorijaSkala";
 import { IconCard } from "@/components/Tiles";
 import { BoardIcon, DocsIcon, MicIcon, RadioSetIcon, ServicesIcon, TeletextIcon, TvIcon } from "@/components/StatIcons";
 import { filmovi, historijat } from "@/content/historijat";
+import { osnovno } from "@/server/sadrzaj";
 
 export const metadata: Metadata = {
   title: "O nama – Historijat",
@@ -22,6 +23,7 @@ const poglavlja = [
 export default function ONamaPage() {
   /* stranica je statična: broj se računa pri buildu */
   const godinaUEteru = new Date().getFullYear() - 1971;
+  const gd = osnovno().generalniDirektor.trim().replace(/\.$/, "");
 
   return (
     <>
@@ -49,7 +51,10 @@ export default function ONamaPage() {
             </h2>
             <div className="mt-5 space-y-4 text-base leading-relaxed text-ink sm:text-lg">
               {historijat.uvod.map((p, i) => (
-                <p key={i}>{p}</p>
+                <p key={i}>
+                  {p}
+                  {i === historijat.uvod.length - 1 && gd ? ` Aktuelni generalni direktor RTVFBiH je ${gd}.` : ""}
+                </p>
               ))}
             </div>
             <nav aria-label="Poglavlja" className="mt-8 flex flex-wrap gap-2">

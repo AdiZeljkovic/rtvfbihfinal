@@ -1,7 +1,8 @@
 export const historijat = {
   uvod: [
     "Radio-televizija Federacije Bosne i Hercegovine nastala je kao jedan segment transformacijom nekadašnje Radio-televizije Bosne i Hercegovine. Nakon potpisivanja protokola o transformaciji od strane članova Predsjedništva BiH, predstavnika sindikata RTVBiH i OHR-a, pristupilo se dugotrajnom i složenom procesu.",
-    "Prvi generalni direktor RTVFBiH bio je Jasmin Duraković. Aktuelni generalni direktor RTVFBiH je Bakir Hadžiomerović.",
+    // rečenica o aktuelnom generalnom direktoru dodaje se na stranici iz Osnovnih podataka (admin)
+    "Prvi generalni direktor RTVFBiH bio je Jasmin Duraković.",
   ],
   radio: [
     "Zbog jednostavnijeg procesa, prvo je transformiran radijski program. Nakon kratkog perioda pripreme sheme i selekcije kadrova, 7. 5. 2001. godine, tačno u 06.00 sati prestao je program Radija Bosne i Hercegovine, a svoje emitovanje započeli su Radio Federacije Bosne i Hercegovine i BH Radio 1.",

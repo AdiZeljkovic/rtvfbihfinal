@@ -134,6 +134,20 @@ export function pocetniZapisi(): Record<string, P[]> {
     j.pod?.forEach((x) => dodaj(x, j.naziv));
   };
   organizacija.forEach((j) => dodaj(j, ""));
+  // jedinice koje se prikazuju i na stranicama Radio, RTV taksa i Kontakt (isto kao na produkciji od 27.11.2026.)
+  const DODATNO: Record<string, P> = {
+    "Odjel za radijski program": { prikazNa: "Radio" },
+    "Odjel RTV takse": {
+      prikazNa: "RTV taksa",
+      kontaktNaziv: "RTV taksa",
+      telefon: "+387 (0)33 464 069, +387 (0)33 455 442, +387 (0)33 648 027, +387 (0)33 461 101 (lokali 2270, 2908, 2320, 2104)",
+    },
+    "Sektor marketinga RTVFBiH": { kontaktNaziv: "Marketing", telefon: "+387 (0)33 461 512" },
+    "Odjel za komunikaciju i promociju programa": { kontaktNaziv: "Odnosi s javnošću" },
+    "Sektor pravnih poslova": { kontaktNaziv: "Pravni poslovi" },
+    "Odjel za ljudske resurse": { kontaktNaziv: "Ljudski resursi" },
+  };
+  for (const j of jed) Object.assign(j, DODATNO[String(j.naziv)] ?? {});
 
   // ── marketing kontakti ──
   const mk = marketingKontakti;

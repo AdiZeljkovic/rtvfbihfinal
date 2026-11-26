@@ -4,6 +4,7 @@ import path from "node:path";
 import type { Kolekcija } from "@/cms/kolekcije";
 import { DOC_DIR, sigurnoIme } from "./putanje";
 import { lista } from "./db";
+import { nadredjenaId } from "@/lib/jedinice";
 
 export type Greske = Record<string, string>;
 
@@ -140,21 +141,30 @@ export function provjeri(def: Kolekcija, ulaz: Record<string, unknown>, id: numb
 
   // ── posebna pravila po kolekciji ──
   if (def.kljuc === "dokumenti") p.adresa = ispraviAdresu(str(p.adresa));
+  // „facebook.com/federalna.ba“ → https://… (inače bi link vodio na nepostojeću stranicu ovog sajta)
+  if (def.kljuc === "osnovno") for (const k of ["youtube", "facebook", "instagram"]) if (k in p) p[k] = ispraviAdresu(str(p[k]));
   if (def.kljuc === "dokumenti" && !p.dokument && !p.adresa) {
     greske.dokument = "Dodajte dokument ili upišite adresu stranice.";
   }
   if (def.kljuc === "jedinice" && str(p.nadredjena)) {
-    // jedinica ne smije biti pod samom sobom ni pod svojom podjedinicom (krug)
-    const sve = svi("jedinice").filter((z) => z.id !== id);
-    const roditelj = new Map(sve.map((z) => [String(z.podaci.naziv), String(z.podaci.nadredjena ?? "")]));
-    const ime = str(p.naziv);
-    let trenutna = str(p.nadredjena);
-    for (let korak = 0; trenutna && korak < 50; korak++) {
-      if (trenutna === ime) {
-        greske.nadredjena = "Jedinica ne može biti pod samom sobom ni pod svojim odjelom. Odaberite drugu.";
-        break;
+    // veza se pamti po broju jedinice (nazivi se ponavljaju); stari upis po nazivu se pretvara
+    const sve = svi("jedinice");
+    const refs = sve.map((z) => ({ id: z.id, naziv: String(z.podaci.naziv ?? "") }));
+    const rod = nadredjenaId(p.nadredjena, refs);
+    if (rod === null) {
+      greske.nadredjena = "Odabrana jedinica više ne postoji. Odaberite drugu.";
+    } else {
+      p.nadredjena = `#${rod}`;
+      // jedinica ne smije biti pod samom sobom ni pod svojom podjedinicom (krug)
+      const roditelj = new Map(sve.map((z) => [z.id, nadredjenaId(z.podaci.nadredjena, refs)]));
+      let trenutna: number | null = rod;
+      for (let korak = 0; trenutna !== null && korak < 50; korak++) {
+        if (id !== null && trenutna === id) {
+          greske.nadredjena = "Jedinica ne može biti pod samom sobom ni pod svojim odjelom. Odaberite drugu.";
+          break;
+        }
+        trenutna = roditelj.get(trenutna) ?? null;
       }
-      trenutna = roditelj.get(trenutna) ?? "";
     }
   }
   if (def.kljuc === "emisije") {

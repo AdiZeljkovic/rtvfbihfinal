@@ -2,7 +2,7 @@ import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { mainNav } from "@/content/site";
-import { bezArhiviranih } from "@/server/sadrzaj";
+import { bezArhiviranih, kontaktZaglavlja } from "@/server/sadrzaj";
 
 /**
  * Cloudflare Web Analytics — broj posjetilaca i pregleda bez kolačića i bez
@@ -24,7 +24,7 @@ export const revalidate = 600;
 export default function StranicaLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header nav={bezArhiviranih(mainNav)} />
+      <Header nav={bezArhiviranih(mainNav)} kontakt={kontaktZaglavlja()} />
       <main id="sadrzaj" className="flex-1">
         {children}
       </main>

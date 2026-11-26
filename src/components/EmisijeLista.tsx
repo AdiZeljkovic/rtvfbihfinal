@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { rastaviTermin } from "@/lib/termin";
 
 export type EmisijaUShemi = { naziv: string; slug: string; termin: string; vrsta: string; opis: string };
 
-/** Iz slobodnog teksta termina izvlači vrijeme (HH:MM) i dan za prikaz u shemi */
+/** Iz slobodnog teksta termina izvlači vrijeme i dan za prikaz u shemi („18.20“ se prikazuje kao „18:20“) */
 function rastavi(e: EmisijaUShemi) {
-  const vrijeme = e.termin.match(/\d{1,2}:\d{2}/)?.[0];
-  const dan = e.termin.split(/ u |,|\s\d/)[0].trim();
-  const dodatak = /uživo/i.test(e.termin) ? "uživo" : undefined;
-  return { vrijeme, dan, dodatak };
+  const { vrijeme, dan, uzivo, kljuc } = rastaviTermin(e.termin);
+  return { vrijeme, dan, dodatak: uzivo ? "uživo" : undefined, kljuc };
 }
 
 export default function EmisijeLista({ emisije }: { emisije: EmisijaUShemi[] }) {
@@ -22,7 +21,7 @@ export default function EmisijeLista({ emisije }: { emisije: EmisijaUShemi[] }) 
       emisije
         .filter((e) => !filter || e.vrsta === filter)
         .map((e) => ({ e, ...rastavi(e) }))
-        .sort((a, b) => (a.vrijeme ?? "99").localeCompare(b.vrijeme ?? "99")),
+        .sort((a, b) => a.kljuc.localeCompare(b.kljuc)),
     [emisije, filter]
   );
 

@@ -7,7 +7,7 @@ import ContactCard from "@/components/ContactCard";
 import { Email, Telefoni } from "@/components/KontaktLinkovi";
 import DocList from "@/components/DocList";
 import { UnderlineLink } from "@/components/Tiles";
-import { dokumenti, fmFrekvencije } from "@/server/sadrzaj";
+import { dokumenti, fmFrekvencije, jedinicaZa, kontaktJedinice } from "@/server/sadrzaj";
 import { historijat } from "@/content/historijat";
 import { site } from "@/content/site";
 
@@ -17,14 +17,17 @@ export const metadata: Metadata = {
     "Radio Federacije Bosne i Hercegovine: program uživo, FM frekvencije i područja pokrivanja, redakcije i kontakti.",
 };
 
-const redakcije = [
-  { naziv: "Redakcija informativnog programa", email: "radiof2@rtvfbih.ba" },
-  { naziv: "Redakcija zabavno-edukativnog programa", osoba: "Ljiljana Simić", tel: "+387 (0)33 455 135", email: "ljiljana.simic@rtvfbih.ba" },
-  { naziv: "Redakcija dokumentarno-dramskog programa", osoba: "Selma Dizdar-Cerović", tel: "+387 (0)33 455 152", email: "selmadc@rtvfbih.ba" },
-  { naziv: "Redakcija muzičkog programa", tel: "+387 (0)33 453 230", email: "muzicka.rf@rtvfbih.ba" },
-];
+const velikoSlovo = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function RadioPage() {
+  // urednik i redakcije dolaze iz Organizacije (jedinica s oznakom „Prikazuje se i na stranici: Radio“)
+  const odjel = jedinicaZa("Radio");
+  const urednik = odjel?.osobe[0];
+  const redakcije = (odjel?.pod ?? []).map((r) => {
+    const k = kontaktJedinice(r);
+    const o = r.osobe[0];
+    return { id: r.id, naziv: r.naziv, osoba: o ? [o.ime, o.uloga].filter(Boolean).join(", ") : "", tel: k.telefon, email: k.email };
+  });
   return (
     <>
       <PageHero
@@ -75,35 +78,41 @@ export default function RadioPage() {
           </div>
 
           <aside className="space-y-4">
-            <ContactCard
-              dark
-              ime="Jara Orozović"
-              uloga="Odgovorna urednica radijskog programa"
-              tel="+387 (0)33 455 102"
-              email="jara.orozovic@rtvfbih.ba"
-            />
-            <ul className="overflow-hidden rounded-3xl border border-line bg-white shadow-[var(--shadow-card)]">
-              {redakcije.map((r) => (
-                <li key={r.naziv} className="border-b border-line px-6 py-4 last:border-b-0">
-                  <p className="font-display font-semibold text-navy">{r.naziv}</p>
-                  {r.osoba && <p className="text-sm text-muted">{r.osoba}, urednica redakcije</p>}
-                  <div className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
-                    {r.tel && (
-                      <span className="inline-flex items-center gap-1.5 text-ink">
-                        <Phone className="h-3.5 w-3.5 text-brand-strong" />
-                        <Telefoni tel={r.tel} className="hover:text-brand-strong" />
-                      </span>
-                    )}
-                    <a href={`mailto:${r.email}`} className="inline-flex min-w-0 items-center gap-1.5 text-brand-strong [overflow-wrap:anywhere] hover:underline">
-                      <Mail className="h-3.5 w-3.5 shrink-0" />
-                      <span className="min-w-0">
-                        <Email email={r.email} />
-                      </span>
-                    </a>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {urednik && odjel && (
+              <ContactCard
+                dark
+                ime={urednik.ime}
+                uloga={velikoSlovo(urednik.uloga)}
+                tel={urednik.telefon || odjel.telefon}
+                email={urednik.email || odjel.email}
+              />
+            )}
+            {redakcije.length > 0 && (
+              <ul className="overflow-hidden rounded-3xl border border-line bg-white shadow-[var(--shadow-card)]">
+                {redakcije.map((r) => (
+                  <li key={r.id} className="border-b border-line px-6 py-4 last:border-b-0">
+                    <p className="font-display font-semibold text-navy">{r.naziv}</p>
+                    {r.osoba && <p className="text-sm text-muted">{r.osoba}</p>}
+                    <div className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                      {r.tel && (
+                        <span className="inline-flex items-center gap-1.5 text-ink">
+                          <Phone className="h-3.5 w-3.5 text-brand-strong" />
+                          <Telefoni tel={r.tel} className="hover:text-brand-strong" />
+                        </span>
+                      )}
+                      {r.email && (
+                        <a href={`mailto:${r.email}`} className="inline-flex min-w-0 items-center gap-1.5 text-brand-strong [overflow-wrap:anywhere] hover:underline">
+                          <Mail className="h-3.5 w-3.5 shrink-0" />
+                          <span className="min-w-0">
+                            <Email email={r.email} />
+                          </span>
+                        </a>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
             {dokumenti("Radio").length > 0 && <DocList items={dokumenti("Radio")} />}
           </aside>
         </div>

@@ -69,34 +69,26 @@ export default function Footer() {
               </a>
             </p>
           </address>
+          {/* mreža s praznom adresom u Osnovnim podacima se ne prikazuje */}
           <div className="mt-6 flex items-center gap-2">
-            <a
-              href={o.youtube}
-              target="_blank"
-              rel="noopener"
-              aria-label="YouTube"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-brand"
-            >
-              <YoutubeIcon className="h-5 w-5" />
-            </a>
-            <a
-              href={o.facebook}
-              target="_blank"
-              rel="noopener"
-              aria-label="Facebook"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-brand"
-            >
-              <FacebookIcon className="h-5 w-5" />
-            </a>
-            <a
-              href={o.instagram}
-              target="_blank"
-              rel="noopener"
-              aria-label="Instagram"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-brand"
-            >
-              <InstagramIcon className="h-5 w-5" />
-            </a>
+            {[
+              { href: o.youtube, label: "YouTube", Icon: YoutubeIcon },
+              { href: o.facebook, label: "Facebook", Icon: FacebookIcon },
+              { href: o.instagram, label: "Instagram", Icon: InstagramIcon },
+            ]
+              .filter((m) => m.href)
+              .map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={label}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-brand"
+                >
+                  <Icon className="h-5 w-5" />
+                </a>
+              ))}
           </div>
         </div>
 

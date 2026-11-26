@@ -29,7 +29,8 @@ export default async function PrijavaPage() {
       </div>
 
       <main id="sadrzaj" className="flex flex-col px-4 py-6 sm:px-10">
-        <div className="flex items-center justify-between gap-4">
+        {/* na uskom ekranu dugmad za veličinu slova i kontrast prelaze u novi red (ne izlaze preko ruba) */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="lg:hidden">
             <Logo />
           </div>

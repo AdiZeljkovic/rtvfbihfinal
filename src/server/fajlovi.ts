@@ -30,7 +30,7 @@ const tok = (f: string, opcije?: { start: number; end: number }) =>
  * i Range (PDF preglednik može učitati samo dio velikog dokumenta).
  * `dijelovi` su već dekodirani (Next dekodira parametre rute).
  */
-export function posaljiFajl(req: Request, folder: string, dijelovi: string[]) {
+export function posaljiFajl(req: Request, folder: string, dijelovi: string[], kes: "javno" | "privatno" | "slika" = "slika") {
   const ime = sigurnoIme(dijelovi.join("/"));
   const f = path.join(folder, ime);
   let stat: fs.Stats;
@@ -47,7 +47,10 @@ export function posaljiFajl(req: Request, folder: string, dijelovi: string[]) {
   const zaglavlja: Record<string, string> = {
     "Content-Type": TIPOVI[path.extname(f).toLowerCase()] ?? "application/octet-stream",
     "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(ime)}`,
-    "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+    // dokument se uklanja sa stranice (korpa, arhiva, zamjena), pa ga preglednik provjerava pri svakom otvaranju
+    // (kratki 304 odgovor zahvaljujući ETag-u); slike se mijenjaju rijetko i keširaju dan
+    "Cache-Control":
+      kes === "privatno" ? "private, no-store" : kes === "javno" ? "public, no-cache" : "public, max-age=86400, stale-while-revalidate=604800",
     "Last-Modified": stat.mtime.toUTCString(),
     ETag: etag,
     "Accept-Ranges": "bytes",

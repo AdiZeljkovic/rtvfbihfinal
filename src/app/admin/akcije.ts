@@ -7,6 +7,8 @@ import { osvjeziPonovoZaTren } from "@/server/osvjezavanje";
 import { kolekcija } from "@/cms/kolekcije";
 import { jedan, lista, obrisiTrajno as obrisiZauvijek, pomjeri, postaviStatus, sacuvaj } from "@/server/db";
 import { provjeri, type Greske } from "@/server/provjera";
+import { vrijemeBs } from "@/server/admin";
+import { nadredjenaId } from "@/lib/jedinice";
 import {
   imaKorisnika,
   ispravanKod,
@@ -31,7 +33,7 @@ const osvjezi = () => {
   after(() => osvjeziPonovoZaTren());
 };
 
-export type Rezultat = { greske?: Greske; poruka?: string; id?: number; istekla?: boolean };
+export type Rezultat = { greske?: Greske; poruka?: string; id?: number; istekla?: boolean; sukob?: boolean };
 
 const ISTEKLA: Rezultat = {
   istekla: true,
@@ -56,26 +58,40 @@ async function radnja(fn: (ime: string) => Rezultat | void): Promise<Rezultat> {
 
 // ── sadržaj ─────────────────────────────────────────────────────────────
 
-export async function sacuvajZapis(kljuc: string, id: number | null, ulaz: Record<string, unknown>): Promise<Rezultat> {
-  return radnja((ime) => sacuvajSadrzaj(ime, kljuc, id, ulaz));
+/**
+ * `verzija` = vrijeme zadnje izmjene koje je obrazac učitao. Ako je stavku u međuvremenu sačuvao
+ * neko drugi, čuvanje se zaustavlja (inače bi tuđe izmjene tiho nestale). `null` = ipak sačuvaj.
+ */
+export async function sacuvajZapis(kljuc: string, id: number | null, ulaz: Record<string, unknown>, verzija: string | null = null): Promise<Rezultat> {
+  return radnja((ime) => sacuvajSadrzaj(ime, kljuc, id, ulaz, verzija));
 }
 
-function sacuvajSadrzaj(korisnik: string, kljuc: string, id: number | null, ulaz: Record<string, unknown>): Rezultat {
+function sacuvajSadrzaj(korisnik: string, kljuc: string, id: number | null, ulaz: Record<string, unknown>, verzija: string | null): Rezultat {
   const def = kolekcija(kljuc);
   if (!def) return { poruka: "Nepoznata vrsta sadržaja." };
 
   let stari: Record<string, unknown> | undefined;
+  let trenutna: { izmijenjeno: string; izmijenio: string | null } | undefined;
   if (id) {
     const z = jedan(id);
     if (!z || z.kolekcija !== kljuc) return { poruka: "Stavka više ne postoji. Možda ju je neko obrisao." };
     stari = z.podaci;
+    trenutna = z;
   } else if (def.jedinstven) {
     // podešavanja imaju samo jedan zapis – ako postoji, uređuje se on
     const postojeci = lista(kljuc)[0];
     if (postojeci) {
       id = postojeci.id;
       stari = postojeci.podaci;
+      trenutna = postojeci;
     }
+  }
+  if (verzija && trenutna && trenutna.izmijenjeno !== verzija) {
+    const ko = trenutna.izmijenio ? `${trenutna.izmijenio} je` : "Neko je";
+    return {
+      sukob: true,
+      poruka: `${ko} ovu stavku sačuvao/la ${vrijemeBs(trenutna.izmijenjeno)}, dok ste je vi uređivali. Vaše izmjene još nisu sačuvane.`,
+    };
   }
 
   const { podaci, greske } = provjeri(def, ulaz, id, stari);
@@ -84,12 +100,15 @@ function sacuvajSadrzaj(korisnik: string, kljuc: string, id: number | null, ulaz
   }
   const noviId = sacuvaj(kljuc, id, podaci, korisnik);
 
-  // preimenovan sektor: njegovi odjeli ostaju pod njim (veza je po nazivu)
+  // preimenovan sektor: odjeli koji su za njega još vezani starim nazivom prelaze na vezu po broju
+  // (nova veza je po broju i preimenovanje je ne dira)
   const staroIme = String(stari?.naziv ?? "");
   if (kljuc === "jedinice" && staroIme && staroIme !== podaci.naziv) {
-    for (const dijete of [...lista("jedinice"), ...lista("jedinice", "korpa"), ...lista("jedinice", "arhiva")]) {
-      if (dijete.podaci.nadredjena === staroIme) {
-        sacuvaj("jedinice", dijete.id, { ...dijete.podaci, nadredjena: podaci.naziv }, korisnik);
+    const sve = [...lista("jedinice"), ...lista("jedinice", "korpa"), ...lista("jedinice", "arhiva")];
+    const refsPrije = sve.map((z) => ({ id: z.id, naziv: z.id === noviId ? staroIme : String(z.podaci.naziv ?? "") }));
+    for (const dijete of sve) {
+      if (dijete.podaci.nadredjena === staroIme && nadredjenaId(staroIme, refsPrije) === noviId) {
+        sacuvaj("jedinice", dijete.id, { ...dijete.podaci, nadredjena: `#${noviId}` }, korisnik);
       }
     }
   }
