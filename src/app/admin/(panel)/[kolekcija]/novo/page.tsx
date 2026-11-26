@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { kolekcija } from "@/cms/kolekcije";
+import { POGLAVLJE_KOLEKCIJE } from "@/cms/uputstvo";
 import Naslov from "@/components/admin/Naslov";
 import Obrazac from "@/components/admin/Obrazac";
 import { opcijeObrasca } from "@/server/admin";
@@ -35,6 +36,7 @@ export default async function NovoPage({ params, searchParams }: PageProps<"/adm
         naslov={`Dodaj ${def.jednina}`}
         opis={POMOC[def.kljuc] ?? "Popunite polja i sačuvajte. Polja označena s „obavezno“ moraju biti popunjena."}
         nazad={{ href: `/admin/${def.kljuc}`, tekst: def.naziv }}
+        uputstvo={POGLAVLJE_KOLEKCIJE[def.kljuc]}
       />
       <Obrazac kljuc={def.kljuc} id={null} pocetno={pocetno} opcije={opcijeObrasca(def.kljuc)} nazad={`/admin/${def.kljuc}`} />
     </>

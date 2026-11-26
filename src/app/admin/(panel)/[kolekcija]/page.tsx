@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Plus } from "lucide-react";
 import { kolekcija } from "@/cms/kolekcije";
+import { POGLAVLJE_KOLEKCIJE } from "@/cms/uputstvo";
 import Naslov from "@/components/admin/Naslov";
 import ListaZapisa from "@/components/admin/ListaZapisa";
 import Obrazac from "@/components/admin/Obrazac";
@@ -27,7 +28,7 @@ export default async function KolekcijaPage({ params }: PageProps<"/admin/[kolek
     const z = lista(def.kljuc)[0];
     return (
       <>
-        <Naslov naslov={def.naziv} opis={def.opis} nazad={nazad} />
+        <Naslov naslov={def.naziv} opis={def.opis} nazad={nazad} uputstvo={POGLAVLJE_KOLEKCIJE[def.kljuc]} />
         <Obrazac kljuc={def.kljuc} id={z?.id ?? null} pocetno={z?.podaci ?? {}} naStranici={def.naStranici(z?.podaci ?? {})} nazad="/admin" verzija={z?.izmijenjeno ?? null} />
       </>
     );
@@ -42,7 +43,7 @@ export default async function KolekcijaPage({ params }: PageProps<"/admin/[kolek
 
   return (
     <>
-      <Naslov naslov={def.naziv} opis={def.opis} nazad={nazad}>
+      <Naslov naslov={def.naziv} opis={def.opis} nazad={nazad} uputstvo={POGLAVLJE_KOLEKCIJE[def.kljuc]}>
         {def.dodavanje && (
           <Link
             href={`/admin/${def.kljuc}/novo`}

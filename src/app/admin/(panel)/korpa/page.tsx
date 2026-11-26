@@ -15,6 +15,7 @@ export default async function KorpaPage() {
         naslov="Korpa"
         opis="Obrisane stavke. Ne vide se na stranici, ali ih možete vratiti jednim klikom."
         nazad={{ href: "/admin", tekst: "Početna" }}
+        uputstvo="brisanje"
       />
       <KorpaLista stavke={stavke} />
     </>

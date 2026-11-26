@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { kolekcija } from "@/cms/kolekcije";
+import { POGLAVLJE_KOLEKCIJE } from "@/cms/uputstvo";
 import Naslov from "@/components/admin/Naslov";
 import Obrazac from "@/components/admin/Obrazac";
 import { jedan } from "@/server/db";
@@ -44,6 +45,7 @@ export default async function UrediPage({ params }: PageProps<"/admin/[kolekcija
           </>
         }
         nazad={{ href: `/admin/${def.kljuc}`, tekst: def.naziv }}
+        uputstvo={POGLAVLJE_KOLEKCIJE[def.kljuc]}
       />
       <Obrazac
         kljuc={def.kljuc}

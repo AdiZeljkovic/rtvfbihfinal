@@ -17,6 +17,7 @@ export default async function ArhivaPage() {
         naslov="Arhiva"
         opis="Arhivirane stavke su sačuvane, ali se ne vide na stranici (ni njihovi dokumenti). Možete ih vratiti jednim klikom."
         nazad={{ href: "/admin", tekst: "Početna" }}
+        uputstvo="brisanje"
       />
       <KorpaLista stavke={stavke} arhiva />
       <p className="mt-8 text-lg text-muted">

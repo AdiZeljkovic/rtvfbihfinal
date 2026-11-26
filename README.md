@@ -63,6 +63,11 @@ Admin je napravljen da bude što jednostavniji i pristupačan:
   (pamti se na računaru);
 - velika dugmad (najmanje 48 px), sve radi tastaturom i s čitačem ekrana
   (oznake, opisi polja, poruke o greškama sa skokom na polje, `aria-live` obavijesti);
+- **Uputstvo za urednike** (`/admin/uputstvo`, link u meniju i „Uputstvo za ovaj dio“ na
+  svakoj rubrici): tekst je u `src/cms/uputstvo.ts`, slike u `public/uputstvo/`. Isti sadržaj
+  je i PDF (`public/uputstvo/Uputstvo-za-urednike-RTVFBiH.pdf`, stranica `/admin/uputstvo-pdf`).
+  Kad se admin promijeni, slike i PDF se prave ponovo na lokalnoj kopiji:
+  `scripts/uputstvo/slike.mjs`, pa `scripts/uputstvo/pdf.mjs` (upute na vrhu skripti);
 - na početnoj su velike kartice za najčešće radnje: *Objavi javnu nabavku*,
   *Dodaj dokument*, *Objavi obavijest ili konkurs*, *Uredi emisije*;
 - dokument se doda klikom ili prevlačenjem, uz traku napretka, a **naziv se upiše sam**

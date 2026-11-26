@@ -13,7 +13,7 @@ export default async function KorisniciPage() {
 
   return (
     <>
-      <Naslov naslov="Urednici i lozinka" nazad={{ href: "/admin", tekst: "Početna" }} />
+      <Naslov naslov="Urednici i lozinka" nazad={{ href: "/admin", tekst: "Početna" }} uputstvo="urednici" />
       <div className="grid gap-6 lg:grid-cols-2">
         <section className={kartica} aria-labelledby="lozinka">
           <h2 id="lozinka" className="font-display text-2xl font-bold text-navy">

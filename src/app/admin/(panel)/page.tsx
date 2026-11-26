@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, FilePlus, Gavel, Megaphone, Tv } from "lucide-react";
+import { ArrowRight, BookOpen, FilePlus, Gavel, Megaphone, Tv } from "lucide-react";
 import { KOLEKCIJE, kolekcija, type Kolekcija } from "@/cms/kolekcije";
 import { IKONE } from "@/components/admin/ikone";
 import { brojPoKolekcijama, nedavnePromjene } from "@/server/db";
@@ -27,6 +27,7 @@ const AKCIJE: Record<string, string> = {
   vraćeno: "vraćeno iz korpe",
   arhivirano: "arhivirano",
   "vraćeno iz arhive": "vraćeno iz arhive",
+  "trajno obrisano": "obrisano zauvijek",
 };
 
 function pozdrav() {
@@ -80,6 +81,21 @@ export default async function AdminPocetna() {
         })}
       </ul>
 
+      {/* uputstvo */}
+      <Link
+        href="/admin/uputstvo"
+        className="admin-kartica group mt-4 flex items-center gap-5 rounded-[1.75rem] border-2 border-sky bg-sky-mist p-5 transition-colors hover:border-brand sm:px-7"
+      >
+        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-brand-strong">
+          <BookOpen className="h-7 w-7" aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-display text-xl font-bold text-navy">Uputstvo za urednike</span>
+          <span className="block text-lg text-muted">Sve funkcije admina korak po korak, na slikama. Može se preuzeti i kao PDF.</span>
+        </span>
+        <ArrowRight className="h-7 w-7 shrink-0 text-navy transition-transform group-hover:translate-x-1" aria-hidden="true" />
+      </Link>
+
       {/* sve rubrike */}
       {GRUPE.map((g) => (
         <section key={g.naslov} className="mt-12" aria-labelledby={`g-${g.kljuc[0]}`}>
@@ -120,7 +136,7 @@ export default async function AdminPocetna() {
           <ul className="admin-kartica mt-4 divide-y divide-line overflow-hidden rounded-3xl border border-line bg-white shadow-[var(--shadow-card)]">
             {promjene.map((p) => {
               const def = kolekcija(p.kolekcija);
-              const postoji = p.akcija !== "u korpu" && p.zapis_id;
+              const postoji = p.akcija !== "u korpu" && p.akcija !== "trajno obrisano" && p.zapis_id;
               return (
                 <li key={p.id} className="flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-center sm:gap-4">
                   <span className="min-w-0 flex-1">

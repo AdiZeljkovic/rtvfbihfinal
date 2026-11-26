@@ -3,7 +3,8 @@ import { site } from "@/content/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/" },
+    // admin i slike/PDF uputstva za urednike nisu za pretraživače
+    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/uputstvo/"] },
     sitemap: `${site.url}/sitemap.xml`,
   };
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Archive, ExternalLink, House, LogOut, Trash2, Users } from "lucide-react";
+import { Archive, BookOpen, ExternalLink, House, LogOut, Trash2, Users } from "lucide-react";
 import { LogoMark } from "@/components/Logo";
 import Pristupacnost from "@/components/admin/Pristupacnost";
 import { obaveznaPrijava } from "@/server/auth";
@@ -44,6 +44,9 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             <a href="/" target="_blank" rel="noopener" className={veza}>
               <ExternalLink className="h-5 w-5" aria-hidden="true" /> Pogledaj stranicu
             </a>
+            <Link href="/admin/uputstvo" className={veza}>
+              <BookOpen className="h-5 w-5" aria-hidden="true" /> Uputstvo
+            </Link>
             <form action={odjavaAkcija} className="ml-auto flex items-center gap-2">
               <span className="hidden px-2 text-white/65 md:inline">{k.ime}</span>
               <button type="submit" className={veza}>
