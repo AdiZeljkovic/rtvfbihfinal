@@ -52,9 +52,13 @@ export default async function UputstvoPdfPage() {
 
       <section className="sadrzaj pt-4">
         <h2 className="font-display text-4xl font-bold text-navy">Sadržaj</h2>
-        <ol className="mt-6 divide-y divide-line border-y border-line">
+        <p className="mt-3 text-lg leading-relaxed text-muted">
+          Na slikama su narandžasti krugovi s brojevima. Ispod svake slike piše šta koji broj označava. Natpisi dugmadi su u tekstu
+          podebljani, tačno kako pišu na ekranu.
+        </p>
+        <ol className="mt-5 divide-y divide-line border-y border-line">
           {UPUTSTVO.map((p, i) => (
-            <li key={p.id} className="flex items-baseline gap-4 py-1.5">
+            <li key={p.id} className="flex items-baseline gap-4 py-1">
               <span className="w-8 shrink-0 font-display text-xl font-bold text-brand-strong">{i + 1}</span>
               <span>
                 <span className="block font-display text-lg font-semibold leading-snug text-navy">{p.naslov}</span>
@@ -63,10 +67,6 @@ export default async function UputstvoPdfPage() {
             </li>
           ))}
         </ol>
-        <p className="mt-6 text-lg leading-relaxed text-muted">
-          Na slikama su narandžasti krugovi s brojevima. Ispod svake slike piše šta koji broj označava. Natpisi dugmadi su u tekstu
-          podebljani, tačno kako pišu na ekranu.
-        </p>
       </section>
 
       <UputstvoSadrzaj stampa />
